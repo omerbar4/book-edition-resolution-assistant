@@ -13,6 +13,7 @@ from bera import __version__
 from bera.catalog import Catalog
 from bera.config import REPO_ROOT, Settings
 from bera.llm.mock import MockProvider
+from bera.llm.openai_compat import OpenAICompatProvider
 from bera.llm.provider import LLMProvider
 from bera.models import FeedbackIn, Query, ResolveResponse
 from bera.policy import POLICY_VERSION
@@ -29,6 +30,10 @@ CSP = (
 def build_provider(settings: Settings) -> LLMProvider | None:
     if settings.llm_provider == "mock":
         return MockProvider(mode=settings.mock_mode)
+    if settings.llm_provider == "openai_compat":
+        if not settings.llm_model:
+            raise RuntimeError("BERA_LLM_MODEL is required for openai_compat")
+        return OpenAICompatProvider(settings.llm_base_url, settings.llm_model)
     return None
 
 
