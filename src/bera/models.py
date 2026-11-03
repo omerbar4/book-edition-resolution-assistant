@@ -55,6 +55,9 @@ class Edition(BaseModel):
     translation_of: str | None = None
     source: str  # e.g. "synthetic-fixture-v1" or "openlibrary-dump-2026-10-31"
     synthetic: bool
+    # Where derived values came from, e.g. {"authors": "edition_keys", "publish_year":
+    # "year_only"}. Missing values are never imputed; this records how each was obtained.
+    field_provenance: dict[str, str] = Field(default_factory=dict)
 
 
 class Query(BaseModel):
