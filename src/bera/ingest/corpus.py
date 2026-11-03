@@ -30,6 +30,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from rapidfuzz import fuzz
+
 from bera import isbn as isbnlib
 from bera.features import content_kind, parse_format
 from bera.ingest.dumps import (
@@ -43,7 +45,7 @@ from bera.ingest.dumps import (
     map_edition,
 )
 from bera.models import Edition, PhysicalFormat
-from bera.text import norm_person, norm_text
+from bera.text import fold_title, norm_person, norm_text, strip_accents
 
 _REVISED_RE = re.compile(
     r"\b(revised|rev|expanded|updated|anniversary|(?:[2-9]|1\d)(?:nd|rd|th)|second|third|fourth)\b"
@@ -107,7 +109,106 @@ def _edition_title(d: dict[str, Any]) -> str:
     prefix: str = raw_prefix if isinstance(raw_prefix, str) else ""
     if prefix and not title.lower().startswith(prefix.lower()):
         title = f"{prefix} {title}"
-    return norm_text(title)
+    return title
+
+
+# ---- exclusion rules -----------------------------------------------------------------------
+TITLE_FUZZY_RATIO = 92.0
+
+
+@dataclass
+class Probe:
+    title: str
+    author: str
+    author_keys: frozenset[str]
+    ftitle: str
+    surname: str
+
+
+@dataclass
+class ExclusionRules:
+    """Out-of-corpus probes. A work or edition is excluded if ANY of these hold:
+
+    R1  it is credited (edition author keys, after redirects) to any OL author key listed for
+        a probe author; all duplicate/unmerged author records are listed, so translations,
+        omnibus volumes and re-titled editions by that author are excluded too
+    R2  its folded title (accents, leading articles, punctuation removed) equals a probe's
+        folded title, contains it as a whole phrase, or has rapidfuzz ratio >= 92 to it
+    R3  its folded `translation_of` matches a probe title under R2
+    R4  it has no author keys, its by_statement mentions the probe author's surname, and its
+        title matches under R2
+    R5  it carries an ISBN listed for a probe
+    Study guides about a probe are caught by R2's phrase containment.
+    """
+
+    probes: list[Probe]
+    isbns: set[str]
+
+    @classmethod
+    def load(cls, rows: list[dict[str, Any]]) -> ExclusionRules:
+        probes = []
+        for r in rows:
+            if r.get("title"):
+                author = str(r.get("author") or "")
+                probes.append(
+                    Probe(
+                        title=str(r["title"]),
+                        author=author,
+                        author_keys=frozenset(
+                            f"/authors/{k}" if not str(k).startswith("/") else k
+                            for k in r.get("author_keys", [])
+                        ),
+                        ftitle=fold_title(str(r["title"])),
+                        surname=strip_accents(norm_text(author)).split()[-1] if author else "",
+                    )
+                )
+        isbns = {
+            p.isbn13
+            for p in (isbnlib.parse(str(r["isbn"])) for r in rows if r.get("isbn"))
+            if p.valid and p.isbn13
+        }
+        return cls(probes, isbns)
+
+    @property
+    def author_keys(self) -> frozenset[str]:
+        return frozenset(k for p in self.probes for k in p.author_keys)
+
+    def title_hit(self, ftitle: str) -> Probe | None:
+        if not ftitle:
+            return None
+        padded = f" {ftitle} "
+        for p in self.probes:
+            if (
+                ftitle == p.ftitle
+                or f" {p.ftitle} " in padded
+                or fuzz.ratio(ftitle, p.ftitle) >= TITLE_FUZZY_RATIO
+            ):
+                return p
+        return None
+
+    def edition_reason(
+        self,
+        *,
+        author_keys: set[str],
+        ftitle: str,
+        ftrans: str,
+        by_statement: str,
+        isbn13s: set[str],
+    ) -> str | None:
+        if author_keys & self.author_keys:
+            return "R1_author_key"
+        if self.title_hit(ftitle):
+            return "R2_title"
+        if ftrans and self.title_hit(ftrans):
+            return "R3_translation_of"
+        if not author_keys and by_statement:
+            low = strip_accents(by_statement.casefold())
+            for p in self.probes:
+                if p.surname and p.surname in low and self.title_hit(ftitle):
+                    return "R4_by_statement"
+        if isbn13s & self.isbns:
+            return "R5_isbn"
+        return None
 
 
 # ---- pass 1 --------------------------------------------------------------------------------
@@ -117,7 +218,8 @@ def pass1_stats(
     scratch.executescript("""
         DROP TABLE IF EXISTS ed;
         CREATE TABLE ed (work TEXT, has_isbn INT, fmt TEXT, eng INT, other_lang INT,
-                         translated INT, revised INT, kind TEXT, ntitle TEXT);
+                         translated INT, revised INT, kind TEXT, ntitle TEXT, ftitle TEXT,
+                         ftrans TEXT, authors TEXT, bystmt TEXT, isbns TEXT);
     """)
     batch: list[tuple[Any, ...]] = []
     for row in iter_dump(editions, stats):
@@ -127,8 +229,10 @@ def pass1_stats(
         work = edition_work_key(d, redirects)
         if work is None:
             continue
-        raw_isbns = [*d.get("isbn_10", []), *d.get("isbn_13", [])]
-        has_isbn = any(isbnlib.parse(x).valid for x in raw_isbns if isinstance(x, str))
+        raw_isbns = [
+            x for x in [*d.get("isbn_10", []), *d.get("isbn_13", [])] if isinstance(x, str)
+        ]
+        valid13 = sorted({p.isbn13 for p in map(isbnlib.parse, raw_isbns) if p.valid and p.isbn13})
         fmt_raw = d.get("physical_format")
         fmt = parse_format(fmt_raw) if isinstance(fmt_raw, str) else PhysicalFormat.UNKNOWN
         langs = {
@@ -136,14 +240,18 @@ def pass1_stats(
             for lk in d.get("languages", [])
             if isinstance(lk, dict)
         }
-        translated = bool(d.get("translation_of") or d.get("translated_from"))
+        trans = d.get("translation_of") if isinstance(d.get("translation_of"), str) else ""
+        translated = bool(trans or d.get("translated_from"))
         ed_name = d.get("edition_name") if isinstance(d.get("edition_name"), str) else ""
-        title = _edition_title(d)
+        raw_title = _edition_title(d)
+        title = norm_text(raw_title)
         subtitle = d.get("subtitle") if isinstance(d.get("subtitle"), str) else ""
+        raw_by = d.get("by_statement")
+        by: str = raw_by if isinstance(raw_by, str) else ""
         batch.append(
             (
                 work,
-                int(has_isbn),
+                int(bool(valid13)),
                 fmt.value,
                 int("eng" in langs),
                 int(bool(langs - {"eng"})),
@@ -151,28 +259,62 @@ def pass1_stats(
                 int(bool(_REVISED_RE.search(norm_text(ed_name)))),
                 content_kind(f"{title} {subtitle}"),
                 title,
+                fold_title(raw_title),
+                fold_title(trans),
+                " ".join(edition_author_keys(d, redirects)),
+                by[:200],
+                " ".join(valid13),
             )
         )
         if len(batch) >= 10_000:
-            scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?)", batch)
+            scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", batch)
             batch.clear()
-    scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?)", batch)
+    scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", batch)
     scratch.executescript("""
+        CREATE INDEX ed_work ON ed(work);
         DROP TABLE IF EXISTS works;
         CREATE TABLE works AS
         WITH titles AS (
-            SELECT work, ntitle, COUNT(*) c,
+            SELECT work, ntitle, ftitle, COUNT(*) c,
                    ROW_NUMBER() OVER (PARTITION BY work ORDER BY COUNT(*) DESC, ntitle) rn
-            FROM ed WHERE ntitle != '' GROUP BY work, ntitle
+            FROM ed WHERE ntitle != '' GROUP BY work, ntitle, ftitle
         )
         SELECT e.work, COUNT(*) n, SUM(has_isbn) n_isbn,
                COUNT(DISTINCT CASE WHEN fmt NOT IN ('unknown','other') THEN fmt END) n_fmt,
                MAX(eng) eng, MAX(other_lang) other_lang, MAX(translated) translated,
                MAX(revised) revised, MAX(kind = 'study_guide') guide, MAX(kind = 'box_set') boxset,
-               (SELECT ntitle FROM titles t WHERE t.work = e.work AND rn = 1) title
+               (SELECT ntitle FROM titles t WHERE t.work = e.work AND rn = 1) title,
+               (SELECT ftitle FROM titles t WHERE t.work = e.work AND rn = 1) ftitle
         FROM ed e GROUP BY e.work;
         CREATE INDEX works_title ON works(title);
+        CREATE INDEX works_ftitle ON works(ftitle);
     """)
+
+
+def excluded_works(scratch: sqlite3.Connection, rules: ExclusionRules) -> dict[str, str]:
+    """work -> first rule that excludes it. Scans every edition of every work (not just the
+    dominant title), so a work cannot re-enter through a variant edition."""
+    out: dict[str, str] = {}
+    keys = rules.author_keys
+    for work, authors, ftitle, ftrans, by, isbns in scratch.execute(
+        "SELECT work, authors, ftitle, ftrans, bystmt, isbns FROM ed"
+    ):
+        if work in out:
+            continue
+        akeys = set(authors.split()) if authors else set()
+        if keys and akeys & keys:
+            out[work] = "R1_author_key"
+            continue
+        reason = rules.edition_reason(
+            author_keys=akeys,
+            ftitle=ftitle or "",
+            ftrans=ftrans or "",
+            by_statement=by or "",
+            isbn13s=set(isbns.split()) if isbns else set(),
+        )
+        if reason:
+            out[work] = reason
+    return out
 
 
 # ---- selection -----------------------------------------------------------------------------
@@ -184,55 +326,76 @@ def _sample(rng: random.Random, keys: Iterable[str], k: int, taken: set[str]) ->
     return picked
 
 
+@dataclass
+class Seed:
+    title: str
+    ftitle: str
+    author_keys: frozenset[str]
+
+
+def load_seeds(rows: list[dict[str, Any]]) -> list[Seed]:
+    return [
+        Seed(
+            str(r["title"]),
+            fold_title(str(r["title"])),
+            frozenset(
+                f"/authors/{k}" if not str(k).startswith("/") else k
+                for k in r.get("author_keys", [])
+            ),
+        )
+        for r in rows
+        if r.get("title")
+    ]
+
+
 def select_works(
     scratch: sqlite3.Connection,
     seed: int,
     q: Quotas,
-    human_titles: list[str],
-    excluded_titles: set[str],
+    seeds: list[Seed],
+    excluded: dict[str, str],
     manifest: Manifest,
-) -> set[str]:
+) -> dict[str, str]:
+    """Return work -> stratum. Every stratum (including S4 and S6) skips excluded works."""
     rng = random.Random(seed)  # noqa: S311 - reproducible sampling, not security
 
     def keys(sql: str, params: tuple[Any, ...] = ()) -> list[str]:
-        rows = scratch.execute(sql, params).fetchall()
-        return [r[0] for r in rows if (r[1] or "") not in excluded_titles]
+        return [r[0] for r in scratch.execute(sql, params) if r[0] not in excluded]
+
+    def credited(work: str, akeys: frozenset[str]) -> bool:
+        for (authors,) in scratch.execute("SELECT authors FROM ed WHERE work = ?", (work,)):
+            if authors and set(authors.split()) & akeys:
+                return True
+        return False
 
     taken: set[str] = set()
-    strata: dict[str, list[str]] = {}
-    strata["H"] = []
-    for title in human_titles:
-        # All works with this exact normalized title, largest first (ties by key); keep the
-        # top h_max_works_per_title so famous titles cannot flood the corpus.
-        matches = keys(
-            "SELECT work, title FROM works WHERE title = ? ORDER BY n DESC, work", (title,)
-        )
-        manifest.human_seed_matches[title] = len(matches)
+    strata: dict[str, list[str]] = {"H": []}
+    for s in seeds:
+        matches = keys("SELECT work FROM works WHERE ftitle = ? ORDER BY n DESC, work", (s.ftitle,))
+        if s.author_keys:  # author-constrained when keys are known
+            matches = [w for w in matches if credited(w, s.author_keys)]
+        manifest.human_seed_matches[s.title] = len(matches)
         chosen = [m for m in matches if m not in taken][: q.h_max_works_per_title]
         strata["H"] += chosen
         taken.update(chosen)
     strata["S1"] = _sample(
-        rng,
-        keys("SELECT work, title FROM works WHERE n_isbn >= 8 AND n_fmt >= 2"),
-        q.s1_confusable,
-        taken,
+        rng, keys("SELECT work FROM works WHERE n_isbn >= 8 AND n_fmt >= 2"), q.s1_confusable, taken
     )
     strata["S2"] = _sample(
         rng,
-        keys("SELECT work, title FROM works WHERE eng = 1 AND (other_lang = 1 OR translated = 1)"),
+        keys("SELECT work FROM works WHERE eng = 1 AND (other_lang = 1 OR translated = 1)"),
         q.s2_translated,
         taken,
     )
     strata["S3"] = _sample(
-        rng, keys("SELECT work, title FROM works WHERE revised = 1"), q.s3_revised, taken
+        rng, keys("SELECT work FROM works WHERE revised = 1"), q.s3_revised, taken
     )
-
     core = strata["H"] + strata["S1"] + strata["S2"] + strata["S3"]
     core_titles = (
         {
             r[0]
             for r in scratch.execute(
-                f"SELECT title FROM works WHERE work IN ({','.join('?' * len(core))})",  # noqa: S608
+                f"SELECT ftitle FROM works WHERE work IN ({','.join('?' * len(core))})",  # noqa: S608
                 core,
             )
             if r[0]
@@ -241,27 +404,103 @@ def select_works(
         else set()
     )
     guides = [
-        (w, t)
-        for w, t in scratch.execute("SELECT work, title FROM works WHERE guide = 1 ORDER BY work")
-        if _GUIDE_PREFIX_RE.sub("", t or "").strip() in core_titles
+        w
+        for w, t in scratch.execute("SELECT work, ftitle FROM works WHERE guide = 1 ORDER BY work")
+        if w not in excluded and fold_title(_GUIDE_PREFIX_RE.sub("", t or "")) in core_titles
     ]
-    strata["S4"] = _sample(rng, [w for w, _ in guides], q.s4_companion_max, taken)
+    strata["S4"] = _sample(rng, guides, q.s4_companion_max, taken)
     strata["S5"] = _sample(
-        rng,
-        keys("SELECT work, title FROM works WHERE boxset = 1 AND n_isbn >= 1"),
-        q.s5_box_set,
-        taken,
+        rng, keys("SELECT work FROM works WHERE boxset = 1 AND n_isbn >= 1"), q.s5_box_set, taken
     )
     same: list[str] = []
     for t in sorted(core_titles):
-        same += [w for (w,) in scratch.execute("SELECT work FROM works WHERE title = ?", (t,))]
+        same += keys("SELECT work FROM works WHERE ftitle = ?", (t,))
     strata["S6"] = _sample(rng, same, q.s6_same_title_max, taken)
     strata["S7"] = _sample(
-        rng, keys("SELECT work, title FROM works WHERE eng = 1 AND n_isbn >= 1"), q.s7_random, taken
+        rng, keys("SELECT work FROM works WHERE eng = 1 AND n_isbn >= 1"), q.s7_random, taken
     )
 
     manifest.strata = {k: len(v) for k, v in strata.items()}
-    return set(taken)
+    return {w: k for k, ws in strata.items() for w in ws}
+
+
+def write_preview(
+    scratch: sqlite3.Connection,
+    selected: dict[str, str],
+    excluded: dict[str, str],
+    path: Path,
+    cap: int,
+) -> dict[str, Any]:
+    rows = []
+    for work, stratum in sorted(selected.items(), key=lambda kv: (kv[1], kv[0])):
+        r = scratch.execute(
+            "SELECT title, n, n_isbn, n_fmt, eng, other_lang, translated, revised, guide, boxset "
+            "FROM works WHERE work = ?",
+            (work,),
+        ).fetchone()
+        rows.append(
+            {
+                "stratum": stratum,
+                "work": work.rsplit("/", 1)[-1],
+                "title": r[0],
+                "editions": r[1],
+                "editions_kept_max": min(r[1], cap),
+                "valid_isbn": r[2],
+                "formats": r[3],
+                "eng": r[4],
+                "other_lang": r[5],
+                "translated": r[6],
+                "revised": r[7],
+                "guide": r[8],
+                "box_set": r[9],
+            }
+        )
+    excl_rows = []
+    for work, reason in sorted(excluded.items()):
+        t = scratch.execute("SELECT title, n FROM works WHERE work = ?", (work,)).fetchone()
+        excl_rows.append(
+            {
+                "work": work.rsplit("/", 1)[-1],
+                "rule": reason,
+                "title": t[0] if t else None,
+                "editions": t[1] if t else None,
+            }
+        )
+    preview = {
+        "selected_works": len(rows),
+        "expected_editions_upper_bound": sum(r["editions_kept_max"] for r in rows),
+        "selected": rows,
+        "excluded_works": excl_rows,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(preview, indent=1, ensure_ascii=False))
+    return preview
+
+
+def audit_corpus(editions: list[Edition], rules: ExclusionRules) -> list[dict[str, str]]:
+    """Looser independent scan for anything resembling a probe (for manual review)."""
+    hits = []
+    for e in editions:
+        texts = [e.title, e.subtitle or "", e.translation_of or ""]
+        authors = {strip_accents(norm_person(a)) for a in e.authors}
+        for p in rules.probes:
+            pa = strip_accents(norm_person(p.author))
+            title_like = any(
+                fuzz.partial_ratio(p.ftitle, fold_title(t)) >= 90
+                for t in texts
+                if t and len(fold_title(t)) >= 4
+            )
+            if title_like or (pa and pa in authors):
+                hits.append(
+                    {
+                        "edition_id": e.edition_id,
+                        "title": e.title,
+                        "authors": "; ".join(e.authors),
+                        "probe": p.title,
+                        "signal": "title" if title_like else "author_name",
+                    }
+                )
+    return hits
 
 
 # ---- pass 2 + write ------------------------------------------------------------------------
@@ -273,6 +512,7 @@ def build_corpus(
     source_label: str,
     quotas: Quotas | None = None,
     scratch_path: Path | None = None,
+    preview_only: bool = False,
 ) -> Manifest:
     q = quotas or Quotas()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -288,19 +528,39 @@ def build_corpus(
             manifest.inputs[name] = {"file": path.name, **file_digests(path)}
 
     redirects = Redirects.from_dump(inputs.redirects, ("/works/", "/authors/", "/books/"))
-    human = [norm_text(r.get("title")) for r in _load_jsonl(inputs.human_seeds) if r.get("title")]
-    excl = _load_jsonl(inputs.exclusions)
-    excl_isbns = {
-        p.isbn13 for p in (isbnlib.parse(str(r["isbn"])) for r in excl if r.get("isbn")) if p.valid
-    }
-    excl_titles = {norm_text(r["title"]) for r in excl if r.get("title")}
+    seeds = load_seeds(_load_jsonl(inputs.human_seeds))
+    rules = ExclusionRules.load(_load_jsonl(inputs.exclusions))
 
     scratch = sqlite3.connect(scratch_path or ":memory:")
     s1 = ReadStats()
     pass1_stats(inputs.editions, redirects, scratch, s1)
     manifest.read_stats["editions_pass1"] = asdict(s1)
-    selected = select_works(scratch, seed, q, human, excl_titles, manifest)
+    excluded = excluded_works(scratch, rules)
+    selected = select_works(scratch, seed, q, seeds, excluded, manifest)
     manifest.selected_works = len(selected)
+    manifest.exclusion_check = {
+        "excluded_works": len(excluded),
+        "excluded_by_rule": dict(
+            sorted(
+                {
+                    r: sum(1 for v in excluded.values() if v == r) for r in set(excluded.values())
+                }.items()
+            )
+        ),
+    }
+    if preview_only:
+        preview = write_preview(
+            scratch, selected, excluded, out_dir / "selection_preview.json", q.max_editions_per_work
+        )
+        manifest.output = {
+            "preview": "selection_preview.json",
+            "expected_editions_upper_bound": preview["expected_editions_upper_bound"],
+        }
+        scratch.close()
+        (out_dir / "manifest.json").write_text(
+            json.dumps(asdict(manifest), indent=2, sort_keys=True)
+        )
+        return manifest
     scratch.close()
 
     # pass 2: collect raw rows of selected works
@@ -311,11 +571,7 @@ def build_corpus(
         if row.type != "/type/edition":
             continue
         work = edition_work_key(row.data, redirects)
-        if work not in selected:
-            continue
-        raw = [*row.data.get("isbn_10", []), *row.data.get("isbn_13", [])]
-        if any(isbnlib.parse(x).isbn13 in excl_isbns for x in raw if isinstance(x, str)):
-            dropped["excluded_isbn"] = dropped.get("excluded_isbn", 0) + 1
+        if work is None or work not in selected:
             continue
         kept.setdefault(work, []).append(row)
     manifest.read_stats["editions_pass2"] = asdict(s2)
@@ -352,17 +608,21 @@ def build_corpus(
             if isinstance(author_name, str) and author_name.strip():
                 names[row.key] = author_name.strip()
 
-    excl_pairs = {
-        (norm_text(r["title"]), norm_person(r.get("author") or "")) for r in excl if r.get("title")
-    }
-
-    def excluded(e: Edition) -> bool:
-        if {isbnlib.parse(x).isbn13 for x in (*e.isbn_10, *e.isbn_13)} & excl_isbns:
-            return True
-        authors = {norm_person(x) for x in e.authors}
-        return any(norm_text(e.title) == t and (not a or a in authors) for t, a in excl_pairs)
+    def reason_for(r: DumpRow, e: Edition) -> str | None:
+        return rules.edition_reason(
+            author_keys=set(edition_author_keys(r.data, redirects)),
+            ftitle=fold_title(e.title),
+            ftrans=fold_title(e.translation_of),
+            by_statement=str(r.data.get("by_statement") or ""),
+            isbn13s={
+                p.isbn13
+                for p in map(isbnlib.parse, (*e.isbn_10, *e.isbn_13))
+                if p.valid and p.isbn13
+            },
+        )
 
     editions = []
+    raw_by_id: dict[str, DumpRow] = {}
     for rows in kept.values():
         for r in rows:
             e = map_edition(
@@ -374,16 +634,21 @@ def build_corpus(
             )
             if e is None:
                 dropped["no_title_no_isbn"] = dropped.get("no_title_no_isbn", 0) + 1
-            elif excluded(e):
-                dropped["excluded_title_author"] = dropped.get("excluded_title_author", 0) + 1
-            else:
-                editions.append(e)
+                continue
+            reason = reason_for(r, e)
+            if reason:
+                dropped[f"excluded_{reason}"] = dropped.get(f"excluded_{reason}", 0) + 1
+                continue
+            editions.append(e)
+            raw_by_id[e.edition_id] = r
     editions.sort(key=lambda e: e.edition_id)
     manifest.dropped = dict(sorted(dropped.items()))
 
-    # Independent re-check: out-of-corpus cases must really be absent from the output.
-    violations = sorted(e.edition_id for e in editions if excluded(e))
-    manifest.exclusion_check = {"exclusions": len(excl), "violations": violations}
+    # Independent re-checks: strict rules must find nothing; the loose audit lists anything
+    # that merely resembles a probe, for human review.
+    violations = sorted(e.edition_id for e in editions if reason_for(raw_by_id[e.edition_id], e))
+    manifest.exclusion_check["violations"] = violations
+    manifest.exclusion_check["audit_hits_for_review"] = audit_corpus(editions, rules)
 
     corpus = out_dir / "corpus.jsonl"
     with corpus.open("w", encoding="utf-8") as fh:
@@ -408,6 +673,11 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument("--source-label", required=True)
     p.add_argument("--scratch", type=Path, help="on-disk scratch DB for large dumps")
     p.add_argument("--config", type=Path, help="selection_config_vN.json (quotas)")
+    p.add_argument(
+        "--preview-only",
+        action="store_true",
+        help="stop after selection; write selection_preview.json, no corpus",
+    )
     a = p.parse_args(argv)
     quotas = Quotas(**json.loads(a.config.read_text())["quotas"]) if a.config else None
     m = build_corpus(
@@ -417,13 +687,16 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         source_label=a.source_label,
         quotas=quotas,
         scratch_path=a.scratch,
+        preview_only=a.preview_only,
     )
     print(
         json.dumps(
             {
                 "editions": m.editions_written,
                 "strata": m.strata,
-                "violations": m.exclusion_check["violations"],
+                "exclusion_check": {
+                    k: v for k, v in m.exclusion_check.items() if k != "audit_hits_for_review"
+                },
             }
         )
     )

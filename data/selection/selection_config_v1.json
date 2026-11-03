@@ -1,8 +1,12 @@
 {
   "version": "v1",
-  "status": "proposed: frozen for corpus v1 build; pending owner review",
+  "status": "SUPERSEDED before any build (v1 exclusion rules had leak paths; see SELECTION_PROCEDURE.md). Never built.",
   "dump_date": "2026-10-31",
-  "dump_files": ["editions", "authors", "redirects"],
+  "dump_files": [
+    "editions",
+    "authors",
+    "redirects"
+  ],
   "seed": 20261103,
   "split_seed": 20261103,
   "dev_fraction": 0.6,

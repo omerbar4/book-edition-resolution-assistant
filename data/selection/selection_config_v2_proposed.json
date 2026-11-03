@@ -1,0 +1,29 @@
+{
+  "version": "v2-proposed",
+  "status": "PROPOSED. Not approved by the owner. Do not build a corpus from this until approval is recorded.",
+  "dump_date": "2026-10-31",
+  "dump_files": [
+    "editions",
+    "authors",
+    "redirects"
+  ],
+  "seed": 20261103,
+  "split_seed": 20261103,
+  "dev_fraction": 0.6,
+  "quotas": {
+    "h_max_works_per_title": 3,
+    "s1_confusable": 60,
+    "s2_translated": 30,
+    "s3_revised": 30,
+    "s4_companion_max": 40,
+    "s5_box_set": 15,
+    "s6_same_title_max": 40,
+    "s7_random": 60,
+    "max_editions_per_work": 60
+  },
+  "seed_list": "data/selection/seed_list_v2_proposed.jsonl",
+  "exclusions": "data/selection/exclusions_v2_proposed.jsonl",
+  "exclusion_rules": "R1-R5 (bera.ingest.corpus.ExclusionRules)",
+  "title_fuzzy_ratio": 92,
+  "author_keys_source": "exact normalized name match on name/personal_name/alternate_names in ol_dump_authors_2026-10-31; all duplicate records included"
+}

@@ -130,3 +130,18 @@ def norm_person(name: str | None) -> str:
         last, _, first = n.partition(",")
         n = f"{first} {last}"
     return strip_accents(norm_text(n))
+
+
+_LEADING_ARTICLES = frozenset(
+    "the a an le la les l el los las il lo gli der die das ein eine un une".split()
+)
+
+
+def fold_title(text: str | None) -> str:
+    """Title key for matching across variants: norm_text + accent folding + leading-article
+    removal. Used for selection/exclusion matching, never for display."""
+    t = strip_accents(norm_text(text))
+    words = t.split()
+    while len(words) > 1 and words[0] in _LEADING_ARTICLES:
+        words = words[1:]
+    return " ".join(words)
