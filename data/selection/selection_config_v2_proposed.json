@@ -1,6 +1,6 @@
 {
   "version": "v2-proposed",
-  "status": "PROPOSED. Not approved by the owner. Do not build a corpus from this until approval is recorded.",
+  "status": "SUPERSEDED by v3-proposed (same titles/probes; adds families, diversity sampling, probe audit). Never built.",
   "dump_date": "2026-10-31",
   "dump_files": [
     "editions",

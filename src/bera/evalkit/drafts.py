@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import random
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, Literal
 
@@ -63,17 +63,28 @@ def draft_batch(
     n_in_corpus: int,
     n_probes: int,
     prefix: str,
+    family_of: Mapping[str, str] | None = None,
+    probe_status: Mapping[str, str] | None = None,
 ) -> list[Draft]:
+    """family_of maps work ids to conservative work families (families.json); split
+    assignment uses the family, so aliases/translations never straddle dev and held-out.
+    Probe drafts are produced ONLY for probes whose frozen-corpus audit status is
+    'verified_absent'; quarantined or unaudited probes get no abstention draft."""
+
+    def fam(e: Edition) -> str:
+        wid = e.work_id or e.edition_id
+        return (family_of or {}).get(wid, wid)
+
     rng = random.Random(seed)  # noqa: S311 - reproducible drafting, not security
     pool = sorted(
-        (e for e in catalog if e.work_id and family_split(e.work_id, split_seed) == split),
+        (e for e in catalog if e.work_id and family_split(fam(e), split_seed) == split),
         key=lambda e: e.edition_id,
     )
     picked = sorted(rng.sample(pool, min(n_in_corpus, len(pool))), key=lambda e: e.edition_id)
     out: list[Draft] = []
     for i, e in enumerate(picked):
         name, ops = TEMPLATES[i % len(TEMPLATES)]
-        case = make_case(e, ops, rng.randrange(2**31), catalog, e.work_id or e.edition_id, "tmp")
+        case = make_case(e, ops, rng.randrange(2**31), catalog, fam(e), "tmp")
         out.append(
             Draft(
                 draft_id=f"{prefix}-{i + 1:03d}",
@@ -89,13 +100,24 @@ def draft_batch(
                 ),
             )
         )
-    probe_pool = [p for p in probes if family_split(f"probe:{p['title']}", split_seed) == split]
+
+    def probe_family(p: Mapping[str, Any]) -> str:
+        keys = sorted(p.get("author_keys") or [])
+        return f"probe-author:{keys[0]}" if keys else f"probe:{p['title']}"
+
+    status = probe_status or {}
+    probe_pool = [
+        p
+        for p in probes
+        if status.get(p["title"]) == "verified_absent"
+        and family_split(probe_family(p), split_seed) == split
+    ]
     for j, p in enumerate(sorted(probe_pool, key=lambda p: p["title"])[:n_probes]):
         out.append(
             Draft(
                 draft_id=f"{prefix}-p{j + 1:02d}",
                 split=split,
-                family=f"probe:{p['title']}",
+                family=probe_family(p),
                 query=Query(title=p["title"], author=p.get("author")),
                 template="out_of_corpus_probe",
                 proposed=Proposed(
@@ -133,7 +155,15 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument("--n-probes", type=int, default=4)
     p.add_argument("--prefix", required=True)
     p.add_argument("--out", type=Path, required=True)
+    p.add_argument("--families", type=Path, help="families.json from the corpus build")
+    p.add_argument("--probe-audit", type=Path, help="probe_audit.json from the corpus build")
     a = p.parse_args(argv)
+    family_of = json.loads(a.families.read_text()) if a.families else None
+    probe_status = (
+        {k: v["status"] for k, v in json.loads(a.probe_audit.read_text()).items()}
+        if a.probe_audit
+        else None
+    )
     cat = Catalog(a.db)
     with cat.connect() as con:
         ids = [r[0] for r in con.execute("SELECT edition_id FROM editions")]
@@ -147,6 +177,8 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         n_in_corpus=a.n,
         n_probes=a.n_probes,
         prefix=a.prefix,
+        family_of=family_of,
+        probe_status=probe_status,
     )
     save_drafts(a.out, drafts)
     print(f"wrote {len(drafts)} {a.split} drafts to {a.out}")

@@ -34,6 +34,7 @@ def make_queue(tmp_path: Path, editions: list[Any], split: str = "dev") -> Path:
         n_in_corpus=8,
         n_probes=2,
         prefix=f"{split}-b1",
+        probe_status={p["title"]: "verified_absent" for p in PROBES},
     )
     path = tmp_path / f"{split}_queue.jsonl"
     save_drafts(path, drafts)
@@ -112,3 +113,48 @@ def test_label_endpoints_absent_without_queue(make_resolver: Any, tmp_path: Path
     client = TestClient(create_app(settings, make_resolver(None)))
     assert client.get("/api/label/enabled").json() == {"enabled": False}
     assert client.get("/api/label/queue").status_code == 404
+
+
+def test_unaudited_or_quarantined_probes_get_no_drafts(editions: list[Any]) -> None:
+    none = draft_batch(
+        editions,
+        PROBES,
+        split="dev",
+        split_seed=20261103,
+        seed=1,
+        n_in_corpus=0,
+        n_probes=5,
+        prefix="x",
+    )
+    assert none == []
+    q = draft_batch(
+        editions,
+        PROBES,
+        split="dev",
+        split_seed=20261103,
+        seed=1,
+        n_in_corpus=0,
+        n_probes=5,
+        prefix="x",
+        probe_status={p["title"]: "quarantined" for p in PROBES},
+    )
+    assert q == []
+
+
+def test_family_map_controls_split(editions: list[Any]) -> None:
+    all_dev = {e.work_id: "fam:same" for e in editions if e.work_id}
+    from bera.evalkit.splits import family_split
+
+    target = family_split("fam:same", 20261103)
+    d = draft_batch(
+        editions,
+        [],
+        split=target,
+        split_seed=20261103,
+        seed=1,
+        n_in_corpus=30,
+        n_probes=0,
+        prefix="x",
+        family_of=all_dev,
+    )
+    assert d and {x.family for x in d} == {"fam:same"}

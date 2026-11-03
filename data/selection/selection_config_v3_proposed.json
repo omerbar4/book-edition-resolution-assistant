@@ -1,0 +1,32 @@
+{
+  "version": "v3-proposed",
+  "status": "PROPOSED. Titles/probe categories accepted by owner 2026-11-03; final freeze pending review of the v3 preview. Not approved for building.",
+  "dump_date": "2026-10-31",
+  "dump_files": [
+    "editions",
+    "authors",
+    "redirects"
+  ],
+  "seed": 20261103,
+  "split_seed": 20261103,
+  "dev_fraction": 0.6,
+  "quotas": {
+    "h_max_works_per_title": 3,
+    "s1_confusable": 60,
+    "s2_translated": 30,
+    "s3_revised": 30,
+    "s4_companion_max": 40,
+    "s5_box_set": 15,
+    "s6_same_title_max": 40,
+    "s7_random": 60,
+    "max_editions_per_work": 60
+  },
+  "seed_list": "data/selection/seed_list_v3_proposed.jsonl",
+  "exclusions": "data/selection/exclusions_v3_proposed.jsonl",
+  "exclusion_rules": "R1-R5 (bera.ingest.corpus.ExclusionRules)",
+  "title_fuzzy_ratio": 92,
+  "author_keys_source": "exact normalized name match on name/personal_name/alternate_names in ol_dump_authors_2026-10-31; all duplicate records included",
+  "edition_sampling": "seeded greedy max-coverage (format, language, decade, publisher, edition statement), cap 60 per work",
+  "families": "F1 shared provisional author key, F2 shared folded edition title, F3 translation_of, F4 study-guide target, F5 seed alias group",
+  "probe_label_policy": "verified_absent after frozen-corpus audit, else quarantined"
+}

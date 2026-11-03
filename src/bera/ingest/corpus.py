@@ -25,6 +25,7 @@ import random
 import re
 import sqlite3
 import sys
+from collections import Counter
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -43,6 +44,17 @@ from bera.ingest.dumps import (
     file_digests,
     iter_dump,
     map_edition,
+    parse_year,
+)
+from bera.ingest.quality import (
+    AuditEdition,
+    AuthorRecord,
+    EdFeat,
+    WorkInfo,
+    author_ambiguity,
+    build_families,
+    probe_audit,
+    sample_editions,
 )
 from bera.models import Edition, PhysicalFormat
 from bera.text import fold_title, norm_person, norm_text, strip_accents
@@ -94,6 +106,8 @@ class Manifest:
     exclusion_check: dict[str, Any] = field(default_factory=dict)
     human_seed_matches: dict[str, int] = field(default_factory=dict)
     output: dict[str, Any] = field(default_factory=dict)
+    seed_alias_of_work: dict[str, str] = field(default_factory=dict)
+    analysis: dict[str, Any] = field(default_factory=dict)
 
 
 def _load_jsonl(path: Path | None) -> list[dict[str, Any]]:
@@ -219,7 +233,8 @@ def pass1_stats(
         DROP TABLE IF EXISTS ed;
         CREATE TABLE ed (work TEXT, has_isbn INT, fmt TEXT, eng INT, other_lang INT,
                          translated INT, revised INT, kind TEXT, ntitle TEXT, ftitle TEXT,
-                         ftrans TEXT, authors TEXT, bystmt TEXT, isbns TEXT);
+                         ftrans TEXT, authors TEXT, bystmt TEXT, isbns TEXT,
+                         ekey TEXT, lang1 TEXT, pyear INT, pub TEXT, edname TEXT);
     """)
     batch: list[tuple[Any, ...]] = []
     for row in iter_dump(editions, stats):
@@ -246,6 +261,13 @@ def pass1_stats(
         raw_title = _edition_title(d)
         title = norm_text(raw_title)
         subtitle = d.get("subtitle") if isinstance(d.get("subtitle"), str) else ""
+        lang_list = [
+            lk.get("key", "").rsplit("/", 1)[-1]
+            for lk in d.get("languages", [])
+            if isinstance(lk, dict)
+        ]
+        pubs = [x for x in d.get("publishers", []) if isinstance(x, str) and x.strip()]
+        pdate = d.get("publish_date") if isinstance(d.get("publish_date"), str) else None
         raw_by = d.get("by_statement")
         by: str = raw_by if isinstance(raw_by, str) else ""
         batch.append(
@@ -264,12 +286,19 @@ def pass1_stats(
                 " ".join(edition_author_keys(d, redirects)),
                 by[:200],
                 " ".join(valid13),
+                row.key,
+                lang_list[0] if lang_list else "",
+                parse_year(pdate)[0],
+                fold_title(pubs[0]) if pubs else "",
+                norm_text(ed_name),
             )
         )
         if len(batch) >= 10_000:
-            scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", batch)
+            scratch.executemany(
+                "INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", batch
+            )
             batch.clear()
-    scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", batch)
+    scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", batch)
     scratch.executescript("""
         CREATE INDEX ed_work ON ed(work);
         DROP TABLE IF EXISTS works;
@@ -331,6 +360,7 @@ class Seed:
     title: str
     ftitle: str
     author_keys: frozenset[str]
+    alias_group: str | None = None
 
 
 def load_seeds(rows: list[dict[str, Any]]) -> list[Seed]:
@@ -342,6 +372,7 @@ def load_seeds(rows: list[dict[str, Any]]) -> list[Seed]:
                 f"/authors/{k}" if not str(k).startswith("/") else k
                 for k in r.get("author_keys", [])
             ),
+            r.get("alias_group"),
         )
         for r in rows
         if r.get("title")
@@ -376,6 +407,8 @@ def select_works(
             matches = [w for w in matches if credited(w, s.author_keys)]
         manifest.human_seed_matches[s.title] = len(matches)
         chosen = [m for m in matches if m not in taken][: q.h_max_works_per_title]
+        for m in chosen:
+            manifest.seed_alias_of_work[m] = s.alias_group or s.ftitle
         strata["H"] += chosen
         taken.update(chosen)
     strata["S1"] = _sample(
@@ -428,9 +461,12 @@ def write_preview(
     scratch: sqlite3.Connection,
     selected: dict[str, str],
     excluded: dict[str, str],
+    sampled: dict[str, list[str]],
+    manifest: Manifest,
     path: Path,
-    cap: int,
 ) -> dict[str, Any]:
+    fam = manifest.analysis["families"]["family_of"]
+    per_work = manifest.analysis["edition_sampling"]["per_work"]
     rows = []
     for work, stratum in sorted(selected.items(), key=lambda kv: (kv[1], kv[0])):
         r = scratch.execute(
@@ -438,13 +474,16 @@ def write_preview(
             "FROM works WHERE work = ?",
             (work,),
         ).fetchone()
+        wid = work.rsplit("/", 1)[-1]
         rows.append(
             {
                 "stratum": stratum,
-                "work": work.rsplit("/", 1)[-1],
+                "work": wid,
+                "family": fam[wid],
                 "title": r[0],
-                "editions": r[1],
-                "editions_kept_max": min(r[1], cap),
+                "seed_alias": manifest.seed_alias_of_work.get(work),
+                "editions_available": r[1],
+                "editions_sampled": len(sampled[work]),
                 "valid_isbn": r[2],
                 "formats": r[3],
                 "eng": r[4],
@@ -453,6 +492,9 @@ def write_preview(
                 "revised": r[7],
                 "guide": r[8],
                 "box_set": r[9],
+                "distinct_available": per_work[wid]["distinct_available"],
+                "distinct_kept": per_work[wid]["distinct_kept"],
+                "missing_rate_kept": per_work[wid]["missing_rate_kept"],
             }
         )
     excl_rows = []
@@ -467,10 +509,13 @@ def write_preview(
             }
         )
     preview = {
+        "status": "PROVISIONAL selection preview: not a corpus, not approved",
         "selected_works": len(rows),
-        "expected_editions_upper_bound": sum(r["editions_kept_max"] for r in rows),
+        "expected_editions": sum(len(v) for v in sampled.values()),
+        "strata": manifest.strata,
         "selected": rows,
         "excluded_works": excl_rows,
+        "analysis": manifest.analysis,
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(preview, indent=1, ensure_ascii=False))
@@ -501,6 +546,168 @@ def audit_corpus(editions: list[Edition], rules: ExclusionRules) -> list[dict[st
                     }
                 )
     return hits
+
+
+# ---- selection analysis (shared by preview and build) -------------------------------------
+def analyze_selection(
+    scratch: sqlite3.Connection,
+    selected: dict[str, str],
+    excluded: dict[str, str],
+    seeds: list[Seed],
+    rules: ExclusionRules,
+    authors_path: Path,
+    q: Quotas,
+    seed: int,
+    manifest: Manifest,
+) -> dict[str, list[str]]:
+    """Fill manifest.analysis; return work -> sampled edition keys."""
+    sampled: dict[str, list[str]] = {}
+    sampling: dict[str, Any] = {}
+    infos: list[WorkInfo] = []
+    unmet_counter: Counter[str] = Counter()
+    for work in sorted(selected):
+        rows = scratch.execute(
+            "SELECT ekey, fmt, lang1, pyear, pub, edname, ftitle, ftrans, authors "
+            "FROM ed WHERE work = ? ORDER BY ekey",
+            (work,),
+        ).fetchall()
+        feats = [
+            EdFeat(
+                r[0],
+                None if r[1] in ("unknown", "other") else r[1],
+                r[2] or None,
+                r[3],
+                r[4] or None,
+                r[5] or None,
+            )
+            for r in rows
+        ]
+        keys, rep = sample_editions(feats, q.max_editions_per_work, seed)
+        sampled[work] = keys
+        unmet_counter.update(rep.unmet_dimensions)
+        sampling[work.rsplit("/", 1)[-1]] = asdict(rep)
+        guide_target = None
+        if selected[work] == "S4":
+            t = scratch.execute("SELECT ftitle FROM works WHERE work = ?", (work,)).fetchone()[0]
+            guide_target = fold_title(_GUIDE_PREFIX_RE.sub("", t or ""))
+        infos.append(
+            WorkInfo(
+                work=work,
+                titles={r[6] for r in rows if r[6]},
+                translation_of={r[7] for r in rows if r[7]},
+                author_keys={k for r in rows if r[8] for k in r[8].split()},
+                guide_target=guide_target,
+                alias_group=manifest.seed_alias_of_work.get(work),
+            )
+        )
+    fams = build_families(infos)
+    sizes = fams.sizes()
+
+    # author identity candidates (provisional): seed keys and probe keys
+    wanted = {k for s in seeds for k in s.author_keys} | set(rules.author_keys)
+    records: dict[str, AuthorRecord] = {}
+    for row in iter_dump(authors_path):
+        if row.key in wanted:
+            bd = row.data.get("birth_date")
+            nm = row.data.get("name")
+            records[row.key] = AuthorRecord(
+                row.key.rsplit("/", 1)[-1],
+                nm if isinstance(nm, str) else None,
+                bd if isinstance(bd, str) else None,
+            )
+    seed_amb: dict[str, dict[str, Any]] = {}
+    for s in seeds:
+        h_works = [
+            w for w, a in manifest.seed_alias_of_work.items() if a == (s.alias_group or s.ftitle)
+        ]
+        credited: Counter[str] = Counter()
+        for w in h_works:
+            for (authors,) in scratch.execute("SELECT authors FROM ed WHERE work = ?", (w,)):
+                for k in (authors or "").split():
+                    if k in s.author_keys:
+                        credited[k.rsplit("/", 1)[-1]] += 1
+        recs = [records[k] for k in sorted(s.author_keys) if k in records]
+        seed_amb[s.title] = author_ambiguity(recs, credited)
+    probe_amb: dict[str, dict[str, Any]] = {}
+    excl_by_key: Counter[str] = Counter()
+    for w, why in excluded.items():
+        if why == "R1_author_key":
+            for (authors,) in scratch.execute("SELECT authors FROM ed WHERE work = ?", (w,)):
+                for k in (authors or "").split():
+                    if k in rules.author_keys:
+                        excl_by_key[k.rsplit("/", 1)[-1]] += 1
+    for p in rules.probes:
+        recs = [records[k] for k in sorted(p.author_keys) if k in records]
+        probe_amb[p.title] = author_ambiguity(recs, excl_by_key)
+
+    # provisional probe pre-audit against the editions of the selected works
+    audit_eds = [
+        AuditEdition(
+            r[0], r[1] or "", "", r[2] or "", frozenset(), strip_accents((r[3] or "").casefold())
+        )
+        for w in sorted(selected)
+        for r in scratch.execute("SELECT ekey, ftitle, ftrans, bystmt FROM ed WHERE work = ?", (w,))
+    ]
+    pre_audit = {
+        p.title: probe_audit(p.ftitle, "", p.surname, len(p.author_keys), audit_eds)
+        for p in rules.probes
+    }
+
+    quotas = {
+        "S1": q.s1_confusable,
+        "S2": q.s2_translated,
+        "S3": q.s3_revised,
+        "S4": q.s4_companion_max,
+        "S5": q.s5_box_set,
+        "S6": q.s6_same_title_max,
+        "S7": q.s7_random,
+    }
+    warnings: list[str] = []
+    for stratum, quota in quotas.items():
+        got = manifest.strata.get(stratum, 0)
+        if got < quota and stratum not in ("S4", "S6"):
+            warnings.append(f"quota_unmet {stratum}: {got}/{quota} (candidate pool exhausted)")
+    for s in seeds:
+        n = sum(1 for a in manifest.seed_alias_of_work.values() if a == (s.alias_group or s.ftitle))
+        if manifest.human_seed_matches.get(s.title, 0) == 0:
+            warnings.append(f"seed_unmatched: {s.title}")
+        elif n == 0:
+            warnings.append(f"seed_matched_but_all_works_already_taken: {s.title}")
+        flags = seed_amb[s.title]["flags"]
+        if (
+            "different_birth_years_likely_different_people" in flags
+            or "several_candidate_records_credited_in_matched_works" in flags
+        ):
+            warnings.append(f"seed_author_ambiguous: {s.title} {flags}")
+    for title, amb in probe_amb.items():
+        if "different_birth_years_likely_different_people" in amb["flags"]:
+            warnings.append(f"probe_author_keys_may_cover_other_people: {title}")
+    for title, a in pre_audit.items():
+        if a["status"] != "verified_absent":
+            warnings.append(f"probe_preaudit_quarantine: {title} {a['reasons']}")
+    largest = sizes.most_common(5)
+    if largest and largest[0][1] > max(5, len(selected) // 10):
+        warnings.append(f"large_family: {largest[0][0]} has {largest[0][1]} works")
+
+    manifest.analysis = {
+        "edition_sampling": {
+            "method": "seeded greedy max-coverage over format/language/decade/publisher/"
+            "edition_statement; SHA-256(seed:key) tie-break",
+            "cap": q.max_editions_per_work,
+            "works_with_unmet_diversity_by_dimension": dict(unmet_counter),
+            "per_work": sampling,
+        },
+        "families": {
+            "count": len(sizes),
+            "edges": fams.edge_counts,
+            "largest": [{"family": f, "works": n} for f, n in largest],
+            "family_of": {w.rsplit("/", 1)[-1]: f for w, f in fams.family_of.items()},
+        },
+        "author_identity": {"seeds": seed_amb, "probes": probe_amb},
+        "probe_preaudit_provisional": pre_audit,
+        "warnings": warnings,
+    }
+    return sampled
 
 
 # ---- pass 2 + write ------------------------------------------------------------------------
@@ -548,13 +755,16 @@ def build_corpus(
             )
         ),
     }
+    sampled = analyze_selection(
+        scratch, selected, excluded, seeds, rules, inputs.authors, q, seed, manifest
+    )
     if preview_only:
         preview = write_preview(
-            scratch, selected, excluded, out_dir / "selection_preview.json", q.max_editions_per_work
+            scratch, selected, excluded, sampled, manifest, out_dir / "selection_preview.json"
         )
         manifest.output = {
             "preview": "selection_preview.json",
-            "expected_editions_upper_bound": preview["expected_editions_upper_bound"],
+            "expected_editions": preview["expected_editions"],
         }
         scratch.close()
         (out_dir / "manifest.json").write_text(
@@ -563,7 +773,8 @@ def build_corpus(
         return manifest
     scratch.close()
 
-    # pass 2: collect raw rows of selected works
+    sampled_keys = {k for ks in sampled.values() for k in ks}
+    # pass 2: collect raw rows of the sampled editions of selected works
     kept: dict[str, list[DumpRow]] = {}
     dropped: dict[str, int] = {}
     s2 = ReadStats()
@@ -573,16 +784,14 @@ def build_corpus(
         work = edition_work_key(row.data, redirects)
         if work is None or work not in selected:
             continue
+        if row.key not in sampled_keys:
+            dropped["not_sampled"] = dropped.get("not_sampled", 0) + 1
+            continue
         kept.setdefault(work, []).append(row)
     manifest.read_stats["editions_pass2"] = asdict(s2)
 
-    for work, rows in kept.items():
+    for rows in kept.values():
         rows.sort(key=lambda r: r.key)
-        if len(rows) > q.max_editions_per_work:
-            dropped["over_work_cap"] = (
-                dropped.get("over_work_cap", 0) + len(rows) - q.max_editions_per_work
-            )
-            kept[work] = rows[: q.max_editions_per_work]
 
     work_authors: dict[str, list[str]] = {}
     if inputs.works is not None:
@@ -649,6 +858,31 @@ def build_corpus(
     violations = sorted(e.edition_id for e in editions if reason_for(raw_by_id[e.edition_id], e))
     manifest.exclusion_check["violations"] = violations
     manifest.exclusion_check["audit_hits_for_review"] = audit_corpus(editions, rules)
+
+    final_eds = [
+        AuditEdition(
+            e.edition_id,
+            fold_title(e.title),
+            fold_title(e.subtitle),
+            fold_title(e.translation_of),
+            frozenset(strip_accents(norm_person(a)) for a in e.authors),
+            strip_accents(str(raw_by_id[e.edition_id].data.get("by_statement") or "").casefold()),
+        )
+        for e in editions
+    ]
+    probe_status = {
+        p.title: probe_audit(
+            p.ftitle, strip_accents(norm_person(p.author)), p.surname, len(p.author_keys), final_eds
+        )
+        for p in rules.probes
+    }
+    manifest.exclusion_check["probe_status"] = {k: v["status"] for k, v in probe_status.items()}
+    (out_dir / "probe_audit.json").write_text(
+        json.dumps(probe_status, indent=1, ensure_ascii=False)
+    )
+    (out_dir / "families.json").write_text(
+        json.dumps(manifest.analysis["families"]["family_of"], indent=0, sort_keys=True)
+    )
 
     corpus = out_dir / "corpus.jsonl"
     with corpus.open("w", encoding="utf-8") as fh:

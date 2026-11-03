@@ -1,4 +1,20 @@
-# Corpus selection, v2 (PROPOSED: not approved)
+# Corpus selection, v3 (PROPOSED: not approved for building)
+
+> **v3 update (2026-11-03).** The owner accepted the 42 titles and the probe categories. v3
+> keeps them unchanged (author keys identical to v2) and adds:
+> - seed alias groups;
+> - conservative work families for splitting;
+> - diversity-preserving edition sampling instead of "first 60 by key";
+> - author-identity ambiguity flags;
+> - a per-probe absence audit with quarantine.
+>
+> v1 and v2 were superseded without being built.
+>
+> | v3 file | sha256 |
+> |---|---|
+> | `data/selection/seed_list_v3_proposed.jsonl` | `d1f4a1b3abc3d745aa8878fe346128340f02004f7903b5e0c9169cc1979a9e97` |
+> | `data/selection/exclusions_v3_proposed.jsonl` | `c8c572efef31429248efe45dffdad7314d53dd5adcb43f0bd3fdfb70b4694664` |
+> | `data/selection/selection_config_v3_proposed.json` | `8f1097f1557780d2d46f30ffa82572188047e1eb15122f1984142608121d0aaf` |
 
 **Status.** v1 was frozen by checksum but **never built**. An audit before building found leak paths in its exclusion rules (see below), so v1 is superseded. v2 is a **proposal**: its checksums freeze the text for review; they are **not** the owner's approval. `scripts/build_corpus.sh build` refuses to run until the owner writes `data/selection/APPROVED_<version>.txt`. A `preview` (pass 1 plus selection only, no corpus) may run for review; it is provisional and is never used for labels, tuning or evaluation.
 
@@ -142,3 +158,72 @@ CPython's `random.Random(seed).sample`. The Python version is recorded in the ma
 401 × 60 = **24,060 editions**. This is an upper bound. Many sampled works have only a few
 editions, so the real count should be well below it, but it is **unknown until the
 preview runs**; the preview reports the exact number.
+
+## 4. v3 additions
+
+### Work families (split unit; `bera.ingest.quality.build_families`)
+
+Open Library may hold the same book under several work ids. For split assignment, selected
+works are merged into one family if **any** of the following holds:
+
+| rule | condition |
+|---|---|
+| F1 | they share a (provisional) author key |
+| F2 | they share any folded edition title |
+| F3 | one's `translation_of` matches the other's title |
+| F4 | one is a study guide whose target title matches the other |
+| F5 | they belong to the same seed alias group |
+
+Seed alias groups:
+
+| group | titles |
+|---|---|
+| `orwell-1984` | *1984* / *Nineteen Eighty-Four* |
+| `rowling-hp1` | *Philosopher's Stone* / *Sorcerer's Stone* |
+| `saint-exupery-petit-prince` | *The Little Prince* / *Le Petit Prince* |
+| `garcia-marquez-solitude` | *One Hundred Years of Solitude* / *Cien años de soledad* |
+| `tolkien-lotr` | *The Lord of the Rings* / *The Fellowship of the Ring* |
+
+Over-merging is deliberate: F1 puts every selected work by one author record into one family.
+That reduces the number of independent families but can never let an alias cross dev and
+held-out. Probes by the same author share a family (`probe-author:<key>`). Splits hash the
+**family**, never the work id. The preview reports the family count and the largest families.
+
+### Edition sampling (`sample_editions`)
+
+- A work with ≤ 60 editions keeps all of them.
+- Larger works use a deterministic greedy max-coverage sample over five dimensions: format,
+  primary language, publication decade, first publisher, and edition statement. Missing values
+  add no coverage. Ties go to SHA-256(`seed:edition_key`).
+- The per-work report lists distinct values available vs kept, the missing-metadata rate among
+  kept editions, and **unmet dimensions**: where the cap could not keep every distinct value.
+  These are reported, not hidden.
+
+### Author identity
+
+Exact-name matches are **provisional identity candidates**, not verified identities. For every
+seed and probe, the preview lists each candidate record (key, name, birth date, editions
+credited within scope) and raises flags:
+- several same-name records;
+- differing birth years (likely different people);
+- several candidates credited in the matched works;
+- no birth year on any record.
+
+### Out-of-corpus claims
+
+Exclusion rules reduce leakage; they **cannot prove absence** when metadata is incomplete.
+After the final corpus is frozen, every probe is audited against it
+(`probe_audit.json`). A probe is `verified_absent` only if:
+- its author resolved to at least one record, and
+- no edition resembles it by title, subtitle or `translation_of` (partial ratio ≥ 85), by
+  author name, or by `by_statement` surname.
+
+Otherwise it is **`quarantined`**: it gets no abstention draft or label until a human resolves
+it. The drafter refuses unaudited and quarantined probes.
+
+**Limitation.** Removing whole authors (R1) makes this out-of-corpus subset **narrower than
+general open-set evaluation**. Every probe is an unseen author, so it does not measure, for
+example, an unseen edition of a known work or an unseen book by a known author. Results on
+this subset will be reported with that caveat.
+
+All of these decisions depend only on dump metadata, never on retrieval or model performance.
