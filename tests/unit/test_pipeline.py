@@ -177,7 +177,7 @@ def test_free_text_only_never_suggests(resolve: Any) -> None:
 
 def test_response_marks_pending_capabilities(resolve: Any) -> None:
     r = resolve(title="Salt Roads")
-    assert r.capabilities.embedding_retrieval.startswith("pending")
-    assert r.capabilities.reranker.startswith("pending")
+    assert r.capabilities.embedding_retrieval == "not configured in this process"
+    assert r.capabilities.reranker == "not configured in this process"
     assert r.capabilities.calibration.startswith("pending")
     assert r.confidence_status.startswith("uncalibrated")

@@ -67,8 +67,29 @@ def build_messages(query: Query, candidates: dict[str, Edition]) -> list[dict[st
     return [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user}]
 
 
+def _inline_refs(node: object, defs: dict[str, object]) -> object:
+    if isinstance(node, dict):
+        ref = node.get("$ref")
+        if isinstance(ref, str) and ref.startswith("#/$defs/"):
+            return _inline_refs(defs[ref.rsplit("/", 1)[-1]], defs)
+        return {k: _inline_refs(v, defs) for k, v in node.items() if k != "$defs"}
+    if isinstance(node, list):
+        return [_inline_refs(v, defs) for v in node]
+    return node
+
+
 def output_json_schema() -> dict[str, object]:
-    return AdjudicationOutput.model_json_schema()
+    """AdjudicationOutput schema with $defs/$ref inlined.
+
+    llama.cpp's JSON-schema-to-grammar converter documents broken nested $ref support, so
+    the schema sent to providers is flattened. Validation still uses the Pydantic model.
+    """
+    schema = AdjudicationOutput.model_json_schema()
+    defs = schema.get("$defs", {})
+    assert isinstance(defs, dict)
+    out = _inline_refs(schema, defs)
+    assert isinstance(out, dict)
+    return out
 
 
 def estimate_tokens(messages: list[dict[str, str]]) -> int:

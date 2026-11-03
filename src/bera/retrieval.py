@@ -22,7 +22,7 @@ from typing import Protocol
 from rapidfuzz import fuzz
 
 from bera.catalog import Catalog, fts_or_query
-from bera.models import Query
+from bera.models import Edition, Query
 from bera.text import norm_person, norm_text
 
 RRF_K = 60
@@ -35,6 +35,15 @@ class Hit:
     source: str
     rank: int  # 1-based within its source
     raw_score: float  # source-native score (BM25 is lower-is-better in SQLite; stored as-is)
+
+
+class Reranker(Protocol):
+    max_candidates: int
+
+    @property
+    def label(self) -> str: ...
+
+    def score(self, query: Query, editions: list[Edition]) -> list[float]: ...
 
 
 class Retriever(Protocol):

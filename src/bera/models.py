@@ -156,6 +156,7 @@ class CandidateView(BaseModel):
     edition: Edition
     retrieval_sources: list[str]
     lexical_score: float  # UNCALIBRATED ranking score; not a probability
+    rerank_score: float | None = None  # cross-encoder logit; UNCALIBRATED
     checks: list[FieldCheck]
     conflicts: int
     agreements: int

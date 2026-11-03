@@ -257,8 +257,12 @@ def compute(
     }
     invoked = [r for r in results if r.adjudication_status not in ("not_needed", "disabled")]
     tokens = sum(r.input_tokens + r.output_tokens for r in results)
+    chose = [r for r in results if r.adjudication_choice is not None]
     out["adjudication"] = {
         "invocation_rate": _ratio(len(invoked), n),
+        "advisory_choice_in_gold": _ratio(
+            sum(r.adjudication_choice in r.gold for r in chose), len(chose)
+        ),
         "statuses": dict(sorted(Counter(r.adjudication_status for r in results).items())),
         "tokens_total": tokens,
         "estimated_cost": {

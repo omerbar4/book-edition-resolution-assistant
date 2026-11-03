@@ -32,8 +32,8 @@ def isbn_of(n: int) -> str:
 def test_health_reports_pending_capabilities(client: TestClient) -> None:
     body = client.get("/api/health").json()
     caps = body["capabilities"]
-    assert caps["embedding_retrieval"].startswith("pending")
-    assert caps["reranker"].startswith("pending")
+    assert caps["embedding_retrieval"] == "not configured in this process"
+    assert caps["reranker"] == "not configured in this process"
     assert caps["calibration"].startswith("pending")
     assert caps["llm"] == "disabled"
     assert body["catalog_meta"]["all_synthetic"] == "True"

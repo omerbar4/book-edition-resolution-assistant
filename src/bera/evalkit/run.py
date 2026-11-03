@@ -18,61 +18,122 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bera.catalog import Catalog
-from bera.config import Settings
+from bera.config import REPO_ROOT, Settings
 from bera.evalkit.cases import EvalCase, load_cases
 from bera.evalkit.metrics import CaseResult, compute
+from bera.llm.provider import LLMProvider
 from bera.models import AdjudicationStatus
-from bera.retrieval import FtsBm25Retriever, FuzzyScanRetriever, Retriever, TrigramRetriever
+from bera.retrieval import (
+    FtsBm25Retriever,
+    FuzzyScanRetriever,
+    Reranker,
+    Retriever,
+    TrigramRetriever,
+)
 from bera.service import Resolver
+
+
+class Blocked(Exception):
+    """A system's components are unavailable for this run; it is reported, never simulated."""
+
+
+@dataclass(frozen=True)
+class RunEnv:
+    enable_ml: bool = False
+    cache_dir: Path = Path("var/cache")
+    provider: LLMProvider | None = None  # real local provider for system 6, if running
+
+
+@dataclass(frozen=True)
+class Components:
+    retrievers: list[Retriever]
+    reranker: Reranker | None = None
+    provider: LLMProvider | None = None
 
 
 @dataclass(frozen=True)
 class SystemSpec:
     key: str
     label: str
-    make_retrievers: Callable[[Catalog], list[Retriever]] | None
-    blocked_reason: str | None = None
+    build: Callable[[Catalog, RunEnv], Components]
+
+
+def _embedding(catalog: Catalog, env: RunEnv) -> Retriever:
+    if not env.enable_ml:
+        raise Blocked("blocked: ML systems not enabled for this run (use --ml)")
+    try:
+        from bera.ml import EmbeddingRetriever, locked_model
+    except ImportError as exc:  # pragma: no cover - depends on installed groups
+        raise Blocked("blocked: ml dependency group not installed") from exc
+    model = locked_model("embedding")
+    if model is None:
+        raise Blocked("blocked: pinned embedding model not present in ./models")
+    return EmbeddingRetriever(catalog, model, env.cache_dir)
+
+
+def _reranker(env: RunEnv) -> Reranker:
+    from bera.ml import CrossEncoderReranker, locked_model
+
+    model = locked_model("reranker")
+    if model is None:
+        raise Blocked("blocked: pinned reranker model not present in ./models")
+    return CrossEncoderReranker(model)
+
+
+def _hybrid(c: Catalog, env: RunEnv) -> list[Retriever]:
+    return [FtsBm25Retriever(c), TrigramRetriever(c), _embedding(c, env)]
+
+
+def _routed(c: Catalog, env: RunEnv) -> Components:
+    if env.provider is None:
+        raise Blocked("blocked: no local LLM server configured for this run (use --llm-url)")
+    return Components(_hybrid(c, env), _reranker(env), env.provider)
 
 
 SYSTEMS: list[SystemSpec] = [
     SystemSpec(
-        "1_exact_fuzzy", "Exact identifier + fuzzy matching", lambda c: [FuzzyScanRetriever(c)]
+        "1_exact_fuzzy",
+        "Exact identifier + fuzzy matching",
+        lambda c, e: Components([FuzzyScanRetriever(c)]),
     ),
-    SystemSpec("2_lexical", "Lexical retrieval (FTS5 BM25)", lambda c: [FtsBm25Retriever(c)]),
+    SystemSpec(
+        "2_lexical", "Lexical retrieval (FTS5 BM25)", lambda c, e: Components([FtsBm25Retriever(c)])
+    ),
     SystemSpec(
         "2b_lexical_rrf",
         "Lexical BM25 + trigram, RRF (current default)",
-        lambda c: [FtsBm25Retriever(c), TrigramRetriever(c)],
+        lambda c, e: Components([FtsBm25Retriever(c), TrigramRetriever(c)]),
     ),
     SystemSpec(
-        "3_embedding", "Embedding retrieval", None, "blocked: embedding model download not approved"
+        "3_embedding",
+        "Embedding retrieval (bge-small-en-v1.5)",
+        lambda c, e: Components([_embedding(c, e)]),
     ),
     SystemSpec(
         "4_hybrid",
-        "Hybrid lexical + embedding (RRF)",
-        None,
-        "blocked: embedding model download not approved",
+        "Hybrid BM25 + trigram + embedding (RRF)",
+        lambda c, e: Components(_hybrid(c, e)),
     ),
     SystemSpec(
         "5_hybrid_rerank",
         "Hybrid + cross-encoder reranker",
-        None,
-        "blocked: embedding and reranker downloads not approved",
+        lambda c, e: Components(_hybrid(c, e), _reranker(e)),
     ),
     SystemSpec(
-        "6_routed_llm",
-        "Routed LLM adjudication over retrieved candidates",
-        None,
-        "blocked: local LLM weights not approved (mock provider is a test double, "
-        "not a system to evaluate)",
+        "6_routed_llm", "Hybrid + reranker + routed local LLM adjudication (advisory)", _routed
     ),
 ]
 
 
-def run_system(spec: SystemSpec, catalog: Catalog, cases: Sequence[EvalCase]) -> list[CaseResult]:
-    assert spec.make_retrievers is not None
+def run_system(
+    components: Components, catalog: Catalog, cases: Sequence[EvalCase]
+) -> list[CaseResult]:
     resolver = Resolver(
-        catalog, traces=None, provider=None, retrievers=spec.make_retrievers(catalog)
+        catalog,
+        traces=None,
+        provider=components.provider,
+        retrievers=components.retrievers,
+        reranker=components.reranker,
     )
     results = []
     for c in cases:
@@ -102,8 +163,13 @@ def run_system(spec: SystemSpec, catalog: Catalog, cases: Sequence[EvalCase]) ->
 
 
 def evaluate(
-    catalog: Catalog, cases: Sequence[EvalCase], reps: int = 1000, seed: int = 0
+    catalog: Catalog,
+    cases: Sequence[EvalCase],
+    reps: int = 1000,
+    seed: int = 0,
+    env: RunEnv | None = None,
 ) -> dict[str, object]:
+    env = env or RunEnv()
     synthetic_catalog = catalog.meta().get("all_synthetic") == "True"
     synthetic_cases = all(c.origin == "synthetic_perturbation" for c in cases)
     report: dict[str, object] = {
@@ -119,10 +185,12 @@ def evaluate(
     }
     systems: dict[str, object] = {}
     for spec in SYSTEMS:
-        if spec.blocked_reason:
-            systems[spec.key] = {"label": spec.label, "status": spec.blocked_reason}
+        try:
+            components = spec.build(catalog, env)
+        except Blocked as exc:
+            systems[spec.key] = {"label": spec.label, "status": str(exc)}
             continue
-        res = run_system(spec, catalog, cases)
+        res = run_system(components, catalog, cases)
         systems[spec.key] = {
             "label": spec.label,
             "status": "ran",
@@ -179,6 +247,28 @@ def markdown(report: dict[str, object]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _require_frozen(tag: str | None) -> None:
+    """Held-out runs need HEAD to be exactly a tagged commit with a clean tree."""
+    import subprocess
+
+    if not tag:
+        raise SystemExit("refusing held-out run: pass --frozen-tag <tag> for the frozen policy")
+
+    def git(*args: str) -> str:
+        return subprocess.run(  # noqa: S603
+            ["git", *args],  # noqa: S607 - git from PATH, fixed args
+            cwd=REPO_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+    if git("status", "--porcelain"):
+        raise SystemExit("refusing held-out run: working tree is not clean")
+    if git("rev-parse", f"{tag}^{{commit}}") != git("rev-parse", "HEAD"):
+        raise SystemExit(f"refusing held-out run: HEAD is not the frozen tag {tag}")
+
+
 def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p = argparse.ArgumentParser(prog="bera-eval")
     p.add_argument("--cases", type=Path, required=True)
@@ -186,10 +276,24 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument("--db", type=Path)
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--reps", type=int, default=1000)
+    p.add_argument("--ml", action="store_true", help="enable embedding/reranker systems")
+    p.add_argument("--llm-url", help="local OpenAI-compatible server for system 6")
+    p.add_argument("--llm-model", default="qwen3-4b-instruct-2507-q4km")
+    p.add_argument("--frozen-tag", help="required for --split heldout")
     a = p.parse_args(argv)
+    if a.split in ("heldout", "all") and any(
+        c.split == "heldout" and c.origin != "synthetic_perturbation" for c in load_cases(a.cases)
+    ):
+        _require_frozen(a.frozen_tag)
     cases = [c for c in load_cases(a.cases) if a.split == "all" or c.split == a.split]
     catalog = Catalog(a.db or Settings.from_env().catalog_db)
-    report = evaluate(catalog, cases, reps=a.reps)
+    provider = None
+    if a.llm_url:
+        from bera.llm.openai_compat import OpenAICompatProvider
+
+        provider = OpenAICompatProvider(a.llm_url, a.llm_model)
+    env = RunEnv(enable_ml=a.ml, cache_dir=REPO_ROOT / "var" / "cache", provider=provider)
+    report = evaluate(catalog, cases, reps=a.reps, env=env)
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True))
     (a.out / "report.md").write_text(markdown(report))

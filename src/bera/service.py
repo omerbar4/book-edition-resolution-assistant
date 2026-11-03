@@ -28,7 +28,7 @@ from bera.models import (
     Route,
 )
 from bera.policy import CONFIDENCE_STATUS, POLICY_VERSION, decide
-from bera.retrieval import FtsBm25Retriever, Retriever, TrigramRetriever, rrf_fuse
+from bera.retrieval import FtsBm25Retriever, Reranker, Retriever, TrigramRetriever, rrf_fuse
 from bera.telemetry import TraceStore
 from bera.text import detect_suspicious
 
@@ -60,6 +60,7 @@ class Resolver:
     traces: TraceStore | None
     provider: LLMProvider | None
     retrievers: list[Retriever] | None = None
+    reranker: Reranker | None = None
     clock: Callable[[], float] = time.perf_counter
 
     def __post_init__(self) -> None:
@@ -67,9 +68,14 @@ class Resolver:
             self.retrievers = [FtsBm25Retriever(self.catalog), TrigramRetriever(self.catalog)]
 
     def capabilities(self) -> Capabilities:
+        emb = [r for r in self.retrievers or [] if r.name == "embedding"]
         return Capabilities(
-            embedding_retrieval="pending: model download not approved",
-            reranker="pending: model download not approved",
+            embedding_retrieval=f"active: {getattr(emb[0], 'label', 'embedding')}"
+            if emb
+            else "not configured in this process",
+            reranker=f"active: {self.reranker.label}"
+            if self.reranker
+            else "not configured in this process",
             llm="disabled"
             if self.provider is None
             else f"{self.provider.name} (test double, not a model)"
@@ -133,12 +139,21 @@ class Resolver:
             for i in ids
             if i in editions
         ]
+        timings["checks"] = _ms(self.clock() - t)
+        t = self.clock()
         if route in (Route.ISBN_EXACT, Route.ISBN_DUPLICATE):
             views.sort(key=lambda v: (v.conflicts, v.edition.edition_id))
         else:
+            if self.reranker is not None and views:
+                pool = sorted(views, key=lambda v: (-v.lexical_score, v.edition.edition_id))
+                pool = pool[: self.reranker.max_candidates]
+                scores = self.reranker.score(query, [v.edition for v in pool])
+                for v, s in zip(pool, scores, strict=True):
+                    v.rerank_score = round(s, 6)
             views.sort(
                 key=lambda v: (
                     -(v.agreements - 2 * v.conflicts),
+                    -(v.rerank_score if v.rerank_score is not None else float("-inf")),
                     -v.lexical_score,
                     v.edition.edition_id,
                 )
@@ -146,7 +161,7 @@ class Resolver:
         views = views[:MAX_CANDIDATES_RETURNED]
         for rank, v in enumerate(views, start=1):
             v.rank = rank
-        timings["checks"] = _ms(self.clock() - t)
+        timings["rerank_order"] = _ms(self.clock() - t)
 
         decision = decide(route, views, sorted(flags), pre)
         reasons = list(decision.reasons)
