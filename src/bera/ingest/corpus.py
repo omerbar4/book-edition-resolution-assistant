@@ -56,6 +56,7 @@ _GUIDE_PREFIX_RE = re.compile(
 
 @dataclass(frozen=True)
 class Quotas:
+    h_max_works_per_title: int = 3
     s1_confusable: int = 60
     s2_translated: int = 30
     s3_revised: int = 30
@@ -201,10 +202,15 @@ def select_works(
     strata: dict[str, list[str]] = {}
     strata["H"] = []
     for title in human_titles:
-        matches = keys("SELECT work, title FROM works WHERE title = ?", (title,))
+        # All works with this exact normalized title, largest first (ties by key); keep the
+        # top h_max_works_per_title so famous titles cannot flood the corpus.
+        matches = keys(
+            "SELECT work, title FROM works WHERE title = ? ORDER BY n DESC, work", (title,)
+        )
         manifest.human_seed_matches[title] = len(matches)
-        strata["H"] += [m for m in matches if m not in taken]
-        taken.update(matches)
+        chosen = [m for m in matches if m not in taken][: q.h_max_works_per_title]
+        strata["H"] += chosen
+        taken.update(chosen)
     strata["S1"] = _sample(
         rng,
         keys("SELECT work, title FROM works WHERE n_isbn >= 8 AND n_fmt >= 2"),
@@ -401,12 +407,15 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument("--seed", type=int, required=True)
     p.add_argument("--source-label", required=True)
     p.add_argument("--scratch", type=Path, help="on-disk scratch DB for large dumps")
+    p.add_argument("--config", type=Path, help="selection_config_vN.json (quotas)")
     a = p.parse_args(argv)
+    quotas = Quotas(**json.loads(a.config.read_text())["quotas"]) if a.config else None
     m = build_corpus(
         BuildInputs(a.editions, a.authors, a.redirects, a.works, a.human_seeds, a.exclusions),
         a.out,
         seed=a.seed,
         source_label=a.source_label,
+        quotas=quotas,
         scratch_path=a.scratch,
     )
     print(

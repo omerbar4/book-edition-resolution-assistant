@@ -1,0 +1,139 @@
+{
+  "generated": "2026-11-03",
+  "models": [
+    {
+      "role": "embedding",
+      "repo": "BAAI/bge-small-en-v1.5",
+      "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "weight_license_per_model_card": "MIT",
+      "files": [
+        {
+          "path": "config.json",
+          "size": 743,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json",
+          "git_blob_sha1": "3992bf890728a92476c700e6e657fd696eb94160"
+        },
+        {
+          "path": "config_sentence_transformers.json",
+          "size": 124,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config_sentence_transformers.json",
+          "git_blob_sha1": "dcb0c0d97d09b930d13600b1a773ddb27e441aab"
+        },
+        {
+          "path": "model.safetensors",
+          "size": 133466304,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/model.safetensors",
+          "sha256": "3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad"
+        },
+        {
+          "path": "modules.json",
+          "size": 349,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/modules.json",
+          "git_blob_sha1": "952a9b81c0bfd99800fabf352f69c7ccd46c5e43"
+        },
+        {
+          "path": "sentence_bert_config.json",
+          "size": 52,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/sentence_bert_config.json",
+          "git_blob_sha1": "ea85692bff64b0d1917833c31ddbca8ab10f5455"
+        },
+        {
+          "path": "special_tokens_map.json",
+          "size": 125,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/special_tokens_map.json",
+          "git_blob_sha1": "a8b3208c2884c4efb86e49300fdd3dc877220cdf"
+        },
+        {
+          "path": "tokenizer.json",
+          "size": 711396,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json",
+          "git_blob_sha1": "688882a79f44442ddc1f60d70334a7ff5df0fb47"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 366,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer_config.json",
+          "git_blob_sha1": "37fca74771bc76a8e01178ce3a6055a0995f8093"
+        },
+        {
+          "path": "vocab.txt",
+          "size": 231508,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/vocab.txt",
+          "git_blob_sha1": "fb140275c155a9c7c5a3b3e0e77a9e839594a938"
+        },
+        {
+          "path": "1_Pooling/config.json",
+          "size": 190,
+          "url": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/1_Pooling/config.json",
+          "git_blob_sha1": "1da070f0993788c8851a652170ff013aa54dd519"
+        }
+      ],
+      "total_bytes": 134411157
+    },
+    {
+      "role": "reranker",
+      "repo": "cross-encoder/ms-marco-MiniLM-L6-v2",
+      "revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+      "weight_license_per_model_card": "Apache-2.0",
+      "files": [
+        {
+          "path": "config.json",
+          "size": 794,
+          "url": "https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/resolve/233902d25c440f23af6f7d6e94d2946bac0bee0a/config.json",
+          "git_blob_sha1": "88bc4f74b33a2073abc9a66cb532b889448ac3ed"
+        },
+        {
+          "path": "model.safetensors",
+          "size": 90870598,
+          "url": "https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/resolve/233902d25c440f23af6f7d6e94d2946bac0bee0a/model.safetensors",
+          "sha256": "821d1aa69520101d6e0737f78a042ae25b19e5cb9160701909d10434f4aeb0ae"
+        },
+        {
+          "path": "special_tokens_map.json",
+          "size": 132,
+          "url": "https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/resolve/233902d25c440f23af6f7d6e94d2946bac0bee0a/special_tokens_map.json",
+          "git_blob_sha1": "7520992f25914d962f0e2fd0e0566fc33d19ec59"
+        },
+        {
+          "path": "tokenizer.json",
+          "size": 711396,
+          "url": "https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/resolve/233902d25c440f23af6f7d6e94d2946bac0bee0a/tokenizer.json",
+          "git_blob_sha1": "688882a79f44442ddc1f60d70334a7ff5df0fb47"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 1330,
+          "url": "https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/resolve/233902d25c440f23af6f7d6e94d2946bac0bee0a/tokenizer_config.json",
+          "git_blob_sha1": "a2435fedfac32b9ad70f052d4f84007730cd3109"
+        },
+        {
+          "path": "vocab.txt",
+          "size": 231508,
+          "url": "https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/resolve/233902d25c440f23af6f7d6e94d2946bac0bee0a/vocab.txt",
+          "git_blob_sha1": "fb140275c155a9c7c5a3b3e0e77a9e839594a938"
+        }
+      ],
+      "total_bytes": 91815758
+    },
+    {
+      "role": "adjudicator",
+      "repo": "unsloth/Qwen3-4B-Instruct-2507-GGUF",
+      "revision": "a06e946bb6b655725eafa393f4a9745d460374c9",
+      "weight_license_per_model_card": "Apache-2.0",
+      "files": [
+        {
+          "path": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+          "size": 2497281120,
+          "url": "https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF/resolve/a06e946bb6b655725eafa393f4a9745d460374c9/Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+          "sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597"
+        }
+      ],
+      "total_bytes": 2497281120,
+      "quantization_provenance": {
+        "base_model": "Qwen/Qwen3-4B-Instruct-2507",
+        "quantized_by": "unsloth (third party, not the original model publisher)",
+        "note": "No official Qwen GGUF repository was found on 2026-11-03; this third-party quantization's fidelity to the base weights is not independently verified."
+      }
+    }
+  ]
+}

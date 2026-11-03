@@ -1,0 +1,42 @@
+{"title": "Pride and Prejudice", "author": "Jane Austen", "rationale": "classic; many editions, study guides, translations"}
+{"title": "Frankenstein", "author": "Mary Wollstonecraft Shelley", "rationale": "1818 vs 1831 texts; many editions"}
+{"title": "Moby Dick", "author": "Herman Melville", "rationale": "many editions; title punctuation variants (Moby-Dick)"}
+{"title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "rationale": "many formats; study guides"}
+{"title": "Nineteen Eighty-Four", "author": "George Orwell", "rationale": "title variant '1984'; translations"}
+{"title": "1984", "author": "George Orwell", "rationale": "numeric title variant of the above"}
+{"title": "To Kill a Mockingbird", "author": "Harper Lee", "rationale": "anniversary editions; study guides"}
+{"title": "The Hobbit", "author": "J. R. R. Tolkien", "rationale": "illustrated/anniversary editions; translations"}
+{"title": "The Lord of the Rings", "author": "J. R. R. Tolkien", "rationale": "single volume vs boxed set vs trilogy"}
+{"title": "The Fellowship of the Ring", "author": "J. R. R. Tolkien", "rationale": "volume vs box set confusion"}
+{"title": "Harry Potter and the Philosopher's Stone", "author": "J. K. Rowling", "rationale": "UK title; illustrated editions"}
+{"title": "Harry Potter and the Sorcerer's Stone", "author": "J. K. Rowling", "rationale": "US title of the same book"}
+{"title": "The Little Prince", "author": "Antoine de Saint-Exupéry", "rationale": "translation of Le Petit Prince"}
+{"title": "Le Petit Prince", "author": "Antoine de Saint-Exupéry", "rationale": "original-language editions"}
+{"title": "One Hundred Years of Solitude", "author": "Gabriel García Márquez", "rationale": "translation; accented author"}
+{"title": "Cien años de soledad", "author": "Gabriel García Márquez", "rationale": "original-language editions"}
+{"title": "Don Quixote", "author": "Miguel de Cervantes Saavedra", "rationale": "many translators; abridged editions"}
+{"title": "War and Peace", "author": "Leo Tolstoy", "rationale": "transliteration variants (Lev Tolstoy)"}
+{"title": "Crime and Punishment", "author": "Fyodor Dostoyevsky", "rationale": "spelling variants (Dostoevsky)"}
+{"title": "The Odyssey", "author": "Homer", "rationale": "many translators"}
+{"title": "Hamlet", "author": "William Shakespeare", "rationale": "study-guide heavy; series editions"}
+{"title": "Romeo and Juliet", "author": "William Shakespeare", "rationale": "study-guide heavy"}
+{"title": "The Catcher in the Rye", "author": "J. D. Salinger", "rationale": "many printings"}
+{"title": "Of Mice and Men", "author": "John Steinbeck", "rationale": "study guides"}
+{"title": "Dune", "author": "Frank Herbert", "rationale": "anniversary and deluxe editions"}
+{"title": "The Hunger Games", "author": "Suzanne Collins", "rationale": "trilogy box sets"}
+{"title": "A Game of Thrones", "author": "George R. R. Martin", "rationale": "box sets; TV tie-in editions"}
+{"title": "The Chronicles of Narnia", "author": "C. S. Lewis", "rationale": "omnibus vs box set vs single volumes"}
+{"title": "Introduction to Algorithms", "author": "Thomas H. Cormen", "rationale": "numbered editions (textbook)"}
+{"title": "The C Programming Language", "author": "Brian W. Kernighan", "rationale": "1st vs 2nd edition"}
+{"title": "Structure and Interpretation of Computer Programs", "author": "Harold Abelson", "rationale": "1st vs 2nd edition"}
+{"title": "The Elements of Style", "author": "William Strunk", "rationale": "many editions; illustrated edition"}
+{"title": "Little Women", "author": "Louisa May Alcott", "rationale": "many editions; abridged"}
+{"title": "Jane Eyre", "author": "Charlotte Brontë", "rationale": "many editions; similar author (Emily Brontë)"}
+{"title": "Wuthering Heights", "author": "Emily Brontë", "rationale": "many editions; similar author (Charlotte Brontë)"}
+{"title": "Alice's Adventures in Wonderland", "author": "Lewis Carroll", "rationale": "illustrated editions; omnibus with sequel"}
+{"title": "The Picture of Dorian Gray", "author": "Oscar Wilde", "rationale": "1890 vs 1891 versions"}
+{"title": "Dracula", "author": "Bram Stoker", "rationale": "many editions; annotated editions"}
+{"title": "Les Misérables", "author": "Victor Hugo", "rationale": "abridged/unabridged; translations; accented title"}
+{"title": "The Count of Monte Cristo", "author": "Alexandre Dumas", "rationale": "abridged/unabridged"}
+{"title": "Beloved", "author": "Toni Morrison", "rationale": "short title shared by unrelated books"}
+{"title": "The Road", "author": "Cormac McCarthy", "rationale": "short title shared by unrelated books"}

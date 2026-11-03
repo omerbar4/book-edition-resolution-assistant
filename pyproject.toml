@@ -21,6 +21,11 @@ dev = [
     "ruff>=0.7,<1",
     "mypy>=1.13,<2",
 ]
+# Local ML stack (embeddings + cross-encoder). Not needed for tier-1 CI.
+ml = [
+    "sentence-transformers>=5.0,<6",
+    "torch>=2.6,<3",
+]
 
 [build-system]
 requires = ["hatchling>=1.25"]
