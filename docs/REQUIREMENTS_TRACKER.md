@@ -28,7 +28,7 @@
 |---|---|---|---|
 | M1 | Project-owned provider interface | verified | `llm/provider.py` |
 | M2 | Mock provider tests | verified | mock modes: cite_first, abstain, scripted, error, transport, timeout |
-| M3 | Real local-provider adapter (OpenAI-compatible) | pending | to build next, tested with an HTTP mock transport; real inference blocked on GGUF download |
+| M3 | Real local-provider adapter (OpenAI-compatible) | implemented | `llm/openai_compat.py`, loopback-only; tested with httpx.MockTransport; real inference blocked on GGUF download; llama.cpp `$ref` support in schema unverified |
 | M4 | Model self-confidence never a threshold | verified | logged only; policy ignores it |
 
 ## Confidence and calibration
@@ -36,7 +36,7 @@
 | # | Requirement | Status | Evidence / blocker |
 |---|---|---|---|
 | C1 | Calibrated scorer from grouped out-of-fold dev predictions | blocked | needs human-labeled dev set |
-| C2 | Confidence bands with k/n + Wilson intervals | pending | implement in eval harness |
+| C2 | Confidence bands with k/n + Wilson intervals | implemented | `metrics.signal_buckets` over an uncalibrated signal; calibrated bands blocked on C1 |
 | C3 | LLM-override route confidence measured separately | blocked | needs dev data + real model |
 
 ## Data and evaluation
@@ -44,14 +44,14 @@
 | # | Requirement | Status | Evidence / blocker |
 |---|---|---|---|
 | D1 | Versioned local Open Library corpus | blocked | dump download approval (13.49 GB; +4.08 GB works) |
-| D1a | Ingestion and provenance tooling (streaming, strata, author resolution, manifest) | pending | testable on synthetic dump-format fixtures |
-| D2 | Reproducible splits grouped by work family | pending | |
-| D3 | Seeded synthetic perturbations | pending | |
+| D1a | Ingestion and provenance tooling (streaming, strata, author resolution, manifest) | verified | `ingest/`, tests on synthetic dump-format files; gated downloader not run |
+| D2 | Reproducible splits grouped by work family | verified | `evalkit/splits.py`, leakage test |
+| D3 | Seeded synthetic perturbations | verified | `evalkit/perturb.py`, determinism test |
 | D4 | ≥ 100 (target 120) human-labeled cases | blocked | human labeling time |
-| D5 | Labeling workflow + instructions + ambiguity rules | pending | |
-| D6 | Abstention and out-of-corpus cases | pending | |
-| E1 | Six baselines compared | pending | 1–2 runnable now; 3–6 blocked on models |
-| E2 | Metrics: recall@k, MRR, top-1, correct-suggestion, wrong-match, error among suggestions, abstention, correct abstention, bucket precision with n, risk-coverage, bootstrap CIs, failure categories, p50/p95 per stage, invocation rate, tokens, cost | pending | harness + tests on synthetic data |
+| D5 | Labeling workflow + instructions + ambiguity rules | implemented | LABELING_GUIDE.md, `evalkit/label.py` (unranked search, validator) |
+| D6 | Abstention and out-of-corpus cases | implemented (tooling) | schema + exclusion verification in corpus builder; cases blocked on corpus + labeling |
+| E1 | Six baselines compared | implemented | 1, 2 (+2b) run; 3–6 reported as blocked, never simulated |
+| E2 | Metrics: recall@k, MRR, top-1, correct-suggestion, wrong-match, error among suggestions, abstention, correct abstention, bucket precision with n, risk-coverage, bootstrap CIs, failure categories, p50/p95 per stage, invocation rate, tokens, cost | verified | `evalkit/metrics.py` with denominator tests; engineering check run on synthetic cases |
 | E3 | Dev-only tuning; frozen policy before held-out | pending | process documented in DECISION_POLICY.md |
 
 ## Security, reliability and operations

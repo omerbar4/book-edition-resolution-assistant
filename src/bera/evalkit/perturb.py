@@ -173,6 +173,10 @@ def generate(
         for j in range(per_edition):
             k = rng.randint(1, 2)
             ops = sorted(rng.sample(names, k))
+            # Half of all cases lose the ISBN (damaged/missing barcode) so that retrieval,
+            # not the exact-identifier path, decides them.
+            if rng.random() < 0.5 and "drop_isbn" not in ops:
+                ops = sorted([*ops, "drop_isbn"])
             if "drop_isbn" in ops:
                 ops = [o for o in ops if not o.startswith("isbn")]
             case_seed = rng.randrange(2**31)

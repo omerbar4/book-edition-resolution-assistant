@@ -13,10 +13,13 @@ PENDING (requires approved model download; NOT simulated):
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol
+
+from rapidfuzz import fuzz
 
 from bera.catalog import Catalog, fts_or_query
 from bera.models import Query
@@ -133,3 +136,47 @@ class EmbeddingRetrieverPending:
 
     def retrieve(self, query: Query, k: int) -> list[Hit]:
         raise NotImplementedError(self.status)
+
+
+class FuzzyScanRetriever:
+    """Baseline 1 retriever: brute-force rapidfuzz over every edition's title and authors.
+
+    No index, no BM25. Suitable for small corpora (it scans everything per query).
+    """
+
+    name = "fuzzy_scan"
+
+    def __init__(self, catalog: Catalog) -> None:
+        self.catalog = catalog
+        self._rows: list[tuple[str, str, str]] | None = None
+
+    def _load(self) -> list[tuple[str, str, str]]:
+        if self._rows is None:
+            with self.catalog.connect() as con:
+                rows = con.execute("SELECT edition_id, record_json FROM editions").fetchall()
+            out = []
+            for r in rows:
+                d = json.loads(r["record_json"])
+                out.append(
+                    (
+                        r["edition_id"],
+                        norm_text(d.get("title")),
+                        " ".join(norm_person(a) for a in d.get("authors", [])),
+                    )
+                )
+            self._rows = sorted(out)
+        return self._rows
+
+    def retrieve(self, query: Query, k: int) -> list[Hit]:
+        title = norm_text(query.title or query.free_text)
+        author = norm_person(query.author)
+        if not title and not author:
+            return []
+        scored = []
+        for eid, t, a in self._load():
+            s = (fuzz.WRatio(title, t) if title else 0.0) + (
+                0.5 * fuzz.token_sort_ratio(author, a) if author and a else 0.0
+            )
+            scored.append((s, eid))
+        scored.sort(key=lambda x: (-x[0], x[1]))
+        return [Hit(eid, self.name, i + 1, s) for i, (s, eid) in enumerate(scored[:k])]
