@@ -17,6 +17,9 @@ class Settings:
     mock_mode: str
     llm_base_url: str = "http://127.0.0.1:8080/v1"
     llm_model: str = ""
+    label_queue: Path | None = None
+    labels_path: Path | None = None
+    label_allow_heldout: bool = False
 
     @property
     def trace_db(self) -> Path:
@@ -41,4 +44,11 @@ class Settings:
             mock_mode=os.environ.get("BERA_MOCK_MODE", "cite_first"),
             llm_base_url=os.environ.get("BERA_LLM_BASE_URL", "http://127.0.0.1:8080/v1"),
             llm_model=os.environ.get("BERA_LLM_MODEL", ""),
+            label_queue=Path(q) if (q := os.environ.get("BERA_LABEL_QUEUE")) else None,
+            labels_path=Path(
+                os.environ.get(
+                    "BERA_LABELS", REPO_ROOT / "data" / "eval" / "labels" / "dev_labels.jsonl"
+                )
+            ),
+            label_allow_heldout=os.environ.get("BERA_LABEL_ALLOW_HELDOUT") == "1",
         )

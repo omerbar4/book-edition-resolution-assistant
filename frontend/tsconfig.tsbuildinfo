@@ -1,1 +1,1 @@
-{"root":["./src/app.test.tsx","./src/app.tsx","./src/result.tsx","./src/api.ts","./src/main.tsx","./src/visible.ts","./vite.config.ts"],"version":"5.9.3"}
+{"root":["./src/app.test.tsx","./src/app.tsx","./src/labelview.test.tsx","./src/labelview.tsx","./src/result.tsx","./src/api.ts","./src/main.tsx","./src/visible.ts","./vite.config.ts"],"version":"5.9.3"}

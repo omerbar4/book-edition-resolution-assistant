@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type QueryInput, type ResolveResponse, resolveQuery } from "./api";
+import { LabelView } from "./LabelView";
 import { Result } from "./Result";
 
 const FIELDS: { key: keyof QueryInput; label: string; placeholder: string }[] = [
@@ -33,6 +34,15 @@ export default function App() {
   const [result, setResult] = useState<ResolveResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<"resolve" | "label">("resolve");
+  const [labelEnabled, setLabelEnabled] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/label/enabled")
+      .then((r) => (r.ok ? r.json() : { enabled: false }))
+      .then((j: { enabled?: boolean }) => setLabelEnabled(Boolean(j.enabled)))
+      .catch(() => setLabelEnabled(false));
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +67,20 @@ export default function App() {
           priced or changed.
         </p>
       </header>
-
+      {labelEnabled && (
+        <nav className="actions" aria-label="Mode">
+          <button type="button" aria-pressed={tab === "resolve"} onClick={() => setTab("resolve")}>
+            Resolve
+          </button>
+          <button type="button" aria-pressed={tab === "label"} onClick={() => setTab("label")}>
+            Label dev cases
+          </button>
+        </nav>
+      )}
+      {tab === "label" ? (
+        <LabelView />
+      ) : (
+      <>
       <form className="query" onSubmit={onSubmit} aria-label="Book description">
         {FIELDS.map((f) => (
           <label key={f.key}>
@@ -107,6 +130,8 @@ export default function App() {
         </p>
       )}
       {result && <Result key={result.request_id} result={result} />}
+      </>
+      )}
     </main>
   );
 }

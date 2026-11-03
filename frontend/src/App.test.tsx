@@ -80,6 +80,7 @@ describe("visibleEscape", () => {
 describe("App", () => {
   it("renders untrusted catalog text as inert text and supports local feedback", async () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === "/api/label/enabled") return new Response(JSON.stringify({ enabled: false }));
       if (url === "/api/resolve") return new Response(JSON.stringify(response()), { status: 200 });
       if (url === "/api/feedback") {
         const body = JSON.parse(String(init?.body));
@@ -103,7 +104,7 @@ describe("App", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Confirm this edition" }));
     await waitFor(() => expect(screen.getByText(/Recorded locally: confirm SYN-E0013/)).toBeTruthy());
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls.filter(([u]) => u !== "/api/label/enabled")).toHaveLength(2);
   });
 
   it("shows API errors without crashing", async () => {

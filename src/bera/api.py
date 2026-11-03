@@ -12,6 +12,8 @@ from fastapi.staticfiles import StaticFiles
 from bera import __version__
 from bera.catalog import Catalog
 from bera.config import REPO_ROOT, Settings
+from bera.labeling import LabelStore
+from bera.labeling import router as label_router
 from bera.llm.mock import MockProvider
 from bera.llm.openai_compat import OpenAICompatProvider
 from bera.llm.provider import LLMProvider
@@ -99,6 +101,19 @@ def create_app(settings: Settings | None = None, resolver: Resolver | None = Non
     def traces_summary() -> dict[str, object]:
         r: Resolver = app.state.resolver
         return {} if r.traces is None else r.traces.summary()
+
+    @app.get("/api/label/enabled")
+    def label_enabled() -> dict[str, bool]:
+        return {"enabled": settings.label_queue is not None}
+
+    if settings.label_queue is not None and settings.labels_path is not None:
+        store = LabelStore(
+            settings.label_queue,
+            settings.labels_path,
+            resolver.catalog,
+            settings.label_allow_heldout,
+        )
+        app.include_router(label_router(store))
 
     dist = Path(REPO_ROOT / "frontend" / "dist")
     if dist.is_dir():
