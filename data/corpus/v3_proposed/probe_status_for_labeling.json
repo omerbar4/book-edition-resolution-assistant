@@ -1,0 +1,32 @@
+{
+ "The Remains of the Day": {
+  "status": "verified_absent"
+ },
+ "Never Let Me Go": {
+  "status": "verified_absent"
+ },
+ "The Name of the Wind": {
+  "status": "verified_absent"
+ },
+ "Station Eleven": {
+  "status": "quarantined"
+ },
+ "The Left Hand of Darkness": {
+  "status": "quarantined"
+ },
+ "A Wizard of Earthsea": {
+  "status": "quarantined"
+ },
+ "Gödel, Escher, Bach": {
+  "status": "verified_absent"
+ },
+ "Middlemarch": {
+  "status": "verified_absent"
+ },
+ "The Pragmatic Programmer": {
+  "status": "quarantined"
+ },
+ "Their Eyes Were Watching God": {
+  "status": "verified_absent"
+ }
+}

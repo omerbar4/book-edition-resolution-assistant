@@ -57,3 +57,20 @@ running the three runnable systems shows that the harness works end to end. All 
 produced **identical** category counts on these cases. The fixture catalog is too small for
 retrieval differences to show, so it **cannot** tell the systems apart. That requires the real
 Open Library corpus and human cases.
+
+## Engineering check on corpus v3_proposed (2026-11-04)
+
+**This is an engineering check, not an evaluation.** The 300 cases are synthetic
+perturbations of 300 development editions (`scripts/make_dev_check_cases.py`, seed 20261104,
+excluding the 17 labeling-draft sources). Gold labels were fitted against the whole catalog,
+and unknown metadata never counted as distinguishing; 133 of the 300 cases expect abstention.
+There are no human labels, no held-out cases, nothing is calibrated, and nothing was tuned on
+these results. Report: `data/eval/results/dev_check_v3/report.md`.
+
+All seven configurations ran: six methods plus the BM25 + trigram RRF default. Top-1 ranged
+from 0.982 to 0.994 on the 167 suggest cases. Correct suggestions were 103/300 for every
+configuration. Wrong matches were 16–18/300; these are mostly unsupported suggestions on
+abstain cases. Correct abstention ranged from 0.865 to 0.880. The local LLM was invoked on 140/300 cases: 102 completed,
+28 hit the deadline and 10 had invalid evidence. Its advisory choice was in the gold set for
+91/93 of the completed adjudications. These numbers show that the pipeline runs end to end on
+real catalog data. They say nothing about accuracy on real user inputs.

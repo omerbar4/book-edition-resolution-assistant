@@ -1,0 +1,320 @@
+{
+ "rule": "A probe may receive an abstention label only if it is verified_absent in BOTH the pre-audit (all editions of the selected works, before edition sampling) and the final audit (the written corpus). Otherwise quarantined and unlabeled.",
+ "probes": {
+  "The Remains of the Day": {
+   "status": "verified_absent",
+   "split": "heldout",
+   "preaudit_selected_works": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "Never Let Me Go": {
+   "status": "verified_absent",
+   "split": "heldout",
+   "preaudit_selected_works": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "The Name of the Wind": {
+   "status": "verified_absent",
+   "split": "dev",
+   "preaudit_selected_works": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "Station Eleven": {
+   "status": "quarantined",
+   "split": "heldout",
+   "preaudit_selected_works": {
+    "status": "quarantined",
+    "reasons": [
+     "2_resembling_editions"
+    ],
+    "hits": [
+     {
+      "edition_id": "/books/OL1874819M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL23260627M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     }
+    ]
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "The Left Hand of Darkness": {
+   "status": "quarantined",
+   "split": "dev",
+   "preaudit_selected_works": {
+    "status": "quarantined",
+    "reasons": [
+     "2_resembling_editions"
+    ],
+    "hits": [
+     {
+      "edition_id": "/books/OL3700132M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL886337M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     }
+    ]
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "A Wizard of Earthsea": {
+   "status": "quarantined",
+   "split": "dev",
+   "preaudit_selected_works": {
+    "status": "quarantined",
+    "reasons": [
+     "2_resembling_editions"
+    ],
+    "hits": [
+     {
+      "edition_id": "/books/OL3700132M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL886337M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     }
+    ]
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "Gödel, Escher, Bach": {
+   "status": "verified_absent",
+   "split": "dev",
+   "preaudit_selected_works": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "Middlemarch": {
+   "status": "verified_absent",
+   "split": "heldout",
+   "preaudit_selected_works": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "The Pragmatic Programmer": {
+   "status": "quarantined",
+   "split": "heldout",
+   "preaudit_selected_works": {
+    "status": "quarantined",
+    "reasons": [
+     "14_resembling_editions"
+    ],
+    "hits": [
+     {
+      "edition_id": "/books/OL6431756M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL5316638M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL21642750M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL23794830M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL5920155M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL16646335M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL23271314M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL801547M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL24955590M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL19180394M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL852042M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL14005435M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL6373703M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "/books/OL62585210M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     }
+    ]
+   },
+   "final_written_corpus": {
+    "status": "quarantined",
+    "reasons": [
+     "5_resembling_editions"
+    ],
+    "hits": [
+     {
+      "edition_id": "OL21642750M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "OL23271314M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "OL23794830M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "OL24955590M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     },
+     {
+      "edition_id": "OL5920155M",
+      "reasons": [
+       "by_statement_surname"
+      ]
+     }
+    ]
+   },
+   "preaudit_hits_in_written_corpus": []
+  },
+  "Their Eyes Were Watching God": {
+   "status": "verified_absent",
+   "split": "dev",
+   "preaudit_selected_works": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "final_written_corpus": {
+    "status": "verified_absent",
+    "reasons": [],
+    "hits": []
+   },
+   "preaudit_hits_in_written_corpus": []
+  }
+ }
+}

@@ -1,0 +1,151 @@
+{
+  "corpus_sha256": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+  "editions_written": 5366,
+  "selected_works": 387,
+  "all_ok": true,
+  "checks": [
+    {
+      "check": "corpus_sha256_A_equals_B",
+      "ok": true,
+      "detail": {
+        "A": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+        "B": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464"
+      }
+    },
+    {
+      "check": "manifest_sha256_matches_file_A",
+      "ok": true
+    },
+    {
+      "check": "manifest_sha256_matches_file_B",
+      "ok": true
+    },
+    {
+      "check": "probe_audit.json_A_equals_B",
+      "ok": true
+    },
+    {
+      "check": "families.json_A_equals_B",
+      "ok": true
+    },
+    {
+      "check": "inputs_identical_preview_A",
+      "ok": true
+    },
+    {
+      "check": "pass1_rescanned_A",
+      "ok": true
+    },
+    {
+      "check": "inputs_identical_preview_B",
+      "ok": true
+    },
+    {
+      "check": "pass1_rescanned_B",
+      "ok": true
+    },
+    {
+      "check": "selected_ids_equal_preview_A",
+      "ok": true
+    },
+    {
+      "check": "family_assignments_equal_preview_A",
+      "ok": true
+    },
+    {
+      "check": "split_balance_equal_preview_A",
+      "ok": true
+    },
+    {
+      "check": "strata_equal_preview_A",
+      "ok": true
+    },
+    {
+      "check": "edition_sampling_equal_preview_A",
+      "ok": true
+    },
+    {
+      "check": "exclusion_counts_equal_preview_A",
+      "ok": true
+    },
+    {
+      "check": "no_strict_exclusion_violations_A",
+      "ok": true
+    },
+    {
+      "check": "written_plus_dropped_equals_sampled_A",
+      "ok": true,
+      "detail": {
+        "written": 5366,
+        "dropped": {
+          "not_sampled": 37560
+        },
+        "sampled": 5366
+      }
+    },
+    {
+      "check": "selected_ids_equal_preview_B",
+      "ok": true
+    },
+    {
+      "check": "family_assignments_equal_preview_B",
+      "ok": true
+    },
+    {
+      "check": "split_balance_equal_preview_B",
+      "ok": true
+    },
+    {
+      "check": "strata_equal_preview_B",
+      "ok": true
+    },
+    {
+      "check": "edition_sampling_equal_preview_B",
+      "ok": true
+    },
+    {
+      "check": "exclusion_counts_equal_preview_B",
+      "ok": true
+    },
+    {
+      "check": "no_strict_exclusion_violations_B",
+      "ok": true
+    },
+    {
+      "check": "written_plus_dropped_equals_sampled_B",
+      "ok": true,
+      "detail": {
+        "written": 5366,
+        "dropped": {
+          "not_sampled": 37560
+        },
+        "sampled": 5366
+      }
+    },
+    {
+      "check": "every_edition_in_a_selected_work",
+      "ok": true
+    }
+  ],
+  "provenance": {
+    "approval_record_sha256": "e1d174c2cc54edf0c351a14eb36e93e40d454489976fa023d3418dff87db4b6e",
+    "approved_commit": "0fe293b11b86cdb55b9e4b2eeffa78c268ed13be",
+    "build_commit": "f6c75fdaaadb35e2acadcf6507a4c0ef83c51a3c",
+    "files": {
+      "config": {
+        "path": "data/selection/selection_config_v3_proposed.json",
+        "sha256": "8f1097f1557780d2d46f30ffa82572188047e1eb15122f1984142608121d0aaf"
+      },
+      "exclusions": {
+        "path": "data/selection/exclusions_v3_proposed.jsonl",
+        "sha256": "c8c572efef31429248efe45dffdad7314d53dd5adcb43f0bd3fdfb70b4694664"
+      },
+      "seed_list": {
+        "path": "data/selection/seed_list_v3_proposed.jsonl",
+        "sha256": "d1f4a1b3abc3d745aa8878fe346128340f02004f7903b5e0c9169cc1979a9e97"
+      }
+    },
+    "run": "a",
+    "src_bera_identical_to_approved": true
+  }
+}

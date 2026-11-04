@@ -1,0 +1,85 @@
+{
+ "The Remains of the Day": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "Never Let Me Go": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "The Name of the Wind": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "Station Eleven": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "The Left Hand of Darkness": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "A Wizard of Earthsea": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "Gödel, Escher, Bach": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "Middlemarch": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ },
+ "The Pragmatic Programmer": {
+  "status": "quarantined",
+  "reasons": [
+   "5_resembling_editions"
+  ],
+  "hits": [
+   {
+    "edition_id": "OL21642750M",
+    "reasons": [
+     "by_statement_surname"
+    ]
+   },
+   {
+    "edition_id": "OL23271314M",
+    "reasons": [
+     "by_statement_surname"
+    ]
+   },
+   {
+    "edition_id": "OL23794830M",
+    "reasons": [
+     "by_statement_surname"
+    ]
+   },
+   {
+    "edition_id": "OL24955590M",
+    "reasons": [
+     "by_statement_surname"
+    ]
+   },
+   {
+    "edition_id": "OL5920155M",
+    "reasons": [
+     "by_statement_surname"
+    ]
+   }
+  ]
+ },
+ "Their Eyes Were Watching God": {
+  "status": "verified_absent",
+  "reasons": [],
+  "hits": []
+ }
+}

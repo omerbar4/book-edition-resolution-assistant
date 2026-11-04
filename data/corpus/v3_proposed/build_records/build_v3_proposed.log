@@ -1,0 +1,5 @@
+A=cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464
+B=cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464
+REPRODUCIBLE
+scripts/build_corpus.sh build v3_proposed  6937.76s user 2010.23s system 26% cpu 9:15:21.85 total
+exit=0

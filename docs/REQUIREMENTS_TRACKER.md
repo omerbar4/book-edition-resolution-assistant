@@ -43,11 +43,11 @@
 
 | # | Requirement | Status | Evidence / blocker |
 |---|---|---|---|
-| D1 | Versioned local Open Library corpus | in progress | dumps downloading/verified; selection v1 frozen (pending owner review); two-build reproducibility script queued |
+| D1 | Versioned local Open Library corpus | verified | v3_proposed approved 2026-11-03; two independent builds byte-identical (sha256 cdabcf84…); 26/26 preview-agreement checks; dumps deleted |
 | D1a | Ingestion and provenance tooling (streaming, strata, author resolution, manifest) | verified | `ingest/`, tests on synthetic dump-format files; gated downloader not run |
 | D2 | Reproducible splits grouped by work family | verified | `evalkit/splits.py`, leakage test |
 | D3 | Seeded synthetic perturbations | verified | `evalkit/perturb.py`, determinism test |
-| D4 | ≥ 100 (target 120) human-labeled cases | blocked | owner labeling; blind-first UI ready; first 20 dev drafts generated after corpus build |
+| D4 | ≥ 100 (target 120) human-labeled cases | blocked | owner labeling; first 20 dev drafts ready in `data/eval/drafts/dev_batch01.jsonl` (17 in-corpus + 3 verified-absent probes); 0 labeled |
 | D5 | Labeling workflow + instructions + ambiguity rules | verified | guide, blind-first UI/API, dev/held-out separation tests |
 | D6 | Abstention and out-of-corpus cases | implemented (tooling) | schema + exclusion verification in corpus builder; cases blocked on corpus + labeling |
 | E1 | Six baselines compared | implemented | all six run (with --ml/--llm-url); real comparison needs human cases on the real corpus |
