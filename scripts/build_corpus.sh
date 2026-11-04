@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Usage:
 #   scripts/build_corpus.sh preview <version>   # pass 1 + selection only; no corpus written
+#   scripts/build_corpus.sh reanalyze <version> # preview again from the existing pass-1 scratch
 #   scripts/build_corpus.sh build   <version>   # two full builds + hash comparison
 # A full build REQUIRES data/selection/APPROVED_<version>.txt, written by the owner.
 # A checksum freezes a configuration; it is not approval.
@@ -18,6 +19,12 @@ ARGS=(--editions "$D/ol_dump_editions_2026-10-31.txt.gz"
       --human-seeds "$SEEDS" --exclusions "$EXCL" --config "$CFG"
       --seed "$SEED" --source-label openlibrary-dump-2026-10-31)
 UV="$ROOT/.tools/venv/bin/uv"; mkdir -p var
+if [ "$MODE" = reanalyze ]; then  # preview again from the existing pass-1 scratch DB
+  "$UV" run python -m bera.ingest.corpus "${ARGS[@]}" --preview-only --reuse-scratch \
+    --out "var/selection_preview/${V}" --scratch "var/scratch_${V}_preview.sqlite"
+  echo "PROVISIONAL preview re-analyzed into var/selection_preview/${V}/ (not a corpus; not approved)"
+  exit 0
+fi
 if [ "$MODE" = preview ]; then
   rm -f "var/scratch_${V}_preview.sqlite"
   "$UV" run python -m bera.ingest.corpus "${ARGS[@]}" --preview-only \

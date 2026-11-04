@@ -168,7 +168,7 @@ works are merged into one family if **any** of the following holds:
 
 | rule | condition |
 |---|---|
-| F1 | they share a (provisional) author key |
+| F1 | they share a **primary** (provisional) author key: credited on ≥ 20% of a work's editions, or its most-credited key; generic or unnamed records never link |
 | F2 | they share any folded edition title |
 | F3 | one's `translation_of` matches the other's title |
 | F4 | one is a study guide whose target title matches the other |
@@ -196,7 +196,18 @@ made through generic or unnamed author records ("Anonymous", "Unknown", "Various
 author records flagged ambiguous, or through generic or high-fan-out titles ("Collected
 Poems"). These merges are kept (conservative) but shown for review.
 
-Over-merging is deliberate: F1 puts every selected work by one author record into one family.
+**F1 revision (2026-11-03, after the first v3 preview, before any build or model run).** The
+first preview linked F1 through *every* author key credited on *any* edition. Open Library
+credits imprints and reprint brands as authors ("Must Read Classics", "Pocket",
+"SparkNotes", "n/a"), as well as narrators and translators. A handful of such credits chained 30
+unrelated seed titles into one 162-work family, which put 107 of 112 head works in dev. F1
+now uses primary keys only. Secondary credits are listed in the preview (not linking), and
+any family joining several seed titles is reported as `cross_seed_family` for review. A second pass showed one more chain: study guides credited to a single guide brand linked
+11 seed titles through F1 (guide to guide) and F4 (guide to novel). Study guides (S4) therefore
+do not link through F1; they join their target's family only through F4. The
+change uses dump metadata only; no retrieval or model output informed it.
+
+Over-merging is deliberate: F1 puts every selected work by one primary author record into one family.
 That reduces the number of independent families but can never let an alias cross dev and
 held-out. Probes by the same author share a family (`probe-author:<key>`). Splits hash the
 **family**, never the work id. The preview reports the family count and the largest families.

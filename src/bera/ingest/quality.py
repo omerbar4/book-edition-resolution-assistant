@@ -130,9 +130,35 @@ class FamilyResult:
         return Counter(self.family_of.values())
 
 
+def primary_author_keys(
+    credits: Mapping[str, int], n_editions: int, non_linking: set[str], min_share: float = 0.2
+) -> set[str]:
+    """Author keys that may link works under F1: credited on >= `min_share` of the work's
+    editions, plus the most-credited key(s). Keys in `non_linking` (generic or unnamed records)
+    never link. Rare per-edition credits (imprints posing as authors, narrators, illustrators,
+    translators, study-guide brands) are not primary, so they cannot chain unrelated works."""
+    usable = {k: c for k, c in credits.items() if k not in non_linking and c > 0}
+    if not usable:
+        return set()
+    top = max(usable.values())
+    return {k for k, c in usable.items() if c == top or c >= min_share * n_editions}
+
+
+def cross_seed_families(
+    family_of: Mapping[str, str], seed_group_of_work: Mapping[str, str]
+) -> dict[str, list[str]]:
+    """Families that contain works from more than one seed title group. Expected for one
+    author's several seeds (e.g. two Shakespeare plays); anything else is a merge to review."""
+    groups: dict[str, set[str]] = {}
+    for work, g in seed_group_of_work.items():
+        if work in family_of:
+            groups.setdefault(family_of[work], set()).add(g)
+    return {f: sorted(gs) for f, gs in sorted(groups.items()) if len(gs) > 1}
+
+
 def build_families(works: Sequence[WorkInfo]) -> FamilyResult:
     """Conservative grouping for split assignment. Two works share a family if ANY holds:
-    F1 shared (provisional) author key; F2 any shared folded edition title;
+    F1 shared primary author key (see primary_author_keys); F2 any shared folded edition title;
     F3 one's translation_of matches the other's title; F4 study guide target;
     F5 explicit seed alias group (e.g. 1984 / Nineteen Eighty-Four).
     Over-merging is accepted: it only reduces the number of independent families.

@@ -55,6 +55,24 @@ def render(p: dict[str, Any]) -> str:
         "|---|---|",
     ]
     out += [f"| {x['family']} | {x['works']} |" for x in f["largest"]]
+    if "author_link_rule" in f:
+        out += ["", f"Author-link rule: {f['author_link_rule']}."]
+    cross = f.get("cross_seed_families", {})
+    out += ["", f"### Families joining several seed titles ({len(cross)})", ""]
+    out += [f"- {fam}: {', '.join(gs)}" for fam, gs in cross.items()] or ["- none"]
+    for fam, ms in f.get("cross_seed_family_merges", {}).items():
+        out += ["", f"Merges inside {fam}:", ""]
+        out += [f"- {m['rule']} `{m['value']}`: {m['a']} ↔ {m['b']}" for m in ms[:40]]
+    sec = f.get("secondary_credit_keys_not_linking", [])
+    if sec:
+        out += [
+            "",
+            "### Most frequent secondary credits (not used for linking)",
+            "",
+            "| key | name | works credited |",
+            "|---|---|---|",
+        ]
+        out += [f"| {x['key']} | {x['name']} | {x['works']} |" for x in sec[:15]]
     sus = f["suspicious_merges"]
     out += [
         "",

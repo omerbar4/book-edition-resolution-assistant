@@ -166,3 +166,41 @@ def test_suspicious_merges_flag_generic_authors_and_titles() -> None:
     assert any("generic_or_high_fanout_title" in r for r in reasons.values())
     assert not any({"E", "F"} == {a, b} for a, b in reasons)  # a real shared author is fine
     assert res.family_of["/works/A"] == res.family_of["/works/B"]  # merge kept (conservative)
+
+
+def test_rare_edition_credits_do_not_chain_unrelated_works() -> None:
+    from bera.ingest.quality import cross_seed_families, primary_author_keys
+
+    # An imprint posing as an author is credited on a few editions of two unrelated classics.
+    austen = primary_author_keys({"/authors/AUSTEN": 900, "/authors/IMPRINT": 3}, 1000, set())
+    stoker = primary_author_keys({"/authors/STOKER": 400, "/authors/IMPRINT": 2}, 420, set())
+    assert austen == {"/authors/AUSTEN"} and stoker == {"/authors/STOKER"}
+    works = [
+        WorkInfo("/works/P", {"pride and prejudice"}, set(), austen, alias_group="pp"),
+        WorkInfo("/works/D", {"dracula"}, set(), stoker, alias_group="dracula"),
+    ]
+    fam = build_families(works).family_of
+    assert fam["/works/P"] != fam["/works/D"]
+    assert cross_seed_families(fam, {"/works/P": "pp", "/works/D": "dracula"}) == {}
+
+
+def test_primary_keys_keep_coauthors_and_drop_generic_records() -> None:
+    from bera.ingest.quality import primary_author_keys
+
+    assert primary_author_keys({"/authors/A": 1, "/authors/B": 1}, 1, set()) == {
+        "/authors/A",
+        "/authors/B",
+    }
+    assert primary_author_keys({"/authors/A": 6, "/authors/B": 5}, 10, set()) == {
+        "/authors/A",
+        "/authors/B",
+    }
+    assert primary_author_keys({"/authors/UNKNOWN": 9}, 9, {"/authors/UNKNOWN"}) == set()
+
+
+def test_cross_seed_families_reports_shared_family() -> None:
+    from bera.ingest.quality import cross_seed_families
+
+    fam = {"/works/H": "fam:H", "/works/R": "fam:H", "/works/X": "fam:X"}
+    got = cross_seed_families(fam, {"/works/H": "hamlet", "/works/R": "romeo", "/works/X": "x"})
+    assert got == {"fam:H": ["hamlet", "romeo"]}

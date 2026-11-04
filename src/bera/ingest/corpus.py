@@ -48,12 +48,15 @@ from bera.ingest.dumps import (
     parse_year,
 )
 from bera.ingest.quality import (
+    GENERIC_AUTHOR_NAMES,
     AuditEdition,
     AuthorRecord,
     EdFeat,
     WorkInfo,
     author_ambiguity,
     build_families,
+    cross_seed_families,
+    primary_author_keys,
     probe_audit,
     sample_editions,
     suspicious_merges,
@@ -100,7 +103,7 @@ class Manifest:
     quotas: dict[str, int]
     python_version: str
     inputs: dict[str, Any] = field(default_factory=dict)
-    read_stats: dict[str, dict[str, int]] = field(default_factory=dict)
+    read_stats: dict[str, dict[str, Any]] = field(default_factory=dict)
     strata: dict[str, int] = field(default_factory=dict)
     selected_works: int = 0
     editions_written: int = 0
@@ -623,6 +626,7 @@ def analyze_selection(
     sampled: dict[str, list[str]] = {}
     sampling: dict[str, Any] = {}
     infos: list[WorkInfo] = []
+    work_credits: dict[str, tuple[Counter[str], int]] = {}
     unmet_counter: Counter[str] = Counter()
     for work in sorted(selected):
         rows = scratch.execute(
@@ -649,24 +653,26 @@ def analyze_selection(
         if selected[work] == "S4":
             t = scratch.execute("SELECT ftitle FROM works WHERE work = ?", (work,)).fetchone()[0]
             guide_target = fold_title(_GUIDE_PREFIX_RE.sub("", t or ""))
+        credits: Counter[str] = Counter()
+        for r in rows:
+            credits.update(set((r[8] or "").split()))
+        work_credits[work] = (credits, len(rows))
         infos.append(
             WorkInfo(
                 work=work,
                 titles={r[6] for r in rows if r[6]},
                 translation_of={r[7] for r in rows if r[7]},
-                author_keys={k for r in rows if r[8] for k in r[8].split()},
+                author_keys=set(),  # primary keys filled in below, once names are known
                 guide_target=guide_target,
                 alias_group=manifest.seed_alias_of_work.get(work),
             )
         )
-    fams = build_families(infos)
-    sizes = fams.sizes()
 
-    # author identity candidates (provisional): seed keys and probe keys
+    # author identity candidates (provisional): seed keys, probe keys, all credited keys
     wanted = (
         {k for s in seeds for k in s.author_keys}
         | set(rules.author_keys)
-        | {k for w in infos for k in w.author_keys}
+        | {k for c, _ in work_credits.values() for k in c}
     )
     records: dict[str, AuthorRecord] = {}
     for row in iter_dump(authors_path):
@@ -678,6 +684,28 @@ def analyze_selection(
                 nm if isinstance(nm, str) else None,
                 bd if isinstance(bd, str) else None,
             )
+
+    # F1 links only through primary author keys; generic/unnamed records never link.
+    def _generic(k: str) -> bool:
+        name = (records[k].name or "") if k in records else ""
+        return not name.strip() or name.strip().casefold() in GENERIC_AUTHOR_NAMES
+
+    non_linking = {k for k in wanted if _generic(k)}
+    secondary: Counter[str] = Counter()
+    for wi in infos:
+        credits, n = work_credits[wi.work]
+        # Study guides link only to their target (F4): a guide's credited "author" is usually
+        # a guide brand shared across unrelated titles, which would chain those titles.
+        is_guide = wi.guide_target is not None
+        wi.author_keys = set() if is_guide else primary_author_keys(credits, n, non_linking)
+        secondary.update(k for k in credits if k not in wi.author_keys)
+    fams = build_families(infos)
+    sizes = fams.sizes()
+    seed_group_of_work = {
+        wi.work: wi.alias_group for wi in infos if selected[wi.work] == "H" and wi.alias_group
+    }
+    cross_seed = cross_seed_families(fams.family_of, seed_group_of_work)
+
     seed_amb: dict[str, dict[str, Any]] = {}
     for s in seeds:
         h_works = [
@@ -792,6 +820,8 @@ def analyze_selection(
             f"possible_unrelated_merges: {len(suspicious)} merges across {len(fams_hit)} "
             "families via generic/ambiguous author records or generic titles (see families)"
         )
+    for f, gs in cross_seed.items():
+        warnings.append(f"cross_seed_family: {f} joins seed groups {gs} (review)")
     if largest and largest[0][1] > max(5, len(selected) // 10):
         warnings.append(f"large_family: {largest[0][0]} has {largest[0][1]} works")
 
@@ -809,6 +839,26 @@ def analyze_selection(
             "largest": [{"family": f, "works": n} for f, n in largest],
             "singleton_families": sum(1 for n in sizes.values() if n == 1),
             "suspicious_merges": suspicious,
+            "author_link_rule": "F1 uses primary author keys only: credited on >= 20% of a "
+            "work's editions or most-credited; generic/unnamed records never link; study "
+            "guides link only via F4 to their target",
+            "secondary_credit_keys_not_linking": [
+                {
+                    "key": k.rsplit("/", 1)[-1],
+                    "name": records[k].name if k in records else None,
+                    "works": n,
+                }
+                for k, n in secondary.most_common(25)
+            ],
+            "cross_seed_families": cross_seed,
+            "cross_seed_family_merges": {
+                f: [
+                    {"rule": t, "value": v, "a": a.rsplit("/", 1)[-1], "b": b.rsplit("/", 1)[-1]}
+                    for t, v, a, b in fams.merges
+                    if fams.family_of[a] == f
+                ]
+                for f in cross_seed
+            },
             "limitation": "family grouping reduces split leakage but cannot guarantee that "
             "every alias, duplicate work or translation is detected",
             "family_of": {w.rsplit("/", 1)[-1]: f for w, f in fams.family_of.items()},
@@ -833,7 +883,12 @@ def build_corpus(
     preview_only: bool = False,
     split_seed: int = 20261103,
     dev_fraction: float = 0.6,
+    reuse_scratch: bool = False,
 ) -> Manifest:
+    """`reuse_scratch` (preview only) skips pass 1 and re-runs selection and analysis on an
+    existing scratch DB from a previous preview of the same dump. Full builds always rescan."""
+    if reuse_scratch and not (preview_only and scratch_path and scratch_path.exists()):
+        raise ValueError("reuse_scratch requires preview_only and an existing scratch DB")
     q = quotas or Quotas()
     out_dir.mkdir(parents=True, exist_ok=True)
     manifest = Manifest(
@@ -852,9 +907,12 @@ def build_corpus(
     rules = ExclusionRules.load(_load_jsonl(inputs.exclusions))
 
     scratch = sqlite3.connect(scratch_path or ":memory:")
-    s1 = ReadStats()
-    pass1_stats(inputs.editions, redirects, scratch, s1)
-    manifest.read_stats["editions_pass1"] = asdict(s1)
+    if reuse_scratch:
+        manifest.read_stats["editions_pass1"] = {"reused_scratch": str(scratch_path)}
+    else:
+        s1 = ReadStats()
+        pass1_stats(inputs.editions, redirects, scratch, s1)
+        manifest.read_stats["editions_pass1"] = asdict(s1)
     excluded = excluded_works(scratch, rules)
     selected = select_works(scratch, seed, q, seeds, excluded, manifest)
     manifest.selected_works = len(selected)
@@ -1035,6 +1093,11 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         action="store_true",
         help="stop after selection; write selection_preview.json, no corpus",
     )
+    p.add_argument(
+        "--reuse-scratch",
+        action="store_true",
+        help="preview only: skip pass 1 and re-analyze the existing --scratch DB",
+    )
     a = p.parse_args(argv)
     cfg = json.loads(a.config.read_text()) if a.config else {}
     quotas = Quotas(**cfg["quotas"]) if cfg else None
@@ -1048,6 +1111,7 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         preview_only=a.preview_only,
         split_seed=int(cfg.get("split_seed", 20261103)),
         dev_fraction=float(cfg.get("dev_fraction", 0.6)),
+        reuse_scratch=a.reuse_scratch,
     )
     print(
         json.dumps(
