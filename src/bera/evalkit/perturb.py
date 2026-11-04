@@ -100,26 +100,47 @@ def clean_fields(e: Edition) -> dict[str, object]:
     return f
 
 
-def _fits(fields: dict[str, object], e: Edition) -> bool:
-    """Exact (normalized) agreement of every provided structured field with an edition."""
+def _fit(fields: dict[str, object], e: Edition) -> str | None:
+    """Does edition `e` agree with every provided structured field?
+
+    Returns None if any provided field contradicts a KNOWN value of `e`, "unknown" if `e`
+    could match only because some provided field is missing on `e` (unknown is never treated
+    as a mismatch), else "exact". Missing metadata therefore widens the set of editions that
+    fit; it is never used as distinguishing evidence."""
+    unknown = False
     isbn_raw = fields.get("isbn")
     if isbn_raw:
         p = isbnlib.parse(str(isbn_raw))
         if not p.valid:
-            return False  # a damaged ISBN identifies nothing exactly
-        mine = {isbnlib.parse(x).isbn13 for x in (*e.isbn_10, *e.isbn_13)}
-        if p.isbn13 not in mine:
-            return False
+            return None  # a damaged ISBN identifies nothing exactly
+        mine = {isbnlib.parse(x).isbn13 for x in (*e.isbn_10, *e.isbn_13)} - {None}
+        if not mine:
+            unknown = True
+        elif p.isbn13 not in mine:
+            return None
     if fields.get("title") and norm_text(str(fields["title"])) != norm_text(e.title):
-        return False
-    if fields.get("author") and norm_person(str(fields["author"])) not in {
-        norm_person(a) for a in e.authors
-    }:
-        return False
+        return None
+    if fields.get("author"):
+        if not e.authors:
+            unknown = True
+        elif norm_person(str(fields["author"])) not in {norm_person(a) for a in e.authors}:
+            return None
     fmt = fields.get("physical_format")
-    if fmt and str(fmt).replace(" ", "_") != e.physical_format.value:
-        return False
-    return not (fields.get("publish_year") is not None and fields["publish_year"] != e.publish_year)
+    if fmt:
+        if e.physical_format in (PhysicalFormat.UNKNOWN, PhysicalFormat.OTHER):
+            unknown = True
+        elif str(fmt).replace(" ", "_") != e.physical_format.value:
+            return None
+    if fields.get("publish_year") is not None:
+        if e.publish_year is None:
+            unknown = True
+        elif fields["publish_year"] != e.publish_year:
+            return None
+    return "unknown" if unknown else "exact"
+
+
+def _fits(fields: dict[str, object], e: Edition) -> bool:
+    return _fit(fields, e) is not None
 
 
 def make_case(
@@ -143,16 +164,20 @@ def make_case(
         judged["author"] = e.authors[0]
     if "isbn" in judged and not isbnlib.parse(str(judged["isbn"])).valid:
         judged.pop("isbn")
-    fits = sorted(x.edition_id for x in catalog if _fits(judged, x))
-    if e.edition_id not in fits:
-        fits = sorted({*fits, e.edition_id})
+    kinds = {x.edition_id: k for x in catalog if (k := _fit(judged, x)) is not None}
+    kinds.setdefault(e.edition_id, "exact")
+    fits = sorted(kinds)
+    via_unknown = sum(1 for k in kinds.values() if k == "unknown")
     unique = len(fits) == 1
     return EvalCase(
         case_id=case_id,
         query=Query.model_validate(fields),
         expected="suggest" if unique else "abstain",
         gold_edition_ids=[e.edition_id] if unique else fits,
-        ambiguity_reason=None if unique else f"underspecified: {len(fits)} editions fit",
+        ambiguity_reason=None
+        if unique
+        else f"underspecified: {len(fits)} editions fit"
+        + (f" ({via_unknown} only because a field is unknown on them)" if via_unknown else ""),
         family=family,
         origin="synthetic_perturbation",
         perturbation=Perturbation(ops=list(ops), seed=seed, source_edition_id=e.edition_id),
@@ -164,12 +189,15 @@ def generate(
     seed: int,
     per_edition: int = 2,
     family_of: Callable[[Edition], str] | None = None,
+    sources: Sequence[Edition] | None = None,
 ) -> list[EvalCase]:
+    """One or more cases per source edition (default: every catalog edition). Fit and
+    ambiguity are always judged against the whole `catalog`."""
     rng = random.Random(seed)  # noqa: S311 - reproducible generation, not security
     fam = family_of or (lambda e: e.work_id or e.edition_id)
     names = sorted(OPS)
     out: list[EvalCase] = []
-    for e in sorted(catalog, key=lambda x: x.edition_id):
+    for e in sorted(catalog if sources is None else sources, key=lambda x: x.edition_id):
         for j in range(per_edition):
             k = rng.randint(1, 2)
             ops = sorted(rng.sample(names, k))

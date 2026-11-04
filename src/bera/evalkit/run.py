@@ -173,9 +173,15 @@ def evaluate(
     synthetic_catalog = catalog.meta().get("all_synthetic") == "True"
     synthetic_cases = all(c.origin == "synthetic_perturbation" for c in cases)
     report: dict[str, object] = {
-        "label": "ENGINEERING CHECK ON SYNTHETIC DATA. NOT A REAL-WORLD EVALUATION."
+        "label": (
+            "ENGINEERING CHECK ON SYNTHETIC DATA. NOT A REAL-WORLD EVALUATION."
+            if synthetic_catalog
+            else "ENGINEERING CHECK: synthetic perturbation cases on the real Open Library "
+            "catalog. NOT A REAL-WORLD EVALUATION; no human labels; not calibrated."
+        )
         if synthetic_catalog or synthetic_cases
         else "evaluation",
+        "splits_in_cases": sorted({c.split or "unassigned" for c in cases}),
         "catalog_meta": catalog.meta(),
         "cases": len(cases),
         "human_labeled_cases": sum(c.human_labeled for c in cases),

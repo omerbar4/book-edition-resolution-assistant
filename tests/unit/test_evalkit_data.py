@@ -87,3 +87,22 @@ def test_label_tools(catalog: Any, editions: list[Any]) -> None:
     assert titles == sorted(titles) and "score" not in rows[0]
     report = validate(generate(editions, seed=1), catalog)
     assert report["ok"] and report["human_labeled"] == 0
+
+
+def test_unknown_metadata_never_counts_as_distinguishing(editions: list[Any]) -> None:
+    from bera.models import PhysicalFormat
+
+    e1 = next(e for e in editions if e.edition_id == "SYN-E0001")
+    twin = e1.model_copy(
+        update={
+            "edition_id": "SYN-TWIN",
+            "isbn_10": [],
+            "isbn_13": [],
+            "physical_format": PhysicalFormat.UNKNOWN,
+            "publish_year": None,
+        }
+    )
+    case = make_case(e1, ["drop_isbn"], 1, [*editions, twin], "W001", "x")
+    # The twin's format/year are unknown, so it cannot be ruled out: no forced unique gold.
+    assert case.expected == "abstain" and "SYN-TWIN" in case.gold_edition_ids
+    assert "only because a field is unknown" in (case.ambiguity_reason or "")
