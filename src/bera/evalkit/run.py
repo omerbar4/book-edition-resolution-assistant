@@ -299,6 +299,13 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     ):
         _require_frozen(a.frozen_tag)
     cases = [c for c in load_cases(a.cases) if a.split == "all" or c.split == a.split]
+    # Practice labels (provenance sidecar) are never independent human labels: exclude them.
+    from bera.evalkit.provenance import independent_human_cases
+
+    kept = independent_human_cases(cases, a.cases)
+    if len(kept) != len(cases):
+        print(f"excluded {len(cases) - len(kept)} practice-labeled case(s) (provenance sidecar)")
+    cases = kept
     catalog = Catalog(a.db or Settings.from_env().catalog_db)
     provider = None
     if a.llm_url:

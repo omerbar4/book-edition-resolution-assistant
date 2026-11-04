@@ -22,6 +22,7 @@ from bera.evalkit.splits import family_split
 from bera.models import Edition, Query
 
 DRAFTER = "template-drafter-v1 (deterministic program; not a human, not an LLM)"
+DRAFTER_V2 = "template-drafter-v2 (deterministic program; skips templates that cannot apply)"
 
 # Realistic-input templates: (name, perturbation ops)
 TEMPLATES: list[tuple[str, list[str]]] = [
@@ -32,6 +33,38 @@ TEMPLATES: list[tuple[str, list[str]]] = [
     ("title_author_only", ["drop_isbn", "drop_format", "drop_year"]),
     ("initials_author", ["drop_isbn", "author_initials"]),
 ]
+
+
+def template_applies(ops: Sequence[str], e: Edition) -> bool:
+    """Can every op in a template actually change this source's query? ISBN ops need an
+    ISBN-13 (the drafter builds queries from ISBN-13 only); author ops need a multi-word
+    first author."""
+    for op in ops:
+        if op in ("isbn10_form", "isbn_digit_error") and not e.isbn_13:
+            return False
+        if op in ("author_last_first", "author_initials") and (
+            not e.authors or len(e.authors[0].split()) < 2
+        ):
+            return False
+    return True
+
+
+def template_note(d: Draft, source: Edition | None) -> str | None:
+    """Plain-language note when a v1 draft's template did not apply to its source, so the
+    template name does not describe the query. Reveals nothing about the answer."""
+    if source is None:
+        return None
+    ops = dict(TEMPLATES).get(d.template, [])
+    notes = []
+    if any(op in ("isbn10_form", "isbn_digit_error") for op in ops) and not d.query.isbn:
+        notes.append("the ISBN step was not applied, so this query has no ISBN")
+    if any(op in ("author_last_first", "author_initials") for op in ops) and (
+        not source.authors or len(source.authors[0].split()) < 2
+    ):
+        notes.append("the author-rewriting step could not change this author")
+    if not notes:
+        return None
+    return f"Template '{d.template}' did not fully apply: " + "; ".join(notes) + "."
 
 
 class Proposed(BaseModel):
@@ -65,6 +98,7 @@ def draft_batch(
     prefix: str,
     family_of: Mapping[str, str] | None = None,
     probe_status: Mapping[str, str] | None = None,
+    drafter: str = "v2",
 ) -> list[Draft]:
     """family_of maps work ids to conservative work families (families.json); split
     assignment uses the family, so aliases/translations never straddle dev and held-out.
@@ -84,6 +118,13 @@ def draft_batch(
     out: list[Draft] = []
     for i, e in enumerate(picked):
         name, ops = TEMPLATES[i % len(TEMPLATES)]
+        if drafter == "v2":
+            # rotate to the first template whose ops can actually apply to this source
+            for j in range(len(TEMPLATES)):
+                cand = TEMPLATES[(i + j) % len(TEMPLATES)]
+                if template_applies(cand[1], e):
+                    name, ops = cand
+                    break
         case = make_case(e, ops, rng.randrange(2**31), catalog, fam(e), "tmp")
         out.append(
             Draft(
@@ -92,6 +133,7 @@ def draft_batch(
                 family=case.family,
                 query=case.query,
                 template=name,
+                drafted_by=DRAFTER_V2 if drafter == "v2" else DRAFTER,
                 source_edition_id=e.edition_id,
                 proposed=Proposed(
                     expected=case.expected,

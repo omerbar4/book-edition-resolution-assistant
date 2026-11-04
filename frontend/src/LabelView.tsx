@@ -6,14 +6,31 @@ interface QueueItem {
   split: string;
   query: Record<string, string | number>;
   template: string;
+  template_note?: string | null;
   labeled: boolean;
+  status?: "unlabeled" | "labeled" | "practice" | "skipped";
 }
 interface Queue {
   items: QueueItem[];
   reasons: string[];
   labeled: number;
+  independent?: number;
+  practice?: number;
+  skipped?: number;
   total: number;
+  proposal_label_spec?: string;
 }
+interface SearchPage {
+  total: number;
+  offset: number;
+  limit: number;
+  returned: number;
+  truncated: boolean;
+  match_rule: string;
+  order: string;
+  items: Row[];
+}
+const PAGE = 50;
 interface Row {
   edition_id: string;
   work_id: string | null;
@@ -29,8 +46,13 @@ interface Row {
   isbn_10: string[];
 }
 interface Reveal {
-  proposed: { expected: string; gold_edition_ids: string[]; ambiguity_reason?: string | null };
+  proposed: {
+    expected: string;
+    gold_edition_ids: string[];
+    ambiguity_reason?: string | null;
+  };
   agrees_with_proposal: boolean;
+  proposal_label_spec?: string;
 }
 
 const LABELER_KEY = "bera.labeler";
@@ -47,7 +69,10 @@ export function LabelView() {
   const [queue, setQueue] = useState<Queue | null>(null);
   const [idx, setIdx] = useState(0);
   const [search, setSearch] = useState("");
-  const [rows, setRows] = useState<Row[]>([]);
+  const [page, setPage] = useState<SearchPage | null>(null);
+  const rows = page?.items ?? [];
+  const [skipReason, setSkipReason] = useState("");
+  const [skippedMsg, setSkippedMsg] = useState<string | null>(null);
   const [gold, setGold] = useState<string[]>([]);
   const [abstain, setAbstain] = useState(false);
   const [reason, setReason] = useState("");
@@ -72,23 +97,59 @@ export function LabelView() {
     setReason("");
     setNotes("");
     setReveal(null);
-    setRows([]);
-    setSearch(typeof item?.query.title === "string" ? item.query.title.slice(0, 40) : "");
+    setPage(null);
+    setSkipReason("");
+    setSkippedMsg(null);
+    setSearch(
+      typeof item?.query.title === "string"
+        ? item.query.title.slice(0, 40)
+        : "",
+    );
   }, [item?.draft_id]);
 
   const canSubmit = useMemo(
-    () => labeler.trim() !== "" && (abstain ? reason !== "" : gold.length > 0) && !reveal,
+    () =>
+      labeler.trim() !== "" &&
+      (abstain ? reason !== "" : gold.length > 0) &&
+      !reveal,
     [labeler, abstain, reason, gold, reveal],
   );
 
-  async function runSearch() {
+  async function runSearch(offset = 0) {
     setError(null);
-    const res = await fetch(`/api/label/search?title=${encodeURIComponent(search.trim())}`);
+    const q = new URLSearchParams({
+      title: search.trim(),
+      offset: String(offset),
+      limit: String(PAGE),
+    });
+    const res = await fetch(`/api/label/search?${q.toString()}`);
     if (!res.ok) {
       setError(`search failed: ${res.status}`);
       return;
     }
-    setRows((await res.json()) as Row[]);
+    setPage((await res.json()) as SearchPage);
+  }
+
+  async function skip() {
+    if (!item) return;
+    setError(null);
+    const res = await fetch("/api/label/skip", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        draft_id: item.draft_id,
+        labeler: labeler.trim(),
+        reason: skipReason.trim() || null,
+      }),
+    });
+    if (!res.ok) {
+      setError(`skip failed: ${res.status} ${await res.text()}`);
+      return;
+    }
+    setSkippedMsg(
+      "Skipped for now. Nothing was labeled and the proposal stays hidden.",
+    );
+    await loadQueue();
   }
 
   async function submit() {
@@ -106,7 +167,11 @@ export function LabelView() {
         draft_id: item.draft_id,
         labeler: labeler.trim(),
         expected: abstain ? "abstain" : "suggest",
-        gold_edition_ids: abstain ? (reason === "underspecified" ? gold : []) : gold,
+        gold_edition_ids: abstain
+          ? reason === "underspecified"
+            ? gold
+            : []
+          : gold,
         ambiguity_reason: abstain ? reason : null,
         notes: notes.trim() || null,
       }),
@@ -119,22 +184,71 @@ export function LabelView() {
     await loadQueue();
   }
 
-  if (error && !queue) return <p role="alert" className="error">{error}</p>;
+  if (error && !queue)
+    return (
+      <p role="alert" className="error">
+        {error}
+      </p>
+    );
   if (!queue) return <p>Loading queue…</p>;
   if (!item) return <p>The queue is empty.</p>;
 
   return (
     <section aria-label="Labeling">
+      <details className="howto" open={queue.labeled === 0}>
+        <summary>What am I deciding?</summary>
+        <p>
+          Someone typed the query below while trying to identify one specific
+          printed edition. Your job is to say what the correct output should be,
+          using only what the query says:
+        </p>
+        <ul>
+          <li>
+            <b>One edition</b>: exactly one catalog record fits, and every other
+            plausible record is ruled out by something the query actually says
+            (for example a different year or format). Tick that one record.
+          </li>
+          <li>
+            <b>Human review (abstain)</b>: more than one record could be the
+            right one, the book is not in the catalog, or the query contradicts
+            itself. Pick a reason.
+          </li>
+          <li>
+            Missing information is <b>unknown</b>, not a difference: a record
+            with no year or format could still be the one. Tick several records
+            only if you have positive evidence that they are the same edition.
+          </li>
+          <li>
+            <b>Skip for now</b> if you cannot assess the case yet. A skip is not
+            a label.
+          </li>
+        </ul>
+        <p className="muted small">
+          Search results are unranked. The program's drafted proposal stays
+          hidden until you save your own label.
+        </p>
+      </details>
       <p className="muted">
-        Development queue · {queue.labeled}/{queue.total} labeled · held-out cases are not served
-        here. Decide on your own first; the drafted proposal is shown only after you submit.
+        Development queue · {queue.independent ?? queue.labeled} independent
+        labels · {queue.practice ?? 0} practice (not counted) ·{" "}
+        {queue.skipped ?? 0} skipped · {queue.total} cases. Held-out cases are
+        not served here.
       </p>
       <div className="actions">
-        <button type="button" className="secondary" disabled={idx === 0} onClick={() => setIdx(idx - 1)}>
+        <button
+          type="button"
+          className="secondary"
+          disabled={idx === 0}
+          onClick={() => setIdx(idx - 1)}
+        >
           ← Previous
         </button>
         <span>
-          {item.draft_id} ({idx + 1}/{queue.total}) {item.labeled ? "· labeled" : ""}
+          {item.draft_id} ({idx + 1}/{queue.total}) ·{" "}
+          {item.status ?? (item.labeled ? "labeled" : "unlabeled")}
+          {item.status === "practice"
+            ? " (AI-assisted practice, not counted)"
+            : ""}
         </span>
         <button
           type="button"
@@ -145,7 +259,6 @@ export function LabelView() {
           Next →
         </button>
       </div>
-
       <div className="candidate">
         <h2>Query as a person typed it</h2>
         <table className="checks">
@@ -158,20 +271,69 @@ export function LabelView() {
             ))}
           </tbody>
         </table>
-        <p className="muted small">template: {item.template}</p>
+        <p className="muted small">
+          Fields not listed were not given in this query. Generator template:{" "}
+          {item.template}
+        </p>
+        {item.template_note && (
+          <p className="warn small">{item.template_note}</p>
+        )}
       </div>
 
       <div className="query">
         <label className="wide">
-          <span>Search the catalog by title (alphabetical, unranked)</span>
-          <input value={search} maxLength={200} onChange={(e) => setSearch(e.target.value)} />
+          <span>
+            Search the catalog: every word must appear in a title, subtitle or
+            original title
+          </span>
+          <input
+            value={search}
+            maxLength={200}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </label>
         <div className="actions">
-          <button type="button" onClick={runSearch} disabled={search.trim().length < 2}>
+          <button
+            type="button"
+            onClick={() => runSearch(0)}
+            disabled={search.trim().length < 2}
+          >
             Search
           </button>
         </div>
       </div>
+
+      {page && (
+        <div className="actions" role="status">
+          <span>
+            {page.total === 0
+              ? "No catalog records match."
+              : `Showing ${page.offset + 1}–${page.offset + page.returned} of ${page.total} matching records`}
+            {page.truncated
+              ? " (more on the next page)"
+              : page.total > 0
+                ? " (all shown)"
+                : ""}{" "}
+            · {page.order}
+          </span>
+          <button
+            type="button"
+            className="secondary"
+            disabled={page.offset === 0}
+            onClick={() => runSearch(Math.max(0, page.offset - PAGE))}
+          >
+            ← Prev page
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            disabled={!page.truncated}
+            onClick={() => runSearch(page.offset + PAGE)}
+          >
+            Next page →
+          </button>
+        </div>
+      )}
 
       {rows.length > 0 && (
         <table className="checks" aria-label="Catalog records">
@@ -206,11 +368,14 @@ export function LabelView() {
                 <td>{r.edition_id}</td>
                 <td>
                   {v(r.title)}
-                  {r.subtitle && <span className="muted">: {v(r.subtitle)}</span>}
+                  {r.subtitle && (
+                    <span className="muted">: {v(r.subtitle)}</span>
+                  )}
                 </td>
                 <td>{r.authors.map(v).join("; ")}</td>
                 <td>
-                  {r.publishers.map(v).join("; ")} · {r.publish_year ?? "?"} · {r.physical_format}
+                  {r.publishers.map(v).join("; ")} · {r.publish_year ?? "?"} ·{" "}
+                  {r.physical_format}
                 </td>
                 <td>
                   {v(r.edition_name)} · {r.languages.join(",")}
@@ -225,7 +390,11 @@ export function LabelView() {
       <div className="query">
         <label>
           <span>
-            <input type="checkbox" checked={abstain} onChange={(e) => setAbstain(e.target.checked)} />{" "}
+            <input
+              type="checkbox"
+              checked={abstain}
+              onChange={(e) => setAbstain(e.target.checked)}
+            />{" "}
             Correct behavior is human review (abstain)
           </span>
         </label>
@@ -244,11 +413,19 @@ export function LabelView() {
         )}
         <label>
           <span>Your labeler id</span>
-          <input value={labeler} maxLength={40} onChange={(e) => setLabeler(e.target.value)} />
+          <input
+            value={labeler}
+            maxLength={40}
+            onChange={(e) => setLabeler(e.target.value)}
+          />
         </label>
         <label className="wide">
           <span>Notes (optional)</span>
-          <input value={notes} maxLength={500} onChange={(e) => setNotes(e.target.value)} />
+          <input
+            value={notes}
+            maxLength={500}
+            onChange={(e) => setNotes(e.target.value)}
+          />
         </label>
         <div className="actions">
           <span className="muted">picked: {gold.join(", ") || "none"}</span>
@@ -256,15 +433,48 @@ export function LabelView() {
             Save label
           </button>
         </div>
+        <label className="wide">
+          <span>Skip reason (optional)</span>
+          <input
+            value={skipReason}
+            maxLength={300}
+            onChange={(e) => setSkipReason(e.target.value)}
+          />
+        </label>
+        <div className="actions">
+          <button
+            type="button"
+            className="secondary"
+            onClick={skip}
+            disabled={labeler.trim() === "" || !!reveal}
+          >
+            Skip for now
+          </button>
+        </div>
       </div>
+      {skippedMsg && <p role="status">{skippedMsg}</p>}
 
-      {error && <p role="alert" className="error">{error}</p>}
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
       {reveal && (
-        <p role="status" className={reveal.agrees_with_proposal ? "ok" : "warn"}>
-          Saved. Drafted proposal: {reveal.proposed.expected}{" "}
+        <p
+          role="status"
+          className={reveal.agrees_with_proposal ? "ok" : "warn"}
+        >
+          Saved. Drafted proposal (label spec{" "}
+          {reveal.proposal_label_spec ?? "unrecorded"}):{" "}
+          {reveal.proposed.expected}{" "}
           {reveal.proposed.gold_edition_ids.join(", ") || ""}
-          {reveal.proposed.ambiguity_reason ? ` (${reveal.proposed.ambiguity_reason})` : ""} ·{" "}
-          {reveal.agrees_with_proposal ? "matches your label" : "differs from your label (your label is kept)"}
+          {reveal.proposed.ambiguity_reason
+            ? ` (${reveal.proposed.ambiguity_reason})`
+            : ""}{" "}
+          ·{" "}
+          {reveal.agrees_with_proposal
+            ? "matches your label"
+            : "differs from your label (your label is kept)"}
         </p>
       )}
     </section>

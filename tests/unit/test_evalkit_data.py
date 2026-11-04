@@ -155,3 +155,11 @@ def test_spec_v2_isbn_holder_conflict_abstains(editions: list[Any]) -> None:
     exp, _, reason, ev = label(judged, e1, editions, "v2")
     assert exp == "abstain" and reason == "ISBN holder conflicts with supplied metadata"
     assert ev["explicit_isbn_mappings"] == ["SYN-E0001"]
+
+
+def test_search_is_accent_insensitive_and_reports_total(catalog: Any) -> None:
+    from bera.evalkit.label import search_page
+
+    page = search_page(catalog, "LANTERN", 0, 2)
+    assert page["total"] >= page["returned"]
+    assert search_page(catalog, "lantérn", 0, 2)["total"] == page["total"]

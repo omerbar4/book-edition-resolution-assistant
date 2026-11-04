@@ -101,9 +101,20 @@ def test_blind_first_flow(tmp_path: Path, editions: list[Any], make_resolver: An
     assert cases[0].split == "dev"
     assert client.get("/api/label/queue").json()["labeled"] == 1
 
-    rows = client.get("/api/label/search", params={"title": "lantern"}).json()
-    titles = [r["title"] for r in rows]
+    page = client.get("/api/label/search", params={"title": "lantern"}).json()
+    titles = [r["title"] for r in page["items"]]
     assert titles == sorted(titles)
+    assert page["total"] >= len(page["items"]) and "truncated" in page
+
+    small = client.get("/api/label/search", params={"title": "lantern", "limit": 1}).json()
+    assert small["returned"] == 1 and small["truncated"] == (small["total"] > 1)
+
+    second = body["items"][1]["draft_id"]
+    sk = client.post("/api/label/skip", json={"draft_id": second, "labeler": "ob"})
+    assert sk.status_code == 200 and "proposed" not in sk.text
+    q2 = client.get("/api/label/queue").json()
+    assert q2["skipped"] == 1 and q2["independent"] == 1
+    assert {i["draft_id"]: i["status"] for i in q2["items"]}[second] == "skipped"
 
 
 def test_label_endpoints_absent_without_queue(make_resolver: Any, tmp_path: Path) -> None:
@@ -174,3 +185,61 @@ def test_proposal_spec_comes_from_pinned_manifest(
     q.write_text(q.read_text() + "\n")  # queue changed after the manifest was written
     with pytest.raises(RuntimeError):
         LabelStore(q, tmp_path / "l.jsonl", catalog, False)
+
+
+def test_practice_labels_kept_but_not_counted(
+    tmp_path: Path, editions: list[Any], catalog: Any
+) -> None:
+    from bera.evalkit.provenance import independent_human_cases, mark_practice, provenance_path
+    from bera.labeling import Submission
+
+    q = make_queue(tmp_path, editions)
+    labels = tmp_path / "labels.jsonl"
+    store = LabelStore(q, labels, catalog, False)
+    ids = list(store.drafts)
+    for i in ids[:2]:
+        store.submit(
+            Submission(
+                draft_id=i, labeler="ob", expected="abstain", ambiguity_reason="underspecified"
+            )
+        )
+    before = labels.read_text()
+    rec = mark_practice(labels, ids[0], "test", "practice")
+    assert labels.read_text() == before  # original entries are never edited
+    assert rec["applies_to_label_sha256"] and provenance_path(labels).exists()
+    cases = load_cases(labels)
+    assert [c.case_id for c in independent_human_cases(cases, labels)] == [ids[1]]
+
+
+def test_template_note_and_drafter_v2(editions: list[Any]) -> None:
+    from bera.evalkit.drafts import TEMPLATES, template_applies, template_note
+
+    no13 = next(e for e in editions if e.isbn_13).model_copy(update={"isbn_13": ()})
+    ops = dict(TEMPLATES)["isbn10_hyphenated"]
+    assert not template_applies(ops, no13)
+    v1 = draft_batch(
+        [no13],
+        [],
+        split="dev",
+        split_seed=0,
+        seed=1,
+        n_in_corpus=1,
+        n_probes=0,
+        prefix="x",
+        drafter="v1",
+    )
+    v2 = draft_batch(
+        [no13],
+        [],
+        split="dev",
+        split_seed=0,
+        seed=1,
+        n_in_corpus=1,
+        n_probes=0,
+        prefix="x",
+        drafter="v2",
+    )
+    for d in v1 + v2:
+        if d.template == "isbn10_hyphenated" and not d.query.isbn:
+            assert "ISBN step was not applied" in (template_note(d, no13) or "")
+    assert all(template_applies(dict(TEMPLATES)[d.template], no13) for d in v2)

@@ -60,3 +60,22 @@ splits.
 
 About 3–5 minutes per case: 120 cases ≈ 6–10 hours, plus about 2 hours for abstention cases.
 Optionally, a second labeler on 30 cases to measure agreement.
+
+## Labeling screen notes (2026-11-04)
+
+- **Search** matches records where every word you type appears in the title, subtitle or
+  original title, ignoring case and accents. Results are alphabetical, never ranked. The
+  screen shows "Showing a–b of N" and pages of 50. Results used to be cut off silently at 60;
+  they no longer are.
+- **Skip for now** records that a case cannot be assessed yet. It is written to
+  `dev_labels.skips.jsonl`, is not a label, never reveals the proposal, and does not count.
+- **Practice labels.** `dev_labels.provenance.jsonl` annotates existing label lines without
+  editing them; each annotation is pinned by the line's sha256. dev-b01-001 and dev-b01-002
+  are marked `practice_ai_assisted`. They are kept, but excluded from the independent
+  human-label count and from evaluation. Their proposals were revealed, so they stay practice
+  even if relabeled.
+- **Template notes.** Some batch-01 drafts' generator templates did not apply to their
+  source record: 001 and 013 (author unchanged), 003 (no ISBN-13, so no ISBN in the query)
+  and 016 (source has no ISBN). The screen says so on those cases. The query itself is what
+  you label; fields not shown were not given. Drafter v2, used for future batches, only uses
+  templates that can apply.

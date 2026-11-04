@@ -21,8 +21,9 @@ from pydantic import BaseModel, ConfigDict, StringConstraints
 
 from bera.catalog import Catalog
 from bera.evalkit.cases import EvalCase
-from bera.evalkit.drafts import load_drafts
-from bera.evalkit.label import search
+from bera.evalkit.drafts import Draft, load_drafts, template_note
+from bera.evalkit.label import search_page
+from bera.evalkit.provenance import append_skip, practice_case_ids, skipped
 
 AMBIGUITY_REASONS = ("underspecified", "out_of_corpus", "contradictory", "not_a_book_edition")
 
@@ -38,6 +39,14 @@ class Submission(BaseModel):
     notes: Annotated[str, StringConstraints(max_length=500)] | None = None
 
 
+class Skip(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    draft_id: Annotated[str, StringConstraints(max_length=64)]
+    labeler: Annotated[str, StringConstraints(min_length=1, max_length=40, pattern=r"^[\w .-]+$")]
+    reason: Annotated[str, StringConstraints(max_length=300)] | None = None
+
+
 class LabelStore:
     def __init__(self, queue: Path, labels: Path, catalog: Catalog, allow_heldout: bool) -> None:
         self.drafts = {d.draft_id: d for d in load_drafts(queue)}
@@ -48,6 +57,13 @@ class LabelStore:
         self.catalog = catalog
         self._lock = threading.Lock()
         self.proposal_spec = self._proposal_spec(queue)
+        sources = catalog.get(
+            d.source_edition_id for d in self.drafts.values() if d.source_edition_id
+        )
+        self.notes = {
+            d.draft_id: template_note(d, sources.get(d.source_edition_id or ""))
+            for d in self.drafts.values()
+        }
 
     @staticmethod
     def _proposal_spec(queue: Path) -> str:
@@ -71,6 +87,28 @@ class LabelStore:
                     c = EvalCase.model_validate(json.loads(line))
                     out[c.case_id] = c
         return out
+
+    def status(
+        self,
+        draft: Draft,
+        done: dict[str, EvalCase],
+        practice: set[str],
+        skips: dict[str, dict[str, object]],
+    ) -> str:
+        if draft.draft_id in practice:
+            return "practice"
+        if draft.draft_id in done:
+            return "labeled"
+        if draft.draft_id in skips:
+            return "skipped"
+        return "unlabeled"
+
+    def skip(self, s: Skip) -> dict[str, object]:
+        if s.draft_id not in self.drafts:
+            raise HTTPException(404, "unknown draft")
+        with self._lock:
+            append_skip(self.labels_path, s.draft_id, s.labeler, s.reason)
+        return {"skipped": True}  # never reveals the proposal
 
     def submit(self, s: Submission) -> dict[str, object]:
         d = self.drafts.get(s.draft_id)
@@ -120,20 +158,28 @@ def router(store: LabelStore) -> APIRouter:
     @r.get("/queue")
     def queue() -> dict[str, object]:
         done = store.labeled()
+        practice = practice_case_ids(store.labels_path)
+        skips = skipped(store.labels_path)
         items = [
             {
                 "draft_id": d.draft_id,
                 "split": d.split,
                 "query": d.query.model_dump(exclude_none=True),
                 "template": d.template,
+                "template_note": store.notes.get(d.draft_id),
                 "labeled": d.draft_id in done,
+                "status": store.status(d, done, practice, skips),
             }
             for d in store.drafts.values()
         ]
+        independent = [i for i in done if i not in practice and i in store.drafts]
         return {
             "items": items,
             "reasons": list(AMBIGUITY_REASONS),
             "labeled": len(done),
+            "independent": len(independent),
+            "practice": len(practice & set(store.drafts)),
+            "skipped": sum(1 for i in items if i["status"] == "skipped"),
             "total": len(items),
             "proposal_label_spec": store.proposal_spec,
         }
@@ -141,8 +187,16 @@ def router(store: LabelStore) -> APIRouter:
     @r.get("/search")
     def do_search(
         title: Annotated[str, StringConstraints(min_length=2, max_length=200)],
-    ) -> list[dict[str, object]]:
-        return search(store.catalog, title, limit=60)
+        offset: int = 0,
+        limit: int = 50,
+    ) -> dict[str, object]:
+        if not 0 <= offset <= 100_000 or not 1 <= limit <= 200:
+            raise HTTPException(422, "offset/limit out of range")
+        return search_page(store.catalog, title, offset, limit)
+
+    @r.post("/skip")
+    def skip(s: Skip) -> dict[str, object]:
+        return store.skip(s)
 
     @r.post("/submit")
     def submit(s: Submission) -> dict[str, object]:

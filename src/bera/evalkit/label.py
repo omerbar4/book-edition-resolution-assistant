@@ -20,6 +20,7 @@ from bera.catalog import Catalog
 from bera.config import Settings
 from bera.evalkit.cases import EvalCase, load_cases
 from bera.evalkit.splits import leakage
+from bera.text import norm_text, strip_accents
 
 TEMPLATE = {
     "case_id": "h-0001",
@@ -38,37 +39,64 @@ TEMPLATE = {
 }
 
 
-def search(catalog: Catalog, title: str, limit: int = 50) -> list[dict[str, object]]:
-    pattern = f"%{title.strip()}%"
+SEARCH_FIELDS = (
+    "edition_id",
+    "work_id",
+    "title",
+    "subtitle",
+    "authors",
+    "publishers",
+    "publish_year",
+    "physical_format",
+    "edition_name",
+    "languages",
+    "isbn_13",
+    "isbn_10",
+)
+SEARCH_MATCH_RULE = (
+    "every word you type appears in the title, subtitle or original title "
+    "(case and accents ignored)"
+)
+SEARCH_ORDER = "alphabetical by title, then edition id (not ranked by the system)"
+
+
+def _fold(text: str | None) -> str:
+    return strip_accents(norm_text(text or ""))
+
+
+def search_page(catalog: Catalog, text: str, offset: int = 0, limit: int = 50) -> dict[str, object]:
+    """Unranked catalog search for labelers, with an explicit total so nothing is silently
+    cut off. Deterministic full scan (fine for a catalog of this size)."""
+    words = [w for w in _fold(text).split() if w]
     with catalog.connect() as con:
-        rows = con.execute(
-            "SELECT record_json FROM editions WHERE json_extract(record_json, '$.title') "
-            "LIKE ? ORDER BY json_extract(record_json, '$.title'), edition_id LIMIT ?",
-            (pattern, limit),
-        ).fetchall()
-    out = []
+        rows = con.execute("SELECT edition_id, record_json FROM editions").fetchall()
+    hits = []
     for r in rows:
         d = json.loads(r["record_json"])
-        out.append(
-            {
-                k: d.get(k)
-                for k in (
-                    "edition_id",
-                    "work_id",
-                    "title",
-                    "subtitle",
-                    "authors",
-                    "publishers",
-                    "publish_year",
-                    "physical_format",
-                    "edition_name",
-                    "languages",
-                    "isbn_13",
-                    "isbn_10",
-                )
-            }
-        )
-    return out
+        hay = " ".join(_fold(d.get(k)) for k in ("title", "subtitle", "translation_of"))
+        if words and all(w in hay for w in words):
+            hits.append(d)
+    hits.sort(key=lambda d: (_fold(d.get("title")), d["edition_id"]))
+    total = len(hits)
+    offset = max(0, min(offset, total))
+    page = hits[offset : offset + limit]
+    return {
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "returned": len(page),
+        "truncated": offset + len(page) < total,
+        "match_rule": SEARCH_MATCH_RULE,
+        "order": SEARCH_ORDER,
+        "items": [{k: d.get(k) for k in SEARCH_FIELDS} for d in page],
+    }
+
+
+def search(catalog: Catalog, title: str, limit: int = 50) -> list[dict[str, object]]:
+    """First page only; prefer `search_page`, which reports the total."""
+    items = search_page(catalog, title, 0, limit)["items"]
+    assert isinstance(items, list)
+    return items
 
 
 def validate(cases: Sequence[EvalCase], catalog: Catalog) -> dict[str, object]:
