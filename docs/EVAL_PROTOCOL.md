@@ -70,7 +70,59 @@ these results. Report: `data/eval/results/dev_check_v3/report.md`.
 All seven configurations ran: six methods plus the BM25 + trigram RRF default. Top-1 ranged
 from 0.982 to 0.994 on the 167 suggest cases. Correct suggestions were 103/300 for every
 configuration. Wrong matches were 16–18/300; these are mostly unsupported suggestions on
-abstain cases. Correct abstention ranged from 0.865 to 0.880. The local LLM was invoked on 140/300 cases: 102 completed,
-28 hit the deadline and 10 had invalid evidence. Its advisory choice was in the gold set for
-91/93 of the completed adjudications. These numbers show that the pipeline runs end to end on
-real catalog data. They say nothing about accuracy on real user inputs.
+abstain cases. Correct abstention ranged from 0.865 to 0.880. These numbers show that the
+pipeline runs end to end on real catalog data. They say nothing about accuracy on real user
+inputs.
+
+### Correction: LLM counts (reconciled 2026-11-04)
+
+An earlier version of this section said the LLM's advisory choice was in the gold set "for
+91/93 of the completed adjudications". That was wrong: 102 adjudications completed, and the 93
+were only those that chose a candidate; the other 9 completed responses were LLM abstentions.
+The first run did not store per-case adjudication fields, so the LLM method was re-run alone
+on the same 300 cases with explicit counts (`data/eval/results/dev_check_v3_llm_rerun/`).
+Temperature is 0, but the 12 s stage deadline makes completion timing-dependent:
+
+| count | first run | re-run |
+|---|---|---|
+| invoked (policy said REVIEW) | 140 / 300 | 140 / 300 (105 expected abstain, 35 expected suggest) |
+| deadline exceeded | 28 | 23 |
+| evidence invalid | 10 | 10 |
+| completed (valid responses) | 102 | 107 |
+| completed, LLM abstained | 9 | 11 (all on expected-abstain cases) |
+| completed, chose a candidate | 93 | 96 |
+| choice in gold, all | 91 / 93 | 92 / 96 |
+| choice correct, expected-suggest cases | not recorded | 31 / 33 |
+| choice in acceptable set, expected-abstain cases | not recorded | 61 / 63 |
+| choice differs from retrieval top-1 | not recorded | 9 / 96 |
+| final SUGGEST among invoked cases | 0 | 0 |
+
+"In gold" on an expected-abstain case only means the choice was one of several editions that
+fit; it is not a correct answer, and the correct output for those cases is review. The LLM is
+advisory: it never turned a REVIEW into a SUGGEST, and method 6's final decisions are identical
+to method 5's (and identical across both runs). Every wrong suggestion counted for method 6
+came from the policy before the LLM stage.
+
+### Wrong suggestions (analysis 2026-11-04; gold labels unchanged)
+
+Every "wrong match" in this check is an unsupported suggestion: a SUGGEST on a case whose
+synthetic gold says abstain because several editions fit, and the suggested edition was one
+of them. No system suggested an edition outside the gold set. There are 18 distinct cases
+(16–18 per method). `scripts/analyze_dev_check_suggestions.py` re-ran each and classified it;
+output: `data/eval/results/dev_check_v3/unsupported_suggestions.json`.
+
+| bucket | cases | what happened | type |
+|---|---|---|---|
+| ISBN exact, twins known distinct | 5 | The query ISBN maps to exactly one record. Each other fitting edition has no ISBN but differs from the ISBN-holding record on a field known on both (year, subtitle, language or format). | questionable synthetic gold: the fit rule compares twins only to the query, not to the record holding the ISBN |
+| ISBN exact, possible duplicate record | 5 | At least one twin has no ISBN and nothing known that differs from the ISBN holder; it may be a duplicate record of the same edition (an acceptable-set case) or a different edition. Four of these involve one sparse record (OL25415630M, "war and peace", publisher only). | rule conflict for the owner: is an exact unique ISBN distinguishing against an unknown ISBN? |
+| ISBN exact, vague language code only | 4 | The only difference from the ISBN holder is a `mul`/`und` language code (all four involve Jane Eyre OL13856380M). | undecided |
+| Retrieval: fitting edition not retrieved | 2 | Another fitting edition never reached the candidate list, so "exactly one consistent candidate" was judged on an incomplete list (War and Peace 1990; Frankenstein 1818, where the actual 1818 hardcover was not retrieved). | policy error |
+| Retrieval: unknown treated as disagreement | 2 | Consistency requires author AGREE, so twins whose author is UNKNOWN were dropped (War and Peace by "Louise" vs 3 author-less 2016 records; Dune 2015, embedding only). | policy error: contradicts "unknown is never distinguishing" |
+
+Per method: exact+fuzzy 16 (14 ISBN, 1 not-retrieved, 1 unknown-as-disagreement); embedding
+18 (14, 2, 2); every other method 17 (14, 2, 1).
+
+Nothing was tuned on this analysis. The two policy errors and the ISBN rule question are
+recorded as open decisions; any policy change would be judged on human-labeled dev cases,
+not on these synthetic ones.
+

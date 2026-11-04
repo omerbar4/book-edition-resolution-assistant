@@ -168,6 +168,7 @@ def evaluate(
     reps: int = 1000,
     seed: int = 0,
     env: RunEnv | None = None,
+    only: Sequence[str] | None = None,
 ) -> dict[str, object]:
     env = env or RunEnv()
     synthetic_catalog = catalog.meta().get("all_synthetic") == "True"
@@ -191,6 +192,8 @@ def evaluate(
     }
     systems: dict[str, object] = {}
     for spec in SYSTEMS:
+        if only and spec.key not in only:
+            continue
         try:
             components = spec.build(catalog, env)
         except Blocked as exc:
@@ -207,6 +210,9 @@ def evaluate(
                     "outcome": r.outcome,
                     "suggested": r.suggested,
                     "top1": r.ranked_ids[0] if r.ranked_ids else None,
+                    "expected": r.expected,
+                    "adjudication_status": r.adjudication_status,
+                    "adjudication_choice": r.adjudication_choice,
                 }
                 for r in res
             ],
@@ -286,6 +292,7 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument("--llm-url", help="local OpenAI-compatible server for system 6")
     p.add_argument("--llm-model", default="qwen3-4b-instruct-2507-q4km")
     p.add_argument("--frozen-tag", help="required for --split heldout")
+    p.add_argument("--systems", nargs="+", help="run only these system keys (default: all)")
     a = p.parse_args(argv)
     if a.split in ("heldout", "all") and any(
         c.split == "heldout" and c.origin != "synthetic_perturbation" for c in load_cases(a.cases)
@@ -299,7 +306,7 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
 
         provider = OpenAICompatProvider(a.llm_url, a.llm_model)
     env = RunEnv(enable_ml=a.ml, cache_dir=REPO_ROOT / "var" / "cache", provider=provider)
-    report = evaluate(catalog, cases, reps=a.reps, env=env)
+    report = evaluate(catalog, cases, reps=a.reps, env=env, only=a.systems)
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True))
     (a.out / "report.md").write_text(markdown(report))

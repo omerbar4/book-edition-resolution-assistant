@@ -1,0 +1,3017 @@
+{
+  "cases": 300,
+  "catalog_meta": {
+    "all_synthetic": "False",
+    "fixtures_sha256": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+    "sources": "openlibrary-dump-2026-10-31"
+  },
+  "confidence_note": "signal = top-1 agreements - 2*conflicts: an UNCALIBRATED ranking signal; buckets and risk-coverage use it, not a probability",
+  "human_labeled_cases": 0,
+  "label": "ENGINEERING CHECK: synthetic perturbation cases on the real Open Library catalog. NOT A REAL-WORLD EVALUATION; no human labels; not calibrated.",
+  "splits_in_cases": [
+    "dev"
+  ],
+  "systems": {
+    "6_routed_llm": {
+      "label": "Hybrid + reranker + routed local LLM adjudication (advisory)",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 300,
+          "numerator": 180,
+          "value": 0.6
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 96,
+            "numerator": 92,
+            "value": 0.9583
+          },
+          "breakdown": {
+            "choice_equals_top1": 87,
+            "choice_in_gold": {
+              "denominator": 96,
+              "numerator": 92
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 63,
+                "numerator": 61
+              },
+              "expected_suggest": {
+                "denominator": 33,
+                "numerator": 31
+              }
+            },
+            "completed_chose_a_candidate": 96,
+            "completed_llm_abstained": 11,
+            "completed_valid_responses": 107,
+            "final_outcome_when_invoked": {
+              "review": 140,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 140,
+            "invoked_by_expected": {
+              "expected_abstain": 105,
+              "expected_suggest": 35
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 11,
+              "expected_suggest": 0
+            },
+            "not_completed": {
+              "deadline_exceeded": 23,
+              "evidence_invalid": 10
+            }
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 300,
+            "numerator": 140,
+            "value": 0.4667
+          },
+          "statuses": {
+            "completed": 107,
+            "deadline_exceeded": 23,
+            "evidence_invalid": 10,
+            "not_needed": 160
+          },
+          "tokens_total": 127248
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.2857,
+            0.4043
+          ],
+          "error_among_suggestions": [
+            0.0449,
+            0.2609
+          ],
+          "top1_accuracy": [
+            0.9806,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0172,
+            0.1086
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 63,
+          "correct_abstention": 116,
+          "correct_suggestion": 103,
+          "retrieval_failure": 1,
+          "unsupported_suggestion": 17
+        },
+        "correct_abstention_rate": {
+          "denominator": 133,
+          "numerator": 116,
+          "value": 0.8722
+        },
+        "correct_suggestion_rate": {
+          "denominator": 300,
+          "numerator": 103,
+          "value": 0.3433
+        },
+        "counts": {
+          "A_answerable": 167,
+          "N": 300,
+          "S_suggested": 120,
+          "U_expected_abstain": 133,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 120,
+          "numerator": 17,
+          "value": 0.1417
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.026,
+            "p95": 8258.162
+          },
+          "checks": {
+            "p50": 4.097,
+            "p95": 24.773
+          },
+          "isbn": {
+            "p50": 0.001,
+            "p95": 1.9
+          },
+          "rerank_order": {
+            "p50": 24.664,
+            "p95": 47.031
+          },
+          "retrieval": {
+            "p50": 13.375,
+            "p95": 184.135
+          },
+          "total": {
+            "p50": 205.238,
+            "p95": 8371.258
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 167,
+          "numerator": 64,
+          "value": 0.3832
+        },
+        "mrr": {
+          "denominator": 167,
+          "value": 0.994
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 167,
+            "numerator": 166,
+            "value": 0.994
+          },
+          "recall@10": {
+            "denominator": 167,
+            "numerator": 166,
+            "value": 0.994
+          },
+          "recall@5": {
+            "denominator": 167,
+            "numerator": 166,
+            "value": 0.994
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 12,
+            "coverage": 0.04,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 80,
+            "coverage": 0.2667,
+            "risk": 0.15,
+            "threshold": 4.0
+          },
+          {
+            "answered": 219,
+            "coverage": 0.73,
+            "risk": 0.3881,
+            "threshold": 3.0
+          },
+          {
+            "answered": 290,
+            "coverage": 0.9667,
+            "risk": 0.4414,
+            "threshold": 2.0
+          },
+          {
+            "answered": 296,
+            "coverage": 0.9867,
+            "risk": 0.4426,
+            "threshold": 1.0
+          },
+          {
+            "answered": 299,
+            "coverage": 0.9967,
+            "risk": 0.4448,
+            "threshold": 0.0
+          },
+          {
+            "answered": 300,
+            "coverage": 1.0,
+            "risk": 0.4467,
+            "threshold": -1.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 12,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 12,
+            "wilson95": [
+              0.7575,
+              1.0
+            ]
+          },
+          {
+            "n": 68,
+            "precision": 0.8235,
+            "signal": 4.0,
+            "top1_correct": 56,
+            "wilson95": [
+              0.7164,
+              0.8961
+            ]
+          },
+          {
+            "n": 139,
+            "precision": 0.4748,
+            "signal": 3.0,
+            "top1_correct": 66,
+            "wilson95": [
+              0.3936,
+              0.5574
+            ]
+          },
+          {
+            "n": 71,
+            "precision": 0.3944,
+            "signal": 2.0,
+            "top1_correct": 28,
+            "wilson95": [
+              0.2889,
+              0.5106
+            ]
+          },
+          {
+            "n": 6,
+            "precision": 0.5,
+            "signal": 1.0,
+            "top1_correct": 3,
+            "wilson95": [
+              0.1876,
+              0.8124
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.3333,
+            "signal": 0.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.0615,
+              0.7923
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": -1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 167,
+          "numerator": 166,
+          "value": 0.994
+        },
+        "wrong_match_rate": {
+          "denominator": 300,
+          "numerator": 17,
+          "value": 0.0567
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10076005M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10076005M",
+          "top1": "OL10076005M"
+        },
+        {
+          "adjudication_choice": "OL9289662M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL10080494M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9289662M"
+        },
+        {
+          "adjudication_choice": "OL40290767M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL10352639M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL40290767M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10375216M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10375216M",
+          "top1": "OL10375216M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10409217M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10409217M",
+          "top1": "OL10409217M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10500799M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10500799M",
+          "top1": "OL10500799M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10554014M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10554014M",
+          "top1": "OL10554014M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10645259M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10645259M",
+          "top1": "OL10645259M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10681862M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10681862M",
+          "top1": "OL10681862M"
+        },
+        {
+          "adjudication_choice": "OL10721887M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL10721887M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL10721887M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10977362M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10977362M",
+          "top1": "OL10977362M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL10984830M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10984830M",
+          "top1": "OL10984830M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL11384497M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL11384497M",
+          "top1": "OL11384497M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL11717746M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL12026713M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL11878932M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL11878932M",
+          "top1": "OL11878932M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL12311624M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL12311624M",
+          "top1": "OL12311624M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL12458254M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL12458254M",
+          "top1": "OL12458254M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL12493236M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL12493236M",
+          "top1": "OL12493236M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL12540031M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL12540031M",
+          "top1": "OL12540031M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL12955645M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL12955645M",
+          "top1": "OL12955645M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL13247333M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL13247333M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL13432688M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL13432688M",
+          "top1": "OL13432688M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL13587294M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23270084M"
+        },
+        {
+          "adjudication_choice": "OL13893304M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL13893304M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL13893304M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL13982684M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL13982684M"
+        },
+        {
+          "adjudication_choice": "OL14830205M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL14830205M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL14830205M"
+        },
+        {
+          "adjudication_choice": "OL10645259M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL15071525M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL10645259M"
+        },
+        {
+          "adjudication_choice": "OL15080263M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL15080263M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL15080263M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL15112482M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL15112482M",
+          "top1": "OL15112482M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL15444973M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL15444973M",
+          "top1": "OL15444973M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL1547032M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1547032M"
+        },
+        {
+          "adjudication_choice": "OL7394551M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL163093M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": "OL16678904M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL16678904M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL16678904M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL16803213M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL16803213M",
+          "top1": "OL16803213M"
+        },
+        {
+          "adjudication_choice": "OL1743109M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL1743109M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1743109M"
+        },
+        {
+          "adjudication_choice": "OL17456146M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL17456146M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL17456146M"
+        },
+        {
+          "adjudication_choice": "OL17512837M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL17542651M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL17512837M"
+        },
+        {
+          "adjudication_choice": "OL18019759M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL18019759M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL18019759M"
+        },
+        {
+          "adjudication_choice": "OL18986719M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL18986719M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL18986719M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL19491499M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL19491499M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL19735560M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL19735560M",
+          "top1": "OL19735560M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL1978894M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL1978894M",
+          "top1": "OL1978894M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL19963718M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL19963718M",
+          "top1": "OL19963718M"
+        },
+        {
+          "adjudication_choice": "OL17512837M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL19981824M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL17512837M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL20510238M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL20510238M",
+          "top1": "OL20510238M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL20790231M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL20790231M"
+        },
+        {
+          "adjudication_choice": "OL20932277M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL20932277M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL20932277M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL21073239M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL21073239M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL21086250M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9130184M"
+        },
+        {
+          "adjudication_choice": "OL2142951M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL2142951M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL2142951M"
+        },
+        {
+          "adjudication_choice": "OL21950853M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL21950853M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL21950853M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL22169650M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL22169650M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL22492543M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL13856380M"
+        },
+        {
+          "adjudication_choice": "OL22943508M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL22943508M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL22943508M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL23025979M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL23025979M",
+          "top1": "OL23025979M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL23102841M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL23102841M",
+          "top1": "OL23102841M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL23270084M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23270084M"
+        },
+        {
+          "adjudication_choice": "OL23274463M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL23274463M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23274463M"
+        },
+        {
+          "adjudication_choice": "OL23815492M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL23815492M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23815492M"
+        },
+        {
+          "adjudication_choice": "OL56868947M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL24029214M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL44141402M"
+        },
+        {
+          "adjudication_choice": "OL24043601M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL24043601M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24043601M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL24266281M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9891207M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL24323586M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24323586M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL24347963M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL24347963M",
+          "top1": "OL24347963M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL24353780M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL24353780M",
+          "top1": "OL24353780M"
+        },
+        {
+          "adjudication_choice": "OL24362654M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL24362654M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24362654M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL24373009M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24373009M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL24552515M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24451993M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL24648291M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24080825M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL24650675M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL24650675M",
+          "top1": "OL24650675M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL24746899M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23013326M"
+        },
+        {
+          "adjudication_choice": "OL14972004M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL24772490M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL14972004M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL25092299M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL35888550M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL25191239M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL25191239M",
+          "top1": "OL25191239M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL25430103M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL25430103M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL25543086M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL25543086M",
+          "top1": "OL25543086M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26118313M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL26118313M",
+          "top1": "OL26118313M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26418103M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26418103M"
+        },
+        {
+          "adjudication_choice": "OL28632551M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL26418502M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26418502M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26418824M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26418824M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26419094M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL26419094M",
+          "top1": "OL26419094M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26425669M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26425669M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26425705M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL26425705M",
+          "top1": "OL26425705M"
+        },
+        {
+          "adjudication_choice": "OL26492260M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL26492260M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26492260M"
+        },
+        {
+          "adjudication_choice": "OL26495447M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL26495447M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26495447M"
+        },
+        {
+          "adjudication_choice": "OL26495463M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL26495463M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26495463M"
+        },
+        {
+          "adjudication_choice": "OL26495467M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL26495467M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26495467M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26496250M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL26496250M",
+          "top1": "OL26496250M"
+        },
+        {
+          "adjudication_choice": "OL26641908M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL26641908M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL26641908M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26831393M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL26831393M",
+          "top1": "OL26831393M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL26877991M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6628374M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL26950477M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL26950477M",
+          "top1": "OL26950477M"
+        },
+        {
+          "adjudication_choice": "OL35445173M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL27029540M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27029540M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL27203781M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27203781M",
+          "top1": "OL27203781M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL27233265M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27233265M",
+          "top1": "OL27233265M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL27291777M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27291777M",
+          "top1": "OL27291777M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL27302145M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27302145M",
+          "top1": "OL27302145M"
+        },
+        {
+          "adjudication_choice": "OL27362658M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL27362658M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27362658M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL27663773M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27663773M",
+          "top1": "OL27663773M"
+        },
+        {
+          "adjudication_choice": "OL27912393M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL27912393M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27912393M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL28178636M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28178636M"
+        },
+        {
+          "adjudication_choice": "OL28269838M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL28269838M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28269838M"
+        },
+        {
+          "adjudication_choice": "OL28327473M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL28327473M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28327473M"
+        },
+        {
+          "adjudication_choice": "OL28372072M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL28372072M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28372072M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL28433327M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24283468M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL28702633M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36653541M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL28965737M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL28965737M",
+          "top1": "OL28965737M"
+        },
+        {
+          "adjudication_choice": "OL9569683M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL28966077M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9569683M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL29006427M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29057806M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL29054221M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29054221M",
+          "top1": "OL29054221M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL29058665M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29058665M",
+          "top1": "OL29058665M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL29202161M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL29202161M",
+          "top1": "OL29202161M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL29584642M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29584642M",
+          "top1": "OL29584642M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL29821681M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29821681M",
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL29853387M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL30546993M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL30521028M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL30521028M",
+          "top1": "OL30521028M"
+        },
+        {
+          "adjudication_choice": "OL30695761M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL30695762M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL30695761M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL30747431M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL30747431M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL30785864M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL30785864M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL30787529M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL30787530M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL31932791M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32426433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL31979920M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL31979920M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL32668607M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL32668607M",
+          "top1": "OL32668607M"
+        },
+        {
+          "adjudication_choice": "OL32848675M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL32848675M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32848675M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL32879710M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL32879710M",
+          "top1": "OL32879710M"
+        },
+        {
+          "adjudication_choice": "OL3288424M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL3288424M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL3288424M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL32990582M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32990582M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL3310784M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL3310784M",
+          "top1": "OL3310784M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL33338961M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL33338961M",
+          "top1": "OL33338961M"
+        },
+        {
+          "adjudication_choice": "OL6272503M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL33553M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6628374M"
+        },
+        {
+          "adjudication_choice": "OL8470284M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL34813495M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8470284M"
+        },
+        {
+          "adjudication_choice": "OL34819920M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL34819920M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL34819920M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL35045910M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL35045910M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL35276181M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL35276181M",
+          "top1": "OL35276181M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL35381818M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL35381818M",
+          "top1": "OL35381818M"
+        },
+        {
+          "adjudication_choice": "OL35384350M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL35384350M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL35384350M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL35418469M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL35418469M",
+          "top1": "OL35418469M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL35527388M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32876607M"
+        },
+        {
+          "adjudication_choice": "OL20867761M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL3557956M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL20867761M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL35652122M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL35652122M",
+          "top1": "OL35652122M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL35670981M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL35670981M"
+        },
+        {
+          "adjudication_choice": "OL35672351M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL35672351M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL35672351M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL35705539M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL35705539M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL35938434M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL35938434M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL36151026M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36151026M",
+          "top1": "OL36151026M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL36308524M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36308524M",
+          "top1": "OL36308524M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL36309956M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36286127M"
+        },
+        {
+          "adjudication_choice": "OL36318989M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL36318989M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36318989M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL36322068M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36322068M",
+          "top1": "OL36322068M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL36326224M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36335671M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL36331297M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36331297M",
+          "top1": "OL36331297M"
+        },
+        {
+          "adjudication_choice": "OL36335671M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL36335671M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36335671M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL36788320M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36795472M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL36788322M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36794020M"
+        },
+        {
+          "adjudication_choice": "OL9174756M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL37036625M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9174756M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL37109445M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL37109445M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL37269927M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL37269927M"
+        },
+        {
+          "adjudication_choice": "OL37269927M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL37270550M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL37269927M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL37514979M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37514979M",
+          "top1": "OL37514979M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL37637127M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": "OL37791926M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL37791926M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL37791926M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL38196755M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38196755M",
+          "top1": "OL38196755M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL38237349M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38237349M",
+          "top1": "OL38237349M"
+        },
+        {
+          "adjudication_choice": "OL38580164M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL38580164M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38580164M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL38582757M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38582757M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL38836959M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38836959M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL38860387M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL48857706M"
+        },
+        {
+          "adjudication_choice": "OL32318674M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL39671643M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32318674M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL39769683M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL39769683M",
+          "top1": "OL39769683M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL39776201M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL37610771M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL39809191M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL39809191M",
+          "top1": "OL39809191M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL40212545M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL40212545M",
+          "top1": "OL40212545M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL41256638M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41256638M",
+          "top1": "OL41256638M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL41801316M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL41801316M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL42092873M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL41903583M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL42094251M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42094666M"
+        },
+        {
+          "adjudication_choice": "OL41903583M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL42264022M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL41903583M"
+        },
+        {
+          "adjudication_choice": "OL32200062M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL42496758M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32200062M"
+        },
+        {
+          "adjudication_choice": "OL43334303M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL43334303M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL43334303M"
+        },
+        {
+          "adjudication_choice": "OL24222895M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL43385108M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL43385108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL43766413M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL43766413M",
+          "top1": "OL43766413M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL43979492M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL43979492M",
+          "top1": "OL43979492M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL44045674M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44045674M",
+          "top1": "OL44045674M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL44327626M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL44327626M",
+          "top1": "OL44327626M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL44920347M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44920347M",
+          "top1": "OL44920347M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL44941968M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44941968M",
+          "top1": "OL44941968M"
+        },
+        {
+          "adjudication_choice": "OL45009290M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL45009290M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL45009290M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL45458720M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL45458720M",
+          "top1": "OL45458720M"
+        },
+        {
+          "adjudication_choice": "OL4558528M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL4558528M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL4558528M"
+        },
+        {
+          "adjudication_choice": "OL46107394M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL46107394M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46107394M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL46254747M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL46254747M",
+          "top1": "OL46254747M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL46288275M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL44285220M"
+        },
+        {
+          "adjudication_choice": "OL46701296M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL46701296M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46701296M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL46705715M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42565347M"
+        },
+        {
+          "adjudication_choice": "OL46701296M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL46749741M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46701296M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL46828061M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL46828061M",
+          "top1": "OL46828061M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL47171255M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL47171255M",
+          "top1": "OL47171255M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL4730303M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL4730303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL47345006M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL47345006M",
+          "top1": "OL47345006M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL47773913M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL44234372M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL48268748M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL36835231M"
+        },
+        {
+          "adjudication_choice": "OL48684185M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL48684185M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL48684185M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL48857706M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL48857706M",
+          "top1": "OL48857706M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL49129330M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL49084792M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL49145306M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL49084792M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL49164713M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL49017913M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL49674663M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL49674663M",
+          "top1": "OL49674663M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL49674951M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL49674951M",
+          "top1": "OL49674951M"
+        },
+        {
+          "adjudication_choice": "OL49755861M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL49676455M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL49755861M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL49757206M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL49757206M",
+          "top1": "OL49757206M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL49758545M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL49758545M",
+          "top1": "OL49758545M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL49761251M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL49761251M",
+          "top1": "OL49761251M"
+        },
+        {
+          "adjudication_choice": "OL49819414M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL49819414M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL49819414M"
+        },
+        {
+          "adjudication_choice": "OL50539863M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL50539863M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL50539863M"
+        },
+        {
+          "adjudication_choice": "OL50543156M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL50543156M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL50543156M"
+        },
+        {
+          "adjudication_choice": "OL51022645M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51022645M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51022645M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51065707M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL51065707M",
+          "top1": "OL51065707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51071054M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51071054M",
+          "top1": "OL51071054M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51073020M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL51073020M",
+          "top1": "OL51073020M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51076610M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL51076610M",
+          "top1": "OL51076610M"
+        },
+        {
+          "adjudication_choice": "OL38571023M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51081500M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46099865M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51094627M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL44285220M"
+        },
+        {
+          "adjudication_choice": "OL51320626M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51119644M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51320626M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51346089M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51346089M",
+          "top1": "OL51346089M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51573143M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51573143M",
+          "top1": "OL51573143M"
+        },
+        {
+          "adjudication_choice": "OL28506244M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51574666M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28506244M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51574751M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51574751M",
+          "top1": "OL51574751M"
+        },
+        {
+          "adjudication_choice": "OL51595507M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51596118M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51595507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51598385M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51598385M",
+          "top1": "OL51598385M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51599682M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51571584M"
+        },
+        {
+          "adjudication_choice": "OL51573419M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51601083M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51573419M"
+        },
+        {
+          "adjudication_choice": "OL51573419M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51601981M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51573419M"
+        },
+        {
+          "adjudication_choice": "OL28506244M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51602372M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28506244M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51604649M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51600568M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL51606228M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51573419M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51606475M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51606475M",
+          "top1": "OL51606475M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL51609163M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51609163M",
+          "top1": "OL51609163M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL52748160M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL52748160M",
+          "top1": "OL52748160M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL5285604M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL5285604M",
+          "top1": "OL5285604M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL54548612M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL55021315M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL55021315M",
+          "top1": "OL55021315M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL55316217M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL55316217M"
+        },
+        {
+          "adjudication_choice": "OL54765211M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL55439449M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL54765211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL55669790M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL55258425M"
+        },
+        {
+          "adjudication_choice": "OL56104602M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL55704426M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL55704426M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "completed",
+          "case_id": "syn-OL55815680M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL55258425M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL55822193M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL55822193M",
+          "top1": "OL55822193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL55953277M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL55953277M",
+          "top1": "OL55953277M"
+        },
+        {
+          "adjudication_choice": "OL54765211M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL55991129M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL54765211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL56350193M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56350193M",
+          "top1": "OL56350193M"
+        },
+        {
+          "adjudication_choice": "OL56104602M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL56470863M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL56104602M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL56698216M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56698216M",
+          "top1": "OL56698216M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL56868947M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56868947M",
+          "top1": "OL56868947M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL5768176M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL4774316M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL58405255M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL14972004M"
+        },
+        {
+          "adjudication_choice": "OL58682066M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL58682066M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL58682066M"
+        },
+        {
+          "adjudication_choice": "OL58939430M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL58939430M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL58939430M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL6086813M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL6086813M",
+          "top1": "OL6086813M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL60991317M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60991317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL61303498M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61303498M"
+        },
+        {
+          "adjudication_choice": "OL17721555M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL61417747M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61417747M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL6147070M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL38860387M",
+          "top1": "OL38860387M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL61996158M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61996158M"
+        },
+        {
+          "adjudication_choice": "OL62220159M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL62220159M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL62220159M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL6272503M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6272503M"
+        },
+        {
+          "adjudication_choice": "OL6347490M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL6347490M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6347490M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL7255733M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7255733M",
+          "top1": "OL7255733M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL7276450M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7276450M",
+          "top1": "OL7276450M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL7279577M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9234284M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL7283259M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9237966M"
+        },
+        {
+          "adjudication_choice": "OL18434923M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL7291929M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL18434923M"
+        },
+        {
+          "adjudication_choice": "OL9260837M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL7306164M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7306164M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL7508358M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7508358M",
+          "top1": "OL7508358M"
+        },
+        {
+          "adjudication_choice": "OL7511668M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL7511668M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7511668M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL7670046M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7670046M",
+          "top1": "OL7670046M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL7720365M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7720365M"
+        },
+        {
+          "adjudication_choice": "OL7817274M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL7817274M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7817274M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL782874M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL782874M",
+          "top1": "OL782874M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL8072475M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8072475M",
+          "top1": "OL8072475M"
+        },
+        {
+          "adjudication_choice": "OL8536852M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL8536852M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8536852M"
+        },
+        {
+          "adjudication_choice": "OL8612757M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL8612757M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8612757M"
+        },
+        {
+          "adjudication_choice": "OL8804656M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL8804656M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8804656M"
+        },
+        {
+          "adjudication_choice": "OL8823739M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL8823739M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8823739M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL8837764M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8837764M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL8840008M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8840008M",
+          "top1": "OL8840008M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL8860740M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8860740M"
+        },
+        {
+          "adjudication_choice": "OL8898016M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL8898016M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8898016M"
+        },
+        {
+          "adjudication_choice": "OL897279M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL897279M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL897279M"
+        },
+        {
+          "adjudication_choice": "OL8978440M",
+          "adjudication_status": "completed",
+          "case_id": "syn-OL8978440M-0",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8978440M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL8997717M-0",
+          "expected": "abstain",
+          "outcome": "suggest",
+          "suggested": "OL8997717M",
+          "top1": "OL8997717M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL9036293M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9036293M",
+          "top1": "OL9036293M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL9160854M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9160854M",
+          "top1": "OL9160854M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL9214590M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259875M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL9237194M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9237194M",
+          "top1": "OL9237194M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL9246473M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9246473M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "syn-OL9704155M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9704155M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "syn-OL9748499M-0",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9569683M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL9799755M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9799755M",
+          "top1": "OL9799755M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL9808938M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9808938M",
+          "top1": "OL9808938M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "syn-OL9888606M-0",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9888606M",
+          "top1": "OL9888606M"
+        }
+      ],
+      "status": "ran"
+    }
+  }
+}

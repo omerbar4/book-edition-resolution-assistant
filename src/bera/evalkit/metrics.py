@@ -69,6 +69,58 @@ def category(r: CaseResult) -> str:
     return "conservative_abstention" if r.top1_correct else "ranking_failure"
 
 
+def adjudication_breakdown(results: Sequence[CaseResult]) -> dict[str, object]:
+    """Explicit denominators for the advisory LLM stage. A COMPLETED response either chose a
+    candidate or answered ABSTAIN (no choice). The LLM never turns REVIEW into SUGGEST, so
+    the final outcome is reported separately from the advisory choice."""
+    inv = [r for r in results if r.adjudication_status not in ("not_needed", "disabled")]
+    done = [r for r in inv if r.adjudication_status == "completed"]
+    chose = [r for r in done if r.adjudication_choice is not None]
+
+    def split(rs: Sequence[CaseResult]) -> dict[str, int]:
+        return {
+            "expected_suggest": sum(r.answerable for r in rs),
+            "expected_abstain": sum(not r.answerable for r in rs),
+        }
+
+    in_gold = [r for r in chose if r.adjudication_choice in r.gold]
+    return {
+        "invoked": len(inv),
+        "invoked_by_expected": split(inv),
+        "not_completed": {
+            k: v
+            for k, v in sorted(Counter(r.adjudication_status for r in inv).items())
+            if k != "completed"
+        },
+        "completed_valid_responses": len(done),
+        "completed_chose_a_candidate": len(chose),
+        "completed_llm_abstained": len(done) - len(chose),
+        "llm_abstained_by_expected": split([r for r in done if r.adjudication_choice is None]),
+        "choice_in_gold": {"numerator": len(in_gold), "denominator": len(chose)},
+        "choice_in_gold_by_expected": {
+            "expected_suggest": {
+                "numerator": sum(r.answerable for r in in_gold),
+                "denominator": sum(r.answerable for r in chose),
+            },
+            "expected_abstain_choice_in_acceptable_set": {
+                "numerator": sum(not r.answerable for r in in_gold),
+                "denominator": sum(not r.answerable for r in chose),
+            },
+        },
+        "choice_equals_top1": sum(
+            bool(r.ranked_ids) and r.adjudication_choice == r.ranked_ids[0] for r in chose
+        ),
+        "final_outcome_when_invoked": {
+            "suggest": sum(r.outcome == "suggest" for r in inv),
+            "review": sum(r.outcome == "review" for r in inv),
+            "suggest_correct": sum(r.suggested_correct for r in inv),
+            "suggest_on_expected_abstain": sum(
+                r.outcome == "suggest" and not r.answerable for r in inv
+            ),
+        },
+    }
+
+
 def wilson(k: int, n: int, z: float = 1.959964) -> tuple[float, float] | None:
     if n == 0:
         return None
@@ -264,6 +316,7 @@ def compute(
             sum(r.adjudication_choice in r.gold for r in chose), len(chose)
         ),
         "statuses": dict(sorted(Counter(r.adjudication_status for r in results).items())),
+        "breakdown": adjudication_breakdown(results),
         "tokens_total": tokens,
         "estimated_cost": {
             "value": round(tokens / 1000 * cost_per_1k_tokens, 6),

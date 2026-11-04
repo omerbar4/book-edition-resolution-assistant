@@ -1,0 +1,3208 @@
+{
+ "label": "DEVELOPMENT ENGINEERING CHECK on synthetic cases; gold labels unchanged; no held-out cases; not an evaluation",
+ "distinct_cases": 18,
+ "by_bucket": {
+  "isbn_exact__gold_question_twins_known_distinct": 5,
+  "policy_error_fitting_edition_not_retrieved": 2,
+  "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+  "policy_error_unknown_treated_as_disagreement": 2,
+  "isbn_exact__undecided_language_code_only": 4
+ },
+ "per_system": {
+  "1_exact_fuzzy": {
+   "isbn_exact__gold_question_twins_known_distinct": 5,
+   "policy_error_fitting_edition_not_retrieved": 1,
+   "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+   "isbn_exact__undecided_language_code_only": 4,
+   "policy_error_unknown_treated_as_disagreement": 1
+  },
+  "2_lexical": {
+   "isbn_exact__gold_question_twins_known_distinct": 5,
+   "policy_error_fitting_edition_not_retrieved": 2,
+   "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+   "isbn_exact__undecided_language_code_only": 4,
+   "policy_error_unknown_treated_as_disagreement": 1
+  },
+  "2b_lexical_rrf": {
+   "isbn_exact__gold_question_twins_known_distinct": 5,
+   "policy_error_fitting_edition_not_retrieved": 2,
+   "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+   "isbn_exact__undecided_language_code_only": 4,
+   "policy_error_unknown_treated_as_disagreement": 1
+  },
+  "3_embedding": {
+   "isbn_exact__gold_question_twins_known_distinct": 5,
+   "policy_error_fitting_edition_not_retrieved": 2,
+   "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+   "policy_error_unknown_treated_as_disagreement": 2,
+   "isbn_exact__undecided_language_code_only": 4
+  },
+  "4_hybrid": {
+   "isbn_exact__gold_question_twins_known_distinct": 5,
+   "policy_error_fitting_edition_not_retrieved": 2,
+   "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+   "isbn_exact__undecided_language_code_only": 4,
+   "policy_error_unknown_treated_as_disagreement": 1
+  },
+  "5_hybrid_rerank": {
+   "isbn_exact__gold_question_twins_known_distinct": 5,
+   "policy_error_fitting_edition_not_retrieved": 2,
+   "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+   "isbn_exact__undecided_language_code_only": 4,
+   "policy_error_unknown_treated_as_disagreement": 1
+  },
+  "6_routed_llm": {
+   "isbn_exact__gold_question_twins_known_distinct": 5,
+   "policy_error_fitting_edition_not_retrieved": 2,
+   "isbn_exact__rule_conflict_possible_duplicate_record": 5,
+   "isbn_exact__undecided_language_code_only": 4,
+   "policy_error_unknown_treated_as_disagreement": 1
+  }
+ },
+ "cases": [
+  {
+   "case_id": "syn-OL13432688M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9788877547002",
+    "title": "Les Miserables",
+    "author": "V. Hugo",
+    "physical_format": "paperback",
+    "publish_year": 2001
+   },
+   "perturbation": "ops=['author_initials'] seed=1300231328 source_edition_id='OL13432688M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL13432688M",
+   "twins": [
+    {
+     "edition_id": "OL22128712M",
+     "in_candidates": false,
+     "fit_to_query": null,
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Les miserables.",
+     "subtitle": null,
+     "authors": [
+      "Victor Hugo"
+     ],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": "International edition.",
+     "publishers": [
+      "Collegiate society"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "language"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__gold_question_twins_known_distinct",
+   "explanation": "Valid ISBN maps to exactly one record. Every other 'fitting' edition has no ISBN, but it differs from the ISBN-holding record on a field known on both (year/subtitle/language/format). The fit rule compares twins only to the query, so the gold set may be broader than the evidence supports."
+  },
+  {
+   "case_id": "syn-OL1978894M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "query": {
+    "title": "War and peace",
+    "author": "Leo Tolstoy",
+    "publish_year": 1990
+   },
+   "perturbation": "ops=['isbn_digit_error'] seed=1462200533 source_edition_id='OL1978894M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL1978894M",
+   "twins": [
+    {
+     "edition_id": "OL25415630M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "war and peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "colonial press co."
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "policy_error_fitting_edition_not_retrieved",
+   "explanation": "Retrieval route: another fitting edition was not in the candidate list, so 'exactly one consistent candidate' was judged on an incomplete list."
+  },
+  {
+   "case_id": "syn-OL28965737M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9780263182910",
+    "title": "Gino's Arranged Bride",
+    "author": "Sparks, C.",
+    "publish_year": 2004
+   },
+   "perturbation": "ops=['author_initials', 'author_last_first'] seed=148833758 source_edition_id='OL28965737M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL28965737M",
+   "twins": [
+    {
+     "edition_id": "OL25430400M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "gino's arranged bride",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": 2004,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "harlequin"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__rule_conflict_possible_duplicate_record",
+   "explanation": "At least one twin has no ISBN and no known field that differs from the ISBN holder; it may be a duplicate record of the same edition (an acceptable-set case) or a different edition. Abstain is the gold under the unknown-is-compatible rule; the policy's ISBN rule suggests. Owner decision."
+  },
+  {
+   "case_id": "syn-OL29202161M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781472060853",
+    "title": "ginos arranged bride",
+    "author": "Christine Sparks"
+   },
+   "perturbation": "ops=['drop_year', 'lowercase_no_punct'] seed=1345856016 source_edition_id='OL29202161M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL29202161M",
+   "twins": [
+    {
+     "edition_id": "OL25430400M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "gino's arranged bride",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": 2004,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "harlequin"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__gold_question_twins_known_distinct",
+   "explanation": "Valid ISBN maps to exactly one record. Every other 'fitting' edition has no ISBN, but it differs from the ISBN-holding record on a field known on both (year/subtitle/language/format). The fit rule compares twins only to the query, so the gold set may be broader than the evidence supports."
+  },
+  {
+   "case_id": "syn-OL32668607M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781250765055",
+    "title": "Dune",
+    "physical_format": "hardcover"
+   },
+   "perturbation": "ops=['drop_author', 'drop_year'] seed=297839543 source_edition_id='OL32668607M'",
+   "gold_size": 3,
+   "ambiguity_reason": "underspecified: 3 editions fit (2 only because a field is unknown on them)",
+   "suggested": "OL32668607M",
+   "twins": [
+    {
+     "edition_id": "OL20729653M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Dune",
+     "subtitle": "the banquet scene",
+     "authors": [
+      "Frank Herbert"
+     ],
+     "format": "unknown",
+     "year": 1977,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Caedmon"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year",
+      "subtitle"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL43013026M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Dune",
+     "subtitle": null,
+     "authors": [
+      "Frank Herbert"
+     ],
+     "format": "unknown",
+     "year": 2006,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Macmillan Audio"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__gold_question_twins_known_distinct",
+   "explanation": "Valid ISBN maps to exactly one record. Every other 'fitting' edition has no ISBN, but it differs from the ISBN-holding record on a field known on both (year/subtitle/language/format). The fit rule compares twins only to the query, so the gold set may be broader than the evidence supports."
+  },
+  {
+   "case_id": "syn-OL35384350M-0",
+   "systems_suggesting": [
+    "3_embedding"
+   ],
+   "n_systems": 1,
+   "rerun_system": "3_embedding",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "query": {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "physical_format": "paperback",
+    "publish_year": 2015
+   },
+   "perturbation": "ops=['drop_isbn'] seed=112443452 source_edition_id='OL35384350M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL35384350M",
+   "twins": [
+    {
+     "edition_id": "OL51750372M",
+     "in_candidates": true,
+     "fit_to_query": "unknown",
+     "checks": {
+      "title": "agree",
+      "author": "unknown",
+      "physical_format": "agree",
+      "publish_year": "agree"
+     },
+     "excluded_by": [
+      "author"
+     ],
+     "excluded_by_unknown_only": true,
+     "title": "Dune",
+     "subtitle": null,
+     "authors": [],
+     "format": "paperback",
+     "year": 2015,
+     "isbns": [
+      "9781473696211"
+     ],
+     "edition_name": "50th Anniversary Edition",
+     "publishers": [
+      "Hodder Paperbacks"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "language"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "policy_error_unknown_treated_as_disagreement",
+   "explanation": "Retrieval route excluded every other fitting edition only because ['author'] was UNKNOWN on it (consistency requires AGREE); this contradicts the rule that unknown metadata is never distinguishing."
+  },
+  {
+   "case_id": "syn-OL35418469M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9786055381592",
+    "title": "A Game Of Thrones",
+    "author": "George R. R. Martin",
+    "physical_format": "paperback"
+   },
+   "perturbation": "ops=['drop_year'] seed=260150755 source_edition_id='OL35418469M'",
+   "gold_size": 4,
+   "ambiguity_reason": "underspecified: 4 editions fit (3 only because a field is unknown on them)",
+   "suggested": "OL35418469M",
+   "twins": [
+    {
+     "edition_id": "OL26724040M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "A Game Of Thrones",
+     "subtitle": null,
+     "authors": [
+      "George R R Martin"
+     ],
+     "format": "paperback",
+     "year": 1996,
+     "isbns": [],
+     "edition_name": "First edition",
+     "publishers": [
+      "Bantam Spectra (US) Voyager Books (UK)"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL31979920M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "A Game of Thrones",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": 2014,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Gigamesh"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL58636603M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "A Game of Thrones",
+     "subtitle": null,
+     "authors": [
+      "George R. R. Martin"
+     ],
+     "format": "unknown",
+     "year": 2000,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "BCA"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__gold_question_twins_known_distinct",
+   "explanation": "Valid ISBN maps to exactly one record. Every other 'fitting' edition has no ISBN, but it differs from the ISBN-holding record on a field known on both (year/subtitle/language/format). The fit rule compares twins only to the query, so the gold set may be broader than the evidence supports."
+  },
+  {
+   "case_id": "syn-OL44327626M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9798849950396",
+    "title": "Jane Eyre",
+    "author": "Brontë, C.",
+    "publish_year": 2022
+   },
+   "perturbation": "ops=['author_initials', 'author_last_first'] seed=709104561 source_edition_id='OL44327626M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL44327626M",
+   "twins": [
+    {
+     "edition_id": "OL13856380M",
+     "in_candidates": false,
+     "fit_to_query": null,
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre.",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Hong Guang"
+     ],
+     "languages": [
+      "mul"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": false,
+     "mul_or_und_language_only": true
+    }
+   ],
+   "bucket": "isbn_exact__undecided_language_code_only",
+   "explanation": "A twin differs from the ISBN holder only by a vague language code (mul/und)."
+  },
+  {
+   "case_id": "syn-OL49674663M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781154433043",
+    "title": "war and peace",
+    "publish_year": 2010
+   },
+   "perturbation": "ops=['lowercase_no_punct'] seed=1352570664 source_edition_id='OL49674663M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL49674663M",
+   "twins": [
+    {
+     "edition_id": "OL25415630M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "war and peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "colonial press co."
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__rule_conflict_possible_duplicate_record",
+   "explanation": "At least one twin has no ISBN and no known field that differs from the ISBN holder; it may be a duplicate record of the same edition (an acceptable-set case) or a different edition. Abstain is the gold under the unknown-is-compatible rule; the policy's ISBN rule suggests. Owner decision."
+  },
+  {
+   "case_id": "syn-OL49674951M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781149589137",
+    "title": "War and Peace"
+   },
+   "perturbation": "ops=['drop_year'] seed=582303409 source_edition_id='OL49674951M'",
+   "gold_size": 18,
+   "ambiguity_reason": "underspecified: 18 editions fit (17 only because a field is unknown on them)",
+   "suggested": "OL49674951M",
+   "twins": [
+    {
+     "edition_id": "OL13579011M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1898,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Thomas Crowell"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL15233414M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "translated by Louise and Aylmer Maude, with foreword by Clifton Fadiman.",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1942,
+     "isbns": [],
+     "edition_name": "[Inner sanctum ed.]",
+     "publishers": [
+      "Simon and Schuster"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL17776963M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "a novel.",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1970,
+     "isbns": [],
+     "edition_name": "3 v. in 1.",
+     "publishers": [
+      "Oxford University Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL1978894M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1990,
+     "isbns": [],
+     "edition_name": "2nd ed.",
+     "publishers": [
+      "Encyclopædia Britannica, Inc."
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL20649959M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and Peace",
+     "subtitle": "a novel",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1904,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Heinemann."
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22190640M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace.",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1930,
+     "isbns": [],
+     "edition_name": "Translated by Constance Garnett.",
+     "publishers": [
+      "Carlton House"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22231244M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1952,
+     "isbns": [],
+     "edition_name": "Founders' ed.",
+     "publishers": [
+      "Encyclopaedia Britannica"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22610724M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1929,
+     "isbns": [],
+     "edition_name": "Rev. and reset ed.",
+     "publishers": [
+      "J. M. Dent & Sons",
+      "E. P. Dutton"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL24223361M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and Peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1974,
+     "isbns": [],
+     "edition_name": "Authoritative Modern Abridgment",
+     "publishers": [
+      "Scholastic Book Services"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL25415630M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "war and peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "colonial press co."
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL3121791M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1981,
+     "isbns": [],
+     "edition_name": "A limited ed.",
+     "publishers": [
+      "Franklin Library"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL40243079M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1864,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Random House"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL47789968M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War And Peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1967,
+     "isbns": [],
+     "edition_name": "Abridged",
+     "publishers": [
+      "Washington Square Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL49654032M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and Peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": 1976,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Ulverscroft Large Print Books"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL59803493M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "a novel",
+     "authors": [
+      "Leo Tolstoy",
+      "Louise Maude",
+      "Aylmer Maude"
+     ],
+     "format": "unknown",
+     "year": 1928,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Oxford University Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL5982192M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1966,
+     "isbns": [],
+     "edition_name": "[1st ed.]",
+     "publishers": [
+      "W. W. Norton"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL6531567M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "a novel",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1911,
+     "isbns": [],
+     "edition_name": "Popular ed.",
+     "publishers": [
+      "John Lane Company"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__rule_conflict_possible_duplicate_record",
+   "explanation": "At least one twin has no ISBN and no known field that differs from the ISBN holder; it may be a duplicate record of the same edition (an acceptable-set case) or a different edition. Abstain is the gold under the unknown-is-compatible rule; the policy's ISBN rule suggests. Owner decision."
+  },
+  {
+   "case_id": "syn-OL49757206M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "1-5008-8731-5",
+    "title": "War and Peace",
+    "publish_year": 2014
+   },
+   "perturbation": "ops=['isbn10_form'] seed=790152508 source_edition_id='OL49757206M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL49757206M",
+   "twins": [
+    {
+     "edition_id": "OL25415630M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "war and peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "colonial press co."
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__rule_conflict_possible_duplicate_record",
+   "explanation": "At least one twin has no ISBN and no known field that differs from the ISBN holder; it may be a duplicate record of the same edition (an acceptable-set case) or a different edition. Abstain is the gold under the unknown-is-compatible rule; the policy's ISBN rule suggests. Owner decision."
+  },
+  {
+   "case_id": "syn-OL49758545M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781973824503",
+    "title": "War and Peace"
+   },
+   "perturbation": "ops=['drop_author', 'drop_year'] seed=846634000 source_edition_id='OL49758545M'",
+   "gold_size": 18,
+   "ambiguity_reason": "underspecified: 18 editions fit (17 only because a field is unknown on them)",
+   "suggested": "OL49758545M",
+   "twins": [
+    {
+     "edition_id": "OL13579011M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1898,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Thomas Crowell"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL15233414M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "translated by Louise and Aylmer Maude, with foreword by Clifton Fadiman.",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1942,
+     "isbns": [],
+     "edition_name": "[Inner sanctum ed.]",
+     "publishers": [
+      "Simon and Schuster"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL17776963M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "a novel.",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1970,
+     "isbns": [],
+     "edition_name": "3 v. in 1.",
+     "publishers": [
+      "Oxford University Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL1978894M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1990,
+     "isbns": [],
+     "edition_name": "2nd ed.",
+     "publishers": [
+      "Encyclopædia Britannica, Inc."
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL20649959M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and Peace",
+     "subtitle": "a novel",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1904,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Heinemann."
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22190640M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace.",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1930,
+     "isbns": [],
+     "edition_name": "Translated by Constance Garnett.",
+     "publishers": [
+      "Carlton House"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22231244M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1952,
+     "isbns": [],
+     "edition_name": "Founders' ed.",
+     "publishers": [
+      "Encyclopaedia Britannica"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22610724M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1929,
+     "isbns": [],
+     "edition_name": "Rev. and reset ed.",
+     "publishers": [
+      "J. M. Dent & Sons",
+      "E. P. Dutton"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL24223361M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and Peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1974,
+     "isbns": [],
+     "edition_name": "Authoritative Modern Abridgment",
+     "publishers": [
+      "Scholastic Book Services"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL25415630M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "war and peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "colonial press co."
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL3121791M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1981,
+     "isbns": [],
+     "edition_name": "A limited ed.",
+     "publishers": [
+      "Franklin Library"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL40243079M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1864,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Random House"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL47789968M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War And Peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1967,
+     "isbns": [],
+     "edition_name": "Abridged",
+     "publishers": [
+      "Washington Square Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL49654032M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and Peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": 1976,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Ulverscroft Large Print Books"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL59803493M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "a novel",
+     "authors": [
+      "Leo Tolstoy",
+      "Louise Maude",
+      "Aylmer Maude"
+     ],
+     "format": "unknown",
+     "year": 1928,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Oxford University Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL5982192M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": null,
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1966,
+     "isbns": [],
+     "edition_name": "[1st ed.]",
+     "publishers": [
+      "W. W. Norton"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL6531567M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "War and peace",
+     "subtitle": "a novel",
+     "authors": [
+      "Leo Tolstoy"
+     ],
+     "format": "unknown",
+     "year": 1911,
+     "isbns": [],
+     "edition_name": "Popular ed.",
+     "publishers": [
+      "John Lane Company"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__rule_conflict_possible_duplicate_record",
+   "explanation": "At least one twin has no ISBN and no known field that differs from the ISBN holder; it may be a duplicate record of the same edition (an acceptable-set case) or a different edition. Abstain is the gold under the unknown-is-compatible rule; the policy's ISBN rule suggests. Owner decision."
+  },
+  {
+   "case_id": "syn-OL49761251M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "query": {
+    "title": "war and peace",
+    "author": "Louise",
+    "publish_year": 2016
+   },
+   "perturbation": "ops=['drop_isbn', 'lowercase_no_punct'] seed=505335239 source_edition_id='OL49761251M'",
+   "gold_size": 4,
+   "ambiguity_reason": "underspecified: 4 editions fit (3 only because a field is unknown on them)",
+   "suggested": "OL49761251M",
+   "twins": [
+    {
+     "edition_id": "OL25415630M",
+     "in_candidates": true,
+     "fit_to_query": "unknown",
+     "checks": {
+      "title": "agree",
+      "author": "unknown",
+      "publish_year": "unknown"
+     },
+     "excluded_by": [
+      "author"
+     ],
+     "excluded_by_unknown_only": true,
+     "title": "war and peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "colonial press co."
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL49758534M",
+     "in_candidates": true,
+     "fit_to_query": "unknown",
+     "checks": {
+      "title": "agree",
+      "author": "unknown",
+      "publish_year": "agree"
+     },
+     "excluded_by": [
+      "author"
+     ],
+     "excluded_by_unknown_only": true,
+     "title": "War and Peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": 2016,
+     "isbns": [
+      "9781781395936"
+     ],
+     "edition_name": null,
+     "publishers": [
+      "Benediction Classics"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL49759853M",
+     "in_candidates": true,
+     "fit_to_query": "unknown",
+     "checks": {
+      "title": "agree",
+      "author": "unknown",
+      "publish_year": "agree"
+     },
+     "excluded_by": [
+      "author"
+     ],
+     "excluded_by_unknown_only": true,
+     "title": "War and Peace",
+     "subtitle": null,
+     "authors": [],
+     "format": "unknown",
+     "year": 2016,
+     "isbns": [
+      "9781988297620"
+     ],
+     "edition_name": null,
+     "publishers": [
+      "Devoted Publishing"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "policy_error_unknown_treated_as_disagreement",
+   "explanation": "Retrieval route excluded every other fitting edition only because ['author'] was UNKNOWN on it (consistency requires AGREE); this contradicts the rule that unknown metadata is never distinguishing."
+  },
+  {
+   "case_id": "syn-OL51065707M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781419227240",
+    "title": "Jane Eyre"
+   },
+   "perturbation": "ops=['drop_year'] seed=1032582141 source_edition_id='OL51065707M'",
+   "gold_size": 18,
+   "ambiguity_reason": "underspecified: 18 editions fit (17 only because a field is unknown on them)",
+   "suggested": "OL51065707M",
+   "twins": [
+    {
+     "edition_id": "OL13448854M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1850,
+     "isbns": [],
+     "edition_name": "Copyright ed.",
+     "publishers": [
+      "B. Tauchnitz"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13545821M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "hardcover",
+     "year": 1950,
+     "isbns": [],
+     "edition_name": "[Book club ed.]",
+     "publishers": [
+      "Triangle"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13856380M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre.",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Hong Guang"
+     ],
+     "languages": [
+      "mul"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": false,
+     "mul_or_und_language_only": true
+    },
+    {
+     "edition_id": "OL13856788M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "roman",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1964,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Librairie Ge ne rale Franc ʹaise"
+     ],
+     "languages": [
+      "fre"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year",
+      "language"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13926161M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1847,
+     "isbns": [],
+     "edition_name": "[2nd ed.]",
+     "publishers": [
+      "Walter Scott"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13977120M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1924,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "John Murray"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL16413428M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "with a critical and biographical profile of Charlotte Brontë by Inga-Stina Ewbank ....",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1970,
+     "isbns": [],
+     "edition_name": "Large print ed.",
+     "publishers": [
+      "Franklin Watts"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL16678904M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1848,
+     "isbns": [],
+     "edition_name": "Second edition.",
+     "publishers": [
+      "Smith, Elder and Co., Cornhill"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL176284M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1911,
+     "isbns": [],
+     "edition_name": "[3d ed.]",
+     "publishers": [
+      "J. Grant"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL17637673M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1905,
+     "isbns": [],
+     "edition_name": "Thornton ed.",
+     "publishers": [
+      "J. Grant"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL17722231M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1978,
+     "isbns": [],
+     "edition_name": "Collector's ed.",
+     "publishers": [
+      "Easton Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22492543M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1877,
+     "isbns": [],
+     "edition_name": "New edition.",
+     "publishers": [
+      "Smith, Elder and Co."
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL23307240M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre.",
+     "subtitle": "With an introd. by Mrs. Humphry Ward.",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1899,
+     "isbns": [],
+     "edition_name": "Thornfield ed.",
+     "publishers": [
+      "Harper"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL23754877M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1946,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Zodiac Press"
+     ],
+     "languages": [
+      "und"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL3122088M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1981,
+     "isbns": [],
+     "edition_name": "A limited ed.",
+     "publishers": [
+      "Franklin Library"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL44730824M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "Roman",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "other",
+     "year": 1850,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Verlag der Franckh'schen Buchh."
+     ],
+     "languages": [
+      "ger"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year",
+      "language"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL45068913M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "An autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1864,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Harper & brothers"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__undecided_language_code_only",
+   "explanation": "A twin differs from the ISBN holder only by a vague language code (mul/und)."
+  },
+  {
+   "case_id": "syn-OL51073020M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781420951271",
+    "title": "jane eyre",
+    "author": "Charlotte Brontë",
+    "publish_year": 2015
+   },
+   "perturbation": "ops=['lowercase_no_punct'] seed=1179400448 source_edition_id='OL51073020M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL51073020M",
+   "twins": [
+    {
+     "edition_id": "OL13856380M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre.",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Hong Guang"
+     ],
+     "languages": [
+      "mul"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": false,
+     "mul_or_und_language_only": true
+    }
+   ],
+   "bucket": "isbn_exact__undecided_language_code_only",
+   "explanation": "A twin differs from the ISBN holder only by a vague language code (mul/und)."
+  },
+  {
+   "case_id": "syn-OL51076610M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781948582117",
+    "title": "Jane Eyre"
+   },
+   "perturbation": "ops=['drop_year'] seed=606051528 source_edition_id='OL51076610M'",
+   "gold_size": 18,
+   "ambiguity_reason": "underspecified: 18 editions fit (17 only because a field is unknown on them)",
+   "suggested": "OL51076610M",
+   "twins": [
+    {
+     "edition_id": "OL13448854M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1850,
+     "isbns": [],
+     "edition_name": "Copyright ed.",
+     "publishers": [
+      "B. Tauchnitz"
+     ],
+     "languages": [],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13545821M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "hardcover",
+     "year": 1950,
+     "isbns": [],
+     "edition_name": "[Book club ed.]",
+     "publishers": [
+      "Triangle"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13856380M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre.",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": null,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Hong Guang"
+     ],
+     "languages": [
+      "mul"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": false,
+     "mul_or_und_language_only": true
+    },
+    {
+     "edition_id": "OL13856788M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "roman",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1964,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Librairie Ge ne rale Franc ʹaise"
+     ],
+     "languages": [
+      "fre"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year",
+      "language"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13926161M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1847,
+     "isbns": [],
+     "edition_name": "[2nd ed.]",
+     "publishers": [
+      "Walter Scott"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL13977120M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1924,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "John Murray"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL16413428M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "with a critical and biographical profile of Charlotte Brontë by Inga-Stina Ewbank ....",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1970,
+     "isbns": [],
+     "edition_name": "Large print ed.",
+     "publishers": [
+      "Franklin Watts"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL16678904M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1848,
+     "isbns": [],
+     "edition_name": "Second edition.",
+     "publishers": [
+      "Smith, Elder and Co., Cornhill"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL176284M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1911,
+     "isbns": [],
+     "edition_name": "[3d ed.]",
+     "publishers": [
+      "J. Grant"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL17637673M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1905,
+     "isbns": [],
+     "edition_name": "Thornton ed.",
+     "publishers": [
+      "J. Grant"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL17722231M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1978,
+     "isbns": [],
+     "edition_name": "Collector's ed.",
+     "publishers": [
+      "Easton Press"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL22492543M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "an autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1877,
+     "isbns": [],
+     "edition_name": "New edition.",
+     "publishers": [
+      "Smith, Elder and Co."
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL23307240M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre.",
+     "subtitle": "With an introd. by Mrs. Humphry Ward.",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1899,
+     "isbns": [],
+     "edition_name": "Thornfield ed.",
+     "publishers": [
+      "Harper"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL23754877M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1946,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Zodiac Press"
+     ],
+     "languages": [
+      "und"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL3122088M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": null,
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1981,
+     "isbns": [],
+     "edition_name": "A limited ed.",
+     "publishers": [
+      "Franklin Library"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL44730824M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "Roman",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "other",
+     "year": 1850,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Verlag der Franckh'schen Buchh."
+     ],
+     "languages": [
+      "ger"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year",
+      "language"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL45068913M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Jane Eyre",
+     "subtitle": "An autobiography",
+     "authors": [
+      "Charlotte Brontë"
+     ],
+     "format": "unknown",
+     "year": 1864,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Harper & brothers"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__undecided_language_code_only",
+   "explanation": "A twin differs from the ISBN holder only by a vague language code (mul/und)."
+  },
+  {
+   "case_id": "syn-OL6147070M-0",
+   "systems_suggesting": [
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 6,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "query": {
+    "title": "Frankenstein",
+    "author": "M. Shelley",
+    "physical_format": "hardcover",
+    "publish_year": 1818
+   },
+   "perturbation": "ops=['author_initials'] seed=1146023930 source_edition_id='OL6147070M'",
+   "gold_size": 3,
+   "ambiguity_reason": "underspecified: 3 editions fit (2 only because a field is unknown on them)",
+   "suggested": "OL38860387M",
+   "twins": [
+    {
+     "edition_id": "OL38379764M",
+     "in_candidates": false,
+     "fit_to_query": null,
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Frankenstein",
+     "subtitle": "Or, the Modern Prometheus",
+     "authors": [
+      "Mary Shelley"
+     ],
+     "format": "unknown",
+     "year": 1818,
+     "isbns": [
+      "9781544627786"
+     ],
+     "edition_name": null,
+     "publishers": [
+      "CreateSpace Independent Publishing Platform"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    },
+    {
+     "edition_id": "OL6147070M",
+     "in_candidates": false,
+     "fit_to_query": null,
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "Frankenstein",
+     "subtitle": "or, The Modern Prometheus",
+     "authors": [
+      "Mary Shelley"
+     ],
+     "format": "hardcover",
+     "year": 1818,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Lackington, Hughes, Harding, Mayor & Jones, Finsbury Square"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [],
+     "no_known_difference": true,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "policy_error_fitting_edition_not_retrieved",
+   "explanation": "Retrieval route: another fitting edition was not in the candidate list, so 'exactly one consistent candidate' was judged on an incomplete list."
+  },
+  {
+   "case_id": "syn-OL8997717M-0",
+   "systems_suggesting": [
+    "1_exact_fuzzy",
+    "2_lexical",
+    "2b_lexical_rrf",
+    "3_embedding",
+    "4_hybrid",
+    "5_hybrid_rerank",
+    "6_routed_llm"
+   ],
+   "n_systems": 7,
+   "rerun_system": "2b_lexical_rrf",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "query": {
+    "isbn": "9781856959872",
+    "title": "A Legal Fiction"
+   },
+   "perturbation": "ops=['drop_format', 'drop_year'] seed=625167588 source_edition_id='OL8997717M'",
+   "gold_size": 2,
+   "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)",
+   "suggested": "OL8997717M",
+   "twins": [
+    {
+     "edition_id": "OL19935838M",
+     "in_candidates": false,
+     "fit_to_query": "unknown",
+     "checks": null,
+     "excluded_by": [
+      "not_retrieved"
+     ],
+     "excluded_by_unknown_only": false,
+     "title": "A legal fiction.",
+     "subtitle": null,
+     "authors": [
+      "Elizabeth Ferrars"
+     ],
+     "format": "unknown",
+     "year": 1964,
+     "isbns": [],
+     "edition_name": null,
+     "publishers": [
+      "Collins"
+     ],
+     "languages": [
+      "eng"
+     ],
+     "known_differences_vs_suggested": [
+      "publish_year"
+     ],
+     "no_known_difference": false,
+     "mul_or_und_language_only": false
+    }
+   ],
+   "bucket": "isbn_exact__gold_question_twins_known_distinct",
+   "explanation": "Valid ISBN maps to exactly one record. Every other 'fitting' edition has no ISBN, but it differs from the ISBN-holding record on a field known on both (year/subtitle/language/format). The fit rule compares twins only to the query, so the gold set may be broader than the evidence supports."
+  }
+ ]
+}

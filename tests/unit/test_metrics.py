@@ -105,3 +105,37 @@ def test_harness_runs_unblocked_systems_and_marks_blocked(catalog: Any) -> None:
         assert "metrics" not in systems[k]
     md = markdown(report)
     assert "NOT A REAL-WORLD EVALUATION" in md and "blocked" in md
+
+
+def test_adjudication_breakdown_separates_abstentions_from_choices() -> None:
+    from bera.evalkit.metrics import CaseResult, adjudication_breakdown
+
+    def r(cid: str, exp: str, status: str, choice: str | None, outcome: str) -> CaseResult:
+        return CaseResult(
+            case_id=cid,
+            family=cid,
+            expected=exp,
+            gold=frozenset({"E1"}),
+            ranked_ids=["E1", "E2"],
+            outcome=outcome,
+            suggested="E1" if outcome == "suggest" else None,
+            adjudication_status=status,
+            adjudication_choice=choice,
+        )
+
+    b = adjudication_breakdown(
+        [
+            r("a", "suggest", "completed", "E1", "review"),
+            r("b", "abstain", "completed", "E2", "review"),
+            r("c", "suggest", "completed", None, "review"),
+            r("d", "suggest", "deadline_exceeded", None, "review"),
+            r("e", "suggest", "not_needed", None, "suggest"),
+        ]
+    )
+    assert b["invoked"] == 4
+    assert b["completed_valid_responses"] == 3
+    assert b["completed_chose_a_candidate"] == 2
+    assert b["completed_llm_abstained"] == 1
+    assert b["choice_in_gold"] == {"numerator": 1, "denominator": 2}
+    assert b["not_completed"] == {"deadline_exceeded": 1}
+    assert b["final_outcome_when_invoked"]["suggest"] == 0
