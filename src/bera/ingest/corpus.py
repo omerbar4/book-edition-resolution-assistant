@@ -31,7 +31,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from rapidfuzz import fuzz
+from rapidfuzz import fuzz, process
 
 from bera import isbn as isbnlib
 from bera.features import content_kind, parse_format
@@ -128,6 +128,7 @@ def _edition_title(d: dict[str, Any]) -> str:
 
 # ---- exclusion rules -----------------------------------------------------------------------
 TITLE_FUZZY_RATIO = 92.0
+R4_PARTIAL_RATIO = 85.0
 
 
 @dataclass
@@ -218,7 +219,12 @@ class ExclusionRules:
         if not author_keys and by_statement:
             low = strip_accents(by_statement.casefold())
             for p in self.probes:
-                if p.surname and p.surname in low and self.title_hit(ftitle):
+                if (
+                    p.surname
+                    and p.surname in low
+                    and ftitle
+                    and fuzz.partial_ratio(p.ftitle, ftitle) >= R4_PARTIAL_RATIO
+                ):
                     return "R4_by_statement"
         if isbn13s & self.isbns:
             return "R5_isbn"
@@ -230,6 +236,10 @@ def pass1_stats(
     editions: Path, redirects: Redirects, scratch: sqlite3.Connection, stats: ReadStats
 ) -> None:
     scratch.executescript("""
+        PRAGMA journal_mode = OFF;
+        PRAGMA synchronous = OFF;
+        PRAGMA cache_size = -1000000;
+        PRAGMA temp_store = FILE;
         DROP TABLE IF EXISTS ed;
         CREATE TABLE ed (work TEXT, has_isbn INT, fmt TEXT, eng INT, other_lang INT,
                          translated INT, revised INT, kind TEXT, ntitle TEXT, ftitle TEXT,
@@ -301,30 +311,69 @@ def pass1_stats(
     scratch.executemany("INSERT INTO ed VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", batch)
     scratch.executescript("""
         CREATE INDEX ed_work ON ed(work);
+        DROP TABLE IF EXISTS titles;
+        CREATE TABLE titles AS
+            SELECT work, ntitle, ftitle, c,
+                   ROW_NUMBER() OVER (PARTITION BY work ORDER BY c DESC, ntitle) rn
+            FROM (SELECT work, ntitle, ftitle, COUNT(*) c FROM ed WHERE ntitle != ''
+                  GROUP BY work, ntitle, ftitle);
+        CREATE INDEX titles_work_rn ON titles(work, rn);
+        DROP TABLE IF EXISTS agg;
+        CREATE TABLE agg AS
+            SELECT work, COUNT(*) n, SUM(has_isbn) n_isbn,
+                   COUNT(DISTINCT CASE WHEN fmt NOT IN ('unknown','other') THEN fmt END) n_fmt,
+                   MAX(eng) eng, MAX(other_lang) other_lang, MAX(translated) translated,
+                   MAX(revised) revised, MAX(kind = 'study_guide') guide,
+                   MAX(kind = 'box_set') boxset
+            FROM ed GROUP BY work;
         DROP TABLE IF EXISTS works;
         CREATE TABLE works AS
-        WITH titles AS (
-            SELECT work, ntitle, ftitle, COUNT(*) c,
-                   ROW_NUMBER() OVER (PARTITION BY work ORDER BY COUNT(*) DESC, ntitle) rn
-            FROM ed WHERE ntitle != '' GROUP BY work, ntitle, ftitle
-        )
-        SELECT e.work, COUNT(*) n, SUM(has_isbn) n_isbn,
-               COUNT(DISTINCT CASE WHEN fmt NOT IN ('unknown','other') THEN fmt END) n_fmt,
-               MAX(eng) eng, MAX(other_lang) other_lang, MAX(translated) translated,
-               MAX(revised) revised, MAX(kind = 'study_guide') guide, MAX(kind = 'box_set') boxset,
-               (SELECT ntitle FROM titles t WHERE t.work = e.work AND rn = 1) title,
-               (SELECT ftitle FROM titles t WHERE t.work = e.work AND rn = 1) ftitle
-        FROM ed e GROUP BY e.work;
+            SELECT a.*, t.ntitle AS title, t.ftitle AS ftitle
+            FROM agg a LEFT JOIN titles t ON t.work = a.work AND t.rn = 1;
+        CREATE INDEX works_work ON works(work);
         CREATE INDEX works_title ON works(title);
         CREATE INDEX works_ftitle ON works(ftitle);
     """)
 
 
+def bulk_title_hits(titles: list[str], rules: ExclusionRules) -> set[str]:
+    """Distinct folded titles matching any probe under R2, computed in bulk: exact, whole
+    phrase (one compiled regex), or rapidfuzz ratio >= TITLE_FUZZY_RATIO (vectorized cdist).
+    Equivalent to ExclusionRules.title_hit, which is used per edition in pass 2."""
+    if not rules.probes or not titles:
+        return set()
+    probe_titles = [p.ftitle for p in rules.probes if p.ftitle]
+    phrase = re.compile(r"(?:^| )(?:" + "|".join(re.escape(x) for x in probe_titles) + r")(?: |$)")
+    hits = {t for t in titles if phrase.search(t)}
+    matrix = process.cdist(
+        probe_titles,
+        titles,
+        scorer=fuzz.ratio,
+        score_cutoff=TITLE_FUZZY_RATIO,
+        dtype="uint8",
+        workers=-1,
+    )
+    for j in set(matrix.nonzero()[1].tolist()):
+        hits.add(titles[j])
+    return hits
+
+
 def excluded_works(scratch: sqlite3.Connection, rules: ExclusionRules) -> dict[str, str]:
-    """work -> first rule that excludes it. Scans every edition of every work (not just the
-    dominant title), so a work cannot re-enter through a variant edition."""
-    out: dict[str, str] = {}
+    """work -> first rule that excludes it. Every edition of every work is checked (not just
+    the dominant title), so a work cannot re-enter through a variant edition."""
+    titles = sorted(
+        {
+            r[0]
+            for r in scratch.execute(
+                "SELECT DISTINCT ftitle FROM ed WHERE ftitle != '' "
+                "UNION SELECT DISTINCT ftrans FROM ed WHERE ftrans != ''"
+            )
+        }
+    )
+    hit_titles = bulk_title_hits(titles, rules)
     keys = rules.author_keys
+    surnames = [p.surname for p in rules.probes if p.surname]
+    out: dict[str, str] = {}
     for work, authors, ftitle, ftrans, by, isbns in scratch.execute(
         "SELECT work, authors, ftitle, ftrans, bystmt, isbns FROM ed"
     ):
@@ -333,16 +382,22 @@ def excluded_works(scratch: sqlite3.Connection, rules: ExclusionRules) -> dict[s
         akeys = set(authors.split()) if authors else set()
         if keys and akeys & keys:
             out[work] = "R1_author_key"
-            continue
-        reason = rules.edition_reason(
-            author_keys=akeys,
-            ftitle=ftitle or "",
-            ftrans=ftrans or "",
-            by_statement=by or "",
-            isbn13s=set(isbns.split()) if isbns else set(),
-        )
-        if reason:
-            out[work] = reason
+        elif ftitle in hit_titles:
+            out[work] = "R2_title"
+        elif ftrans and ftrans in hit_titles:
+            out[work] = "R3_translation_of"
+        elif not akeys and by and any(s in strip_accents(by.casefold()) for s in surnames):
+            reason = rules.edition_reason(
+                author_keys=akeys,
+                ftitle=ftitle or "",
+                ftrans=ftrans or "",
+                by_statement=by,
+                isbn13s=set(),
+            )
+            if reason:
+                out[work] = reason
+        elif rules.isbns and isbns and set(isbns.split()) & rules.isbns:
+            out[work] = "R5_isbn"
     return out
 
 

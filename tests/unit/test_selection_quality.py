@@ -91,3 +91,55 @@ def test_probe_audit_quarantines_on_resemblance_or_missing_author() -> None:
     assert hit["status"] == "quarantined" and hit["hits"][0]["edition_id"] == "E2"
     unresolved = probe_audit("never let me go", "kazuo ishiguro", "ishiguro", 0, eds)
     assert unresolved["status"] == "quarantined"
+
+
+def test_bulk_title_hits_match_per_title_rule() -> None:
+    from bera.ingest.corpus import ExclusionRules, bulk_title_hits
+
+    rules = ExclusionRules.load(
+        [
+            {
+                "title": "Gödel, Escher, Bach",
+                "author": "Douglas R. Hofstadter",
+                "author_keys": ["OL1A"],
+            },
+            {"title": "Middlemarch", "author": "George Eliot", "author_keys": ["OL2A"]},
+        ]
+    )
+    titles = [
+        "godel escher bach",
+        "godel escher bach eternal golden braid",
+        "godel escher bash",
+        "middlemarch study provincial life",
+        "middle march",
+        "escher prints",
+        "bach cello suites",
+        "unrelated",
+    ]
+    assert bulk_title_hits(titles, rules) == {t for t in titles if rules.title_hit(t)}
+
+
+def test_r4_by_statement_catches_authorless_partial_title() -> None:
+    from bera.ingest.corpus import ExclusionRules
+
+    rules = ExclusionRules.load(
+        [{"title": "The Remains of the Day", "author": "Kazuo Ishiguro", "author_keys": ["OL9A"]}]
+    )
+    reason = rules.edition_reason(
+        author_keys=set(),
+        ftitle="remains",
+        ftrans="",
+        by_statement="by Kazuo Ishiguro",
+        isbn13s=set(),
+    )
+    assert reason == "R4_by_statement"
+    assert (
+        rules.edition_reason(
+            author_keys=set(),
+            ftitle="remains",
+            ftrans="",
+            by_statement="by someone else",
+            isbn13s=set(),
+        )
+        is None
+    )
