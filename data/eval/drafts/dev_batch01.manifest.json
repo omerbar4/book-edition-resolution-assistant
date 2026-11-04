@@ -1,0 +1,10 @@
+{
+ "queue": "data/eval/drafts/dev_batch01.jsonl",
+ "queue_sha256": "0842b5f65a8c5f330c50df1733672338a9de7e86d2cc0bdbf639b910e44e2688",
+ "queue_committed_in": "350c656",
+ "split": "dev",
+ "drafts": 20,
+ "drafted_by": "template-drafter-v1 (deterministic program; not a human, not an LLM)",
+ "proposal_label_spec": "v1",
+ "note": "Proposals were drafted under synthetic label spec v1 and are kept unchanged; they are program proposals, not labels, and are revealed only after a blind human label is submitted. Under spec v2 only dev-b01-009 would differ; see data/eval/label_changes/dev_batch01_proposals_v1_to_v2.json. Draft generation used policy-independent code; policy v1 does not alter proposals."
+}

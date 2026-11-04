@@ -9,6 +9,7 @@ separate from development labeling.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import threading
 from datetime import UTC, datetime
@@ -46,6 +47,21 @@ class LabelStore:
         self.labels_path = labels
         self.catalog = catalog
         self._lock = threading.Lock()
+        self.proposal_spec = self._proposal_spec(queue)
+
+    @staticmethod
+    def _proposal_spec(queue: Path) -> str:
+        """Label-spec version of the recorded proposals, from `<queue>.manifest.json` if
+        present. The manifest pins the queue's sha256, so a changed queue is refused rather
+        than silently attributed to the wrong version."""
+        manifest = queue.with_suffix(".manifest.json")
+        if not manifest.exists():
+            return "unrecorded"
+        m = json.loads(manifest.read_text(encoding="utf-8"))
+        digest = hashlib.sha256(queue.read_bytes()).hexdigest()
+        if m.get("queue_sha256") != digest:
+            raise RuntimeError(f"{queue} does not match {manifest} (sha256); refusing to serve")
+        return str(m.get("proposal_label_spec") or "unrecorded")
 
     def labeled(self) -> dict[str, EvalCase]:
         out: dict[str, EvalCase] = {}
@@ -90,7 +106,12 @@ class LabelStore:
                 fh.write(case.model_dump_json(exclude_none=True) + "\n")
         p = d.proposed
         agree = s.expected == p.expected and set(s.gold_edition_ids) == set(p.gold_edition_ids)
-        return {"saved": True, "proposed": p.model_dump(), "agrees_with_proposal": agree}
+        return {
+            "saved": True,
+            "proposed": p.model_dump(),
+            "proposal_label_spec": self.proposal_spec,
+            "agrees_with_proposal": agree,
+        }
 
 
 def router(store: LabelStore) -> APIRouter:
@@ -114,6 +135,7 @@ def router(store: LabelStore) -> APIRouter:
             "reasons": list(AMBIGUITY_REASONS),
             "labeled": len(done),
             "total": len(items),
+            "proposal_label_spec": store.proposal_spec,
         }
 
     @r.get("/search")

@@ -158,3 +158,19 @@ def test_family_map_controls_split(editions: list[Any]) -> None:
         family_of=all_dev,
     )
     assert d and {x.family for x in d} == {"fam:same"}
+
+
+def test_proposal_spec_comes_from_pinned_manifest(
+    tmp_path: Path, editions: list[Any], catalog: Any
+) -> None:
+    import hashlib
+
+    q = make_queue(tmp_path, editions)
+    assert LabelStore(q, tmp_path / "l.jsonl", catalog, False).proposal_spec == "unrecorded"
+    digest = hashlib.sha256(q.read_bytes()).hexdigest()
+    m = q.with_suffix(".manifest.json")
+    m.write_text(json.dumps({"queue_sha256": digest, "proposal_label_spec": "v1"}))
+    assert LabelStore(q, tmp_path / "l.jsonl", catalog, False).proposal_spec == "v1"
+    q.write_text(q.read_text() + "\n")  # queue changed after the manifest was written
+    with pytest.raises(RuntimeError):
+        LabelStore(q, tmp_path / "l.jsonl", catalog, False)
