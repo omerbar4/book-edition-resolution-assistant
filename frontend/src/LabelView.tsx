@@ -84,10 +84,21 @@ export function LabelView() {
   async function loadQueue() {
     const res = await fetch("/api/label/queue");
     if (!res.ok) throw new Error(`queue: ${res.status}`);
-    setQueue((await res.json()) as Queue);
+    const q = (await res.json()) as Queue;
+    setQueue(q);
+    return q;
   }
   useEffect(() => {
-    loadQueue().catch((e: unknown) => setError(String(e)));
+    loadQueue()
+      .then((q) => {
+        // start on the first case still to do (not labeled, practice or skipped)
+        const first = q.items.findIndex(
+          (i) =>
+            (i.status ?? (i.labeled ? "labeled" : "unlabeled")) === "unlabeled",
+        );
+        if (first > 0) setIdx(first);
+      })
+      .catch((e: unknown) => setError(String(e)));
   }, []);
 
   const item = queue?.items[idx];
@@ -195,7 +206,10 @@ export function LabelView() {
 
   return (
     <section aria-label="Labeling">
-      <details className="howto" open={queue.labeled === 0}>
+      <details
+        className="howto"
+        open={(queue.independent ?? queue.labeled) === 0}
+      >
         <summary>What am I deciding?</summary>
         <p>
           Someone typed the query below while trying to identify one specific
