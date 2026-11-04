@@ -1,0 +1,21 @@
+{
+  "selection_version": "v3_proposed",
+  "approved_by": "project owner (Omer Bar), in chat on 2026-11-03",
+  "recorded_by": "Claude (AI assistant), on the owner's explicit instruction; the decision is the owner's",
+  "approved_commit": "0fe293b11b86cdb55b9e4b2eeffa78c268ed13be",
+  "scope": "two full corpus builds of v3_proposed from the verified 2026-10-31 dumps (editions, authors, redirects), with the family grouping implemented at approved_commit",
+  "files": {
+    "config": {"path": "data/selection/selection_config_v3_proposed.json", "sha256": "8f1097f1557780d2d46f30ffa82572188047e1eb15122f1984142608121d0aaf"},
+    "seed_list": {"path": "data/selection/seed_list_v3_proposed.jsonl", "sha256": "d1f4a1b3abc3d745aa8878fe346128340f02004f7903b5e0c9169cc1979a9e97"},
+    "exclusions": {"path": "data/selection/exclusions_v3_proposed.jsonl", "sha256": "c8c572efef31429248efe45dffdad7314d53dd5adcb43f0bd3fdfb70b4694664"}
+  },
+  "dumps_sha1": {
+    "ol_dump_editions_2026-10-31.txt.gz": "78d5434c97782081e3f3adf37e2c53c18aed0b41",
+    "ol_dump_authors_2026-10-31.txt.gz": "93c27cf01586db495f2f0245d78a4ebfcdf298e5",
+    "ol_dump_redirects_2026-10-31.txt.gz": "d8559bfbd88934d1b9d1caf354105eb4a2adefec"
+  },
+  "notes": [
+    "The config file's 'status' and 'families' text predate the approval and the F1 revision; they are left byte-identical so the hash above is the reviewed file. Family behavior is defined by src/bera at approved_commit (SELECTION_PROCEDURE.md section 4).",
+    "Approved preview reference: var/selection_preview/v3_proposed (third run), archived under data/corpus/v3_proposed/reports/."
+  ]
+}
