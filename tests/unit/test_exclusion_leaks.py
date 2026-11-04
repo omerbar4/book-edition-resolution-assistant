@@ -161,3 +161,12 @@ def test_seed_title_is_author_constrained(built: tuple[Any, Path]) -> None:
     p = json.loads((d / "preview" / "selection_preview.json").read_text())
     h = [r["work"] for r in p["selected"] if r["stratum"] == "H"]
     assert h == ["OL91W"]  # same title by another author is not taken as the seed
+
+
+def test_preview_reports_split_balance_and_limitation(built: tuple[Any, Path]) -> None:
+    (preview, _), d = built
+    a = json.loads((d / "preview" / "selection_preview.json").read_text())["analysis"]
+    bal = a["split_balance"]
+    assert bal["dev"]["works"] + bal["heldout"]["works"] == preview.selected_works
+    assert "cannot guarantee" in a["families"]["limitation"]
+    assert set(bal["probes"]) == {"Gödel Sample Book"}

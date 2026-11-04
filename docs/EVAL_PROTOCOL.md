@@ -9,6 +9,7 @@
   initials, dropped fields, ISBN-10 form, ISBN digit error, case/punctuation). Each case stores
   its ops, seed and source edition. About half drop the ISBN. Expected behavior is recomputed
   after perturbation.
+- **Split leakage limitation:** splits are by conservative work family (SELECTION_PROCEDURE.md §4). This reduces but **cannot eliminate** leakage between dev and held-out, because some aliases/duplicates are undetectable from dump metadata.
 - **Splits:** `bera.evalkit.splits`, a SHA-256 hash of `(seed, family)`, 60/40 dev/held-out,
   with a leakage check.
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import Counter
+
 from bera.ingest.quality import (
     AuditEdition,
     AuthorRecord,
@@ -143,3 +145,24 @@ def test_r4_by_statement_catches_authorless_partial_title() -> None:
         )
         is None
     )
+
+
+def test_suspicious_merges_flag_generic_authors_and_titles() -> None:
+    from bera.ingest.quality import suspicious_merges
+
+    works = [
+        WorkInfo("/works/A", {"great gatsby"}, set(), {"/authors/ANON"}),
+        WorkInfo("/works/B", {"moby dick"}, set(), {"/authors/ANON"}),
+        WorkInfo("/works/C", {"collected poems"}, set(), {"/authors/P1"}),
+        WorkInfo("/works/D", {"collected poems"}, set(), {"/authors/P2"}),
+        WorkInfo("/works/E", {"dune"}, set(), {"/authors/H"}),
+        WorkInfo("/works/F", {"dune messiah"}, set(), {"/authors/H"}),
+    ]
+    res = build_families(works)
+    names = {"/authors/ANON": "Anonymous", "/authors/H": "Frank Herbert"}
+    sus = suspicious_merges(res, names, set(), Counter(t for w in works for t in w.titles))
+    reasons = {(m["a"], m["b"]): m["reason"] for m in sus}
+    assert any("generic_or_unnamed_author" in r for r in reasons.values())
+    assert any("generic_or_high_fanout_title" in r for r in reasons.values())
+    assert not any({"E", "F"} == {a, b} for a, b in reasons)  # a real shared author is fine
+    assert res.family_of["/works/A"] == res.family_of["/works/B"]  # merge kept (conservative)

@@ -34,6 +34,7 @@ from typing import Any
 from rapidfuzz import fuzz, process
 
 from bera import isbn as isbnlib
+from bera.evalkit.splits import family_split
 from bera.features import content_kind, parse_format
 from bera.ingest.dumps import (
     DumpRow,
@@ -55,6 +56,7 @@ from bera.ingest.quality import (
     build_families,
     probe_audit,
     sample_editions,
+    suspicious_merges,
 )
 from bera.models import Edition, PhysicalFormat
 from bera.text import fold_title, norm_person, norm_text, strip_accents
@@ -614,6 +616,8 @@ def analyze_selection(
     q: Quotas,
     seed: int,
     manifest: Manifest,
+    split_seed: int = 20261103,
+    dev_fraction: float = 0.6,
 ) -> dict[str, list[str]]:
     """Fill manifest.analysis; return work -> sampled edition keys."""
     sampled: dict[str, list[str]] = {}
@@ -659,7 +663,11 @@ def analyze_selection(
     sizes = fams.sizes()
 
     # author identity candidates (provisional): seed keys and probe keys
-    wanted = {k for s in seeds for k in s.author_keys} | set(rules.author_keys)
+    wanted = (
+        {k for s in seeds for k in s.author_keys}
+        | set(rules.author_keys)
+        | {k for w in infos for k in w.author_keys}
+    )
     records: dict[str, AuthorRecord] = {}
     for row in iter_dump(authors_path):
         if row.key in wanted:
@@ -694,6 +702,43 @@ def analyze_selection(
     for p in rules.probes:
         recs = [records[k] for k in sorted(p.author_keys) if k in records]
         probe_amb[p.title] = author_ambiguity(recs, excl_by_key)
+
+    # merges that may have joined unrelated works
+    ambiguous_keys: set[str] = set()
+    for group in (seeds, rules.probes):
+        for item in group:
+            amb = (seed_amb if group is seeds else probe_amb)[item.title]
+            if {
+                "multiple_records_same_name",
+                "different_birth_years_likely_different_people",
+            } & set(amb["flags"]):
+                ambiguous_keys |= set(item.author_keys)
+    title_fanout: Counter[str] = Counter(t for w in infos for t in w.titles)
+    names_by_key = {f"/authors/{r.key}": r.name for r in records.values()}
+    suspicious = suspicious_merges(fams, names_by_key, ambiguous_keys, title_fanout)
+
+    # proposed dev/held-out balance (families hashed with the split seed)
+    split_of = {f: family_split(f, split_seed, dev_fraction) for f in set(fams.family_of.values())}
+    balance: dict[str, Any] = {"split_seed": split_seed, "dev_fraction": dev_fraction}
+    for split in ("dev", "heldout"):
+        ws = [wi for wi in infos if split_of[fams.family_of[wi.work]] == split]
+        by_stratum: Counter[str] = Counter(selected[wi.work] for wi in ws)
+        eds_by_stratum: Counter[str] = Counter()
+        for wi in ws:
+            eds_by_stratum[selected[wi.work]] += len(sampled[wi.work])
+        balance[split] = {
+            "families": sum(1 for v in split_of.values() if v == split),
+            "works": len(ws),
+            "editions": sum(len(sampled[wi.work]) for wi in ws),
+            "works_by_group": dict(sorted(by_stratum.items())),
+            "editions_by_group": dict(sorted(eds_by_stratum.items())),
+        }
+    probe_fams = {}
+    for p in rules.probes:
+        k = sorted(p.author_keys)
+        pf = f"probe-author:{k[0].rsplit('/', 1)[-1]}" if k else f"probe:{p.title}"
+        probe_fams[p.title] = {"family": pf, "split": family_split(pf, split_seed, dev_fraction)}
+    balance["probes"] = probe_fams
 
     # provisional probe pre-audit against the editions of the selected works
     audit_eds = [
@@ -741,6 +786,12 @@ def analyze_selection(
         if a["status"] != "verified_absent":
             warnings.append(f"probe_preaudit_quarantine: {title} {a['reasons']}")
     largest = sizes.most_common(5)
+    if suspicious:
+        fams_hit = {fams.family_of[f"/works/{m['a']}"] for m in suspicious}
+        warnings.append(
+            f"possible_unrelated_merges: {len(suspicious)} merges across {len(fams_hit)} "
+            "families via generic/ambiguous author records or generic titles (see families)"
+        )
     if largest and largest[0][1] > max(5, len(selected) // 10):
         warnings.append(f"large_family: {largest[0][0]} has {largest[0][1]} works")
 
@@ -756,10 +807,15 @@ def analyze_selection(
             "count": len(sizes),
             "edges": fams.edge_counts,
             "largest": [{"family": f, "works": n} for f, n in largest],
+            "singleton_families": sum(1 for n in sizes.values() if n == 1),
+            "suspicious_merges": suspicious,
+            "limitation": "family grouping reduces split leakage but cannot guarantee that "
+            "every alias, duplicate work or translation is detected",
             "family_of": {w.rsplit("/", 1)[-1]: f for w, f in fams.family_of.items()},
         },
         "author_identity": {"seeds": seed_amb, "probes": probe_amb},
         "probe_preaudit_provisional": pre_audit,
+        "split_balance": balance,
         "warnings": warnings,
     }
     return sampled
@@ -775,6 +831,8 @@ def build_corpus(
     quotas: Quotas | None = None,
     scratch_path: Path | None = None,
     preview_only: bool = False,
+    split_seed: int = 20261103,
+    dev_fraction: float = 0.6,
 ) -> Manifest:
     q = quotas or Quotas()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -811,7 +869,17 @@ def build_corpus(
         ),
     }
     sampled = analyze_selection(
-        scratch, selected, excluded, seeds, rules, inputs.authors, q, seed, manifest
+        scratch,
+        selected,
+        excluded,
+        seeds,
+        rules,
+        inputs.authors,
+        q,
+        seed,
+        manifest,
+        split_seed,
+        dev_fraction,
     )
     if preview_only:
         preview = write_preview(
@@ -968,7 +1036,8 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         help="stop after selection; write selection_preview.json, no corpus",
     )
     a = p.parse_args(argv)
-    quotas = Quotas(**json.loads(a.config.read_text())["quotas"]) if a.config else None
+    cfg = json.loads(a.config.read_text()) if a.config else {}
+    quotas = Quotas(**cfg["quotas"]) if cfg else None
     m = build_corpus(
         BuildInputs(a.editions, a.authors, a.redirects, a.works, a.human_seeds, a.exclusions),
         a.out,
@@ -977,6 +1046,8 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         quotas=quotas,
         scratch_path=a.scratch,
         preview_only=a.preview_only,
+        split_seed=int(cfg.get("split_seed", 20261103)),
+        dev_fraction=float(cfg.get("dev_fraction", 0.6)),
     )
     print(
         json.dumps(

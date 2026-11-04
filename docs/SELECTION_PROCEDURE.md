@@ -184,6 +184,18 @@ Seed alias groups:
 | `garcia-marquez-solitude` | *One Hundred Years of Solitude* / *Cien años de soledad* |
 | `tolkien-lotr` | *The Lord of the Rings* / *The Fellowship of the Ring* |
 
+**Limitation (explicit):** family grouping *reduces* split leakage but **cannot guarantee**
+that every alias, duplicate work or translation is detected. Works linked only by facts absent
+from the dump stay in separate families. Examples: an unmerged duplicate work with a different
+title and a different, unmerged author record; a retitled translation with no
+`translation_of`. Residual leakage of this kind is possible and will be disclosed with any
+held-out result.
+
+The opposite error is also reported. The preview lists **possibly unrelated merges**: unions
+made through generic or unnamed author records ("Anonymous", "Unknown", "Various"), through
+author records flagged ambiguous, or through generic or high-fan-out titles ("Collected
+Poems"). These merges are kept (conservative) but shown for review.
+
 Over-merging is deliberate: F1 puts every selected work by one author record into one family.
 That reduces the number of independent families but can never let an alias cross dev and
 held-out. Probes by the same author share a family (`probe-author:<key>`). Splits hash the

@@ -42,8 +42,50 @@ def render(p: dict[str, Any]) -> str:
         out.append(f"| {s} | {by[s]} | {eds[s]} |")
     out += ["", "## Warnings", ""]
     out += [f"- {w}" for w in a["warnings"]] or ["- none"]
-    out += ["", "## Largest families", "", "| family | works |", "|---|---|"]
-    out += [f"| {f['family']} | {f['works']} |" for f in a["families"]["largest"]]
+    f = a["families"]
+    out += [
+        "",
+        "## Families (split unit)",
+        "",
+        f"- Independent families: **{f['count']}** (singletons: {f['singleton_families']})",
+        f"- Merge edges by rule: {f['edges']}",
+        f"- Limitation: {f['limitation']}.",
+        "",
+        "| largest family | works |",
+        "|---|---|",
+    ]
+    out += [f"| {x['family']} | {x['works']} |" for x in f["largest"]]
+    sus = f["suspicious_merges"]
+    out += [
+        "",
+        f"### Possibly unrelated merges ({len(sus)})",
+        "",
+        "| rule | linking value | work a | work b | reason |",
+        "|---|---|---|---|---|",
+    ]
+    out += [
+        f"| {m['rule']} | {m['value']} | {m['a']} | {m['b']} | {m['reason']} |" for m in sus[:80]
+    ] or ["| none | | | | |"]
+    if len(sus) > 80:
+        out.append(f"| … {len(sus) - 80} more in JSON | | | | |")
+    b = a["split_balance"]
+    out += [
+        "",
+        "## Proposed dev / held-out balance (by family hash)",
+        "",
+        f"Split seed {b['split_seed']}, dev fraction {b['dev_fraction']}.",
+        "",
+        "| split | families | works | editions | works by group | editions by group |",
+        "|---|---|---|---|---|---|",
+    ]
+    for sp in ("dev", "heldout"):
+        x = b[sp]
+        out.append(
+            f"| {sp} | {x['families']} | {x['works']} | {x['editions']} | "
+            f"{x['works_by_group']} | {x['editions_by_group']} |"
+        )
+    out += ["", "| probe | family | split |", "|---|---|---|"]
+    out += [f"| {k} | {v['family']} | {v['split']} |" for k, v in b["probes"].items()]
     s = a["edition_sampling"]
     out += [
         "",
@@ -54,6 +96,12 @@ def render(p: dict[str, Any]) -> str:
         f"Works whose kept sample could not cover every distinct value, by dimension: "
         f"{s['works_with_unmet_diversity_by_dimension'] or 'none'}",
     ]
+    tot = sum(r["editions_sampled"] for r in sel) or 1
+    agg = {
+        d: round(sum(r["missing_rate_kept"][d] * r["editions_sampled"] for r in sel) / tot, 3)
+        for d in ("format", "language", "decade", "publisher", "edition_statement")
+    }
+    out += ["", f"Missing-metadata rate across all sampled editions: {agg}"]
     out += [
         "",
         "## Seed author identity (provisional candidates)",

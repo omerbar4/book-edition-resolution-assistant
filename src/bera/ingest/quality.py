@@ -123,6 +123,8 @@ class _UF:
 class FamilyResult:
     family_of: dict[str, str]
     edge_counts: dict[str, int] = field(default_factory=dict)
+    # Every union that joined two previously separate groups: (rule, linking value, a, b)
+    merges: list[tuple[str, str, str, str]] = field(default_factory=list)
 
     def sizes(self) -> Counter[str]:
         return Counter(self.family_of.values())
@@ -133,16 +135,26 @@ def build_families(works: Sequence[WorkInfo]) -> FamilyResult:
     F1 shared (provisional) author key; F2 any shared folded edition title;
     F3 one's translation_of matches the other's title; F4 study guide target;
     F5 explicit seed alias group (e.g. 1984 / Nineteen Eighty-Four).
-    Over-merging is accepted: it only reduces the number of independent families."""
+    Over-merging is accepted: it only reduces the number of independent families.
+
+    LIMITATION: this reduces split leakage but cannot guarantee that every alias, duplicate
+    work, or translation is detected. Works linked only by facts absent from the dump (an
+    unmerged duplicate with a different title and a different, unmerged author record, or a
+    retitled translation without translation_of) stay in separate families."""
     uf = _UF(w.work for w in works)
     edges: Counter[str] = Counter()
+    merges: list[tuple[str, str, str, str]] = []
+
+    def join(a: str, b: str, tag: str, value: str) -> None:
+        if uf.find(a) != uf.find(b):
+            edges[tag] += 1
+            merges.append((tag, value, a, b))
+        uf.union(a, b)
 
     def link(index: Mapping[str, list[str]], tag: str) -> None:
-        for members in index.values():
+        for value, members in sorted(index.items()):
             for other in members[1:]:
-                if uf.find(members[0]) != uf.find(other):
-                    edges[tag] += 1
-                uf.union(members[0], other)
+                join(members[0], other, tag, value)
 
     by_author: dict[str, list[str]] = {}
     by_title: dict[str, list[str]] = {}
@@ -161,12 +173,74 @@ def build_families(works: Sequence[WorkInfo]) -> FamilyResult:
         for t in (*w.translation_of, *([w.guide_target] if w.guide_target else [])):
             for other in by_title.get(t, []):
                 tag = "F3_translation" if t in w.translation_of else "F4_guide"
-                if uf.find(w.work) != uf.find(other):
-                    edges[tag] += 1
-                uf.union(w.work, other)
+                join(w.work, other, tag, t)
     link(by_alias, "F5_alias")
     fam = {w.work: "fam:" + uf.find(w.work).rsplit("/", 1)[-1] for w in works}
-    return FamilyResult(fam, dict(edges))
+    return FamilyResult(fam, dict(edges), merges)
+
+
+GENERIC_TITLE_WORDS = frozenset(
+    "poems poetry works stories tales plays letters essays novels collected selected complete "
+    "writings diary journal untitled book books volume vol anthology fiction short".split()
+)
+GENERIC_AUTHOR_NAMES = frozenset(
+    {
+        "anonymous",
+        "anon",
+        "unknown",
+        "unknown author",
+        "various",
+        "various authors",
+        "collective",
+        "editors",
+        "staff",
+        "n a",
+        "na",
+        "not available",
+    }
+)
+
+
+def is_generic_title(title: str) -> bool:
+    words = title.split()
+    return (
+        len(words) <= 3
+        and bool(words)
+        and all(w in GENERIC_TITLE_WORDS or w.isdigit() or len(w) <= 2 for w in words)
+    )
+
+
+def suspicious_merges(
+    result: FamilyResult,
+    author_names: Mapping[str, str | None],
+    ambiguous_keys: set[str],
+    title_fanout: Mapping[str, int],
+) -> list[dict[str, str]]:
+    """Merges that may have joined UNRELATED works: via an author record whose name is
+    generic ('Anonymous', 'Unknown', ...) or flagged ambiguous, or via a generic/high-fanout
+    title. These are warnings for human review; the conservative merge is kept."""
+    out = []
+    for tag, value, a, b in result.merges:
+        reason = None
+        if tag == "F1_author_key":
+            name = (author_names.get(value) or "").strip().casefold()
+            if name in GENERIC_AUTHOR_NAMES or not name:
+                reason = f"generic_or_unnamed_author_record ({name or 'no name'})"
+            elif value in ambiguous_keys:
+                reason = "ambiguous_author_record"
+        elif tag == "F2_title" and (is_generic_title(value) or title_fanout.get(value, 0) >= 4):
+            reason = f"generic_or_high_fanout_title ({title_fanout.get(value, 0)} works)"
+        if reason:
+            out.append(
+                {
+                    "rule": tag,
+                    "value": value,
+                    "a": a.rsplit("/", 1)[-1],
+                    "b": b.rsplit("/", 1)[-1],
+                    "reason": reason,
+                }
+            )
+    return out
 
 
 # ---- author identity ambiguity ------------------------------------------------------------
