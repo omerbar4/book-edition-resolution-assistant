@@ -35,13 +35,20 @@ def fetch(name: str, out_dir: Path) -> Path:
         req = urllib.request.Request(BASE + path.name, headers={"User-Agent": USER_AGENT})
         if have:
             req.add_header("Range", f"bytes={have}-")
-        with urllib.request.urlopen(req, timeout=60) as resp, path.open("ab") as fh:
-            while chunk := resp.read(1 << 20):
-                fh.write(chunk)
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            # Append only if the server honored the range (206); otherwise start over.
+            mode = "ab" if have and resp.status == 206 else "wb"
+            with path.open(mode) as fh:
+                while chunk := resp.read(1 << 20):
+                    fh.write(chunk)
+    if path.stat().st_size < size:
+        raise SystemExit(f"{path.name}: incomplete ({path.stat().st_size}/{size}); rerun to resume")
     h = hashlib.sha1(usedforsecurity=False)
     with path.open("rb") as fh:
         while block := fh.read(1 << 20):
             h.update(block)
+    if path.stat().st_size < size:
+        raise SystemExit(f"{path.name}: incomplete ({path.stat().st_size}/{size}); rerun to resume")
     if path.stat().st_size != size or h.hexdigest() != sha1:
         raise SystemExit(f"{path.name}: size/sha1 mismatch; refusing to use it")
     print(f"verified {path.name}")
