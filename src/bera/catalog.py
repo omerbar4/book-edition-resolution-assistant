@@ -130,6 +130,33 @@ class Catalog:
             ).fetchall()
         return [r["edition_id"] for r in rows]
 
+    def ambiguity_pool(
+        self, title: str, work_id: str | None, limit: int = 1000
+    ) -> tuple[list[str], bool]:
+        """Deterministic, catalog-wide pool for uniqueness checks: every edition whose indexed
+        title contains `title` as a phrase, plus every edition of `work_id`. Returns
+        (edition ids, complete); complete is False if either part hit `limit`."""
+        tokens = [t for t in norm_text(title).split() if t]
+        ids: list[str] = []
+        complete = True
+        with self.connect() as con:
+            if tokens:
+                phrase = '"' + " ".join(t.replace('"', '""') for t in tokens) + '"'
+                rows = con.execute(
+                    "SELECT edition_id FROM editions_fts WHERE editions_fts MATCH ? LIMIT ?",
+                    (f"title : {phrase}", limit + 1),
+                ).fetchall()
+                complete &= len(rows) <= limit
+                ids += [r[0] for r in rows[:limit]]
+            if work_id:
+                rows = con.execute(
+                    "SELECT edition_id FROM editions WHERE work_id = ? LIMIT ?",
+                    (work_id, limit + 1),
+                ).fetchall()
+                complete &= len(rows) <= limit
+                ids += [r[0] for r in rows[:limit]]
+        return sorted(set(ids)), complete
+
     def count(self) -> int:
         with self.connect() as con:
             return int(con.execute("SELECT COUNT(*) FROM editions").fetchone()[0])

@@ -1,9 +1,19 @@
 """Seeded, controlled query perturbations derived from catalog editions.
 
 Each case records its ops, seed and source edition. The expected behavior is computed
-deterministically AFTER perturbation: if the surviving structured fields (compared exactly,
-after normalization) fit more than one edition, the case is labeled `abstain` with reason
-"underspecified". These are synthetic cases; they never count as human-labeled.
+deterministically AFTER perturbation by a versioned label spec (docs/SYNTHETIC_LABEL_SPEC.md):
+
+- v1: if the surviving structured fields (compared exactly, after normalization) fit more than
+  one edition, the case is `abstain` ("underspecified"). A record with NO ISBN still fits an
+  ISBN query (missing = unknown).
+- v2 (default): as v1, except a checksum-valid query ISBN with exactly ONE explicit catalog
+  mapping, and no conflict between that record and the other supplied fields, makes that
+  record the unique gold. A record whose ISBN is missing is unknown, which does not establish
+  that it carries the queried ISBN, so it does not fit. Several explicit mappings -> abstain.
+
+For abstain cases `gold_edition_ids` lists the editions consistent with the query; it is NOT
+an acceptable set (no duplicate-record equivalence is ever inferred from missing fields).
+These are synthetic cases; they never count as human-labeled.
 """
 
 from __future__ import annotations
@@ -139,8 +149,91 @@ def _fit(fields: dict[str, object], e: Edition) -> str | None:
     return "unknown" if unknown else "exact"
 
 
+LABEL_SPECS = ("v1", "v2")
+DEFAULT_LABEL_SPEC = "v2"
+
+
+def isbn13s(e: Edition) -> set[str]:
+    return {p for x in (*e.isbn_10, *e.isbn_13) if (p := isbnlib.parse(x).isbn13)}
+
+
+def label(
+    judged: dict[str, object], source: Edition, catalog: Sequence[Edition], spec: str
+) -> tuple[str, list[str], str | None, dict[str, object]]:
+    """(expected, gold_edition_ids, ambiguity_reason, evidence) under label spec `spec`."""
+    if spec not in LABEL_SPECS:
+        raise ValueError(f"unknown label spec {spec!r}")
+    evidence: dict[str, object] = {"spec": spec}
+    q = isbnlib.parse(str(judged["isbn"])) if judged.get("isbn") else None
+    if spec == "v2" and q is not None and q.valid and q.isbn13:
+        holders = sorted(x.edition_id for x in catalog if q.isbn13 in isbn13s(x))
+        rest = {k: v for k, v in judged.items() if k != "isbn"}
+        by_id = {x.edition_id: x for x in catalog}
+        fitting = [h for h in holders if _fit(rest, by_id[h]) is not None]
+        no_isbn_fit = sorted(
+            x.edition_id
+            for x in catalog
+            if not isbn13s(x) and x.edition_id not in holders and _fit(rest, x) is not None
+        )
+        evidence |= {
+            "query_isbn13": q.isbn13,
+            "explicit_isbn_mappings": holders,
+            "mappings_consistent_with_other_fields": fitting,
+            "records_without_isbn_not_counted": no_isbn_fit,
+        }
+        if len(holders) == 1 and fitting:
+            evidence["rule"] = "unique explicit ISBN mapping, no conflict with supplied fields"
+            return "suggest", fitting, None, evidence
+        if len(holders) > 1:
+            evidence["rule"] = "multiple explicit ISBN mappings -> review"
+            return (
+                "abstain",
+                fitting or holders,
+                f"multiple explicit ISBN mappings: {len(holders)} records carry this ISBN",
+                evidence,
+            )
+        if len(holders) == 1:
+            evidence["rule"] = "ISBN holder conflicts with a supplied field -> review"
+            return "abstain", holders, "ISBN holder conflicts with supplied metadata", evidence
+        evidence["rule"] = "ISBN not in catalog; judged on the other fields"
+    kinds = {x.edition_id: k for x in catalog if (k := _fit(judged, x)) is not None}
+    kinds.setdefault(source.edition_id, "exact")
+    fits = sorted(kinds)
+    via_unknown = sum(1 for k in kinds.values() if k == "unknown")
+    evidence.setdefault("rule", "field fit; unknown is compatible, never distinguishing")
+    evidence["fitting"] = fits
+    evidence["fitting_only_via_unknown"] = sorted(i for i, k in kinds.items() if k == "unknown")
+    if len(fits) == 1:
+        return "suggest", [source.edition_id], None, evidence
+    reason = f"underspecified: {len(fits)} editions fit" + (
+        f" ({via_unknown} only because a field is unknown on them)" if via_unknown else ""
+    )
+    return "abstain", fits, reason, evidence
+
+
 def _fits(fields: dict[str, object], e: Edition) -> bool:
     return _fit(fields, e) is not None
+
+
+def perturbed_fields(e: Edition, ops: Sequence[str], seed: int) -> dict[str, object]:
+    rng = random.Random(seed)  # noqa: S311 - reproducible perturbation, not security
+    fields = clean_fields(e)
+    for name in ops:
+        OPS[name](fields, e, rng)
+    return fields
+
+
+def judged_fields(fields: dict[str, object], e: Edition) -> dict[str, object]:
+    """The clean information that survived perturbation (typos are noise, so the source
+    title/author stand in for perturbed ones when judging identifiability)."""
+    judged = dict(fields)
+    if "title" in judged:
+        judged["title"] = e.title
+    if "author" in judged and e.authors:
+        judged["author"] = e.authors[0]
+    if "isbn" in judged and not isbnlib.parse(str(judged["isbn"])).valid:
+        judged.pop("isbn")
+    return judged
 
 
 def make_case(
@@ -150,34 +243,16 @@ def make_case(
     catalog: Sequence[Edition],
     family: str,
     case_id: str,
+    spec: str = DEFAULT_LABEL_SPEC,
 ) -> EvalCase:
-    rng = random.Random(seed)  # noqa: S311 - reproducible perturbation, not security
-    fields = clean_fields(e)
-    for name in ops:
-        OPS[name](fields, e, rng)
-    # Which editions does the remaining *clean* information fit? (typos are noise, so the
-    # source title/author stand in for perturbed ones when judging identifiability)
-    judged = dict(fields)
-    if "title" in judged:
-        judged["title"] = e.title
-    if "author" in judged and e.authors:
-        judged["author"] = e.authors[0]
-    if "isbn" in judged and not isbnlib.parse(str(judged["isbn"])).valid:
-        judged.pop("isbn")
-    kinds = {x.edition_id: k for x in catalog if (k := _fit(judged, x)) is not None}
-    kinds.setdefault(e.edition_id, "exact")
-    fits = sorted(kinds)
-    via_unknown = sum(1 for k in kinds.values() if k == "unknown")
-    unique = len(fits) == 1
+    fields = perturbed_fields(e, ops, seed)
+    expected, gold, reason, _ = label(judged_fields(fields, e), e, catalog, spec)
     return EvalCase(
         case_id=case_id,
         query=Query.model_validate(fields),
-        expected="suggest" if unique else "abstain",
-        gold_edition_ids=[e.edition_id] if unique else fits,
-        ambiguity_reason=None
-        if unique
-        else f"underspecified: {len(fits)} editions fit"
-        + (f" ({via_unknown} only because a field is unknown on them)" if via_unknown else ""),
+        expected=expected,  # type: ignore[arg-type]
+        gold_edition_ids=gold,
+        ambiguity_reason=reason,
         family=family,
         origin="synthetic_perturbation",
         perturbation=Perturbation(ops=list(ops), seed=seed, source_edition_id=e.edition_id),
@@ -190,6 +265,7 @@ def generate(
     per_edition: int = 2,
     family_of: Callable[[Edition], str] | None = None,
     sources: Sequence[Edition] | None = None,
+    spec: str = DEFAULT_LABEL_SPEC,
 ) -> list[EvalCase]:
     """One or more cases per source edition (default: every catalog edition). Fit and
     ambiguity are always judged against the whole `catalog`."""
@@ -208,5 +284,7 @@ def generate(
             if "drop_isbn" in ops:
                 ops = [o for o in ops if not o.startswith("isbn")]
             case_seed = rng.randrange(2**31)
-            out.append(make_case(e, ops, case_seed, catalog, fam(e), f"syn-{e.edition_id}-{j}"))
+            out.append(
+                make_case(e, ops, case_seed, catalog, fam(e), f"syn-{e.edition_id}-{j}", spec)
+            )
     return out

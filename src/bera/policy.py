@@ -1,4 +1,4 @@
-"""Conservative, UNCALIBRATED decision policy `conservative-rules-v0`.
+"""Conservative, UNCALIBRATED decision policy `conservative-rules-v1`.
 
 This policy uses deterministic rules only. No score here is a probability and no threshold
 was fit on data: calibration is PENDING until grouped out-of-fold dev predictions exist
@@ -9,9 +9,19 @@ SUGGEST requires ALL of:
 - no suspicious Unicode in the query, nor in the suggested record;
 - ISBN route: the valid ISBN maps to exactly one edition and no field check disagrees; or
 - retrieval route: exactly one candidate is "consistent" (title AGREE, author AGREE, zero
-  DISAGREE checks) and it also agrees on at least one distinguishing field
-  (isbn, physical_format, publish_year, publisher, language, or edition).
+  DISAGREE checks), it also agrees on at least one distinguishing field
+  (isbn, physical_format, publish_year, publisher, language, or edition), AND no other
+  edition is "compatible" with the query (title AGREE, author not DISAGREE, zero DISAGREE).
+  Unknown fields never distinguish, so an alternative whose author/year/format is merely
+  missing blocks the suggestion. Compatibility is checked against the retrieved candidates
+  and, deterministically, against a catalog-wide pool (same title phrase or same work); if
+  that pool cannot be enumerated completely the query goes to REVIEW.
 Everything else is REVIEW with explicit reason codes.
+
+v1 changes from v0: unknown-author alternatives block suggestions (v0 dropped them because
+consistency requires author AGREE), and uniqueness is no longer inferred from the retrieved
+list alone. The ISBN route is unchanged: a missing ISBN on another record is unknown and does
+not by itself invalidate a unique explicit mapping.
 """
 
 from __future__ import annotations
@@ -20,7 +30,7 @@ from dataclasses import dataclass, field
 
 from bera.models import CandidateView, CheckStatus, Outcome, Reason, Route
 
-POLICY_VERSION = "conservative-rules-v0"
+POLICY_VERSION = "conservative-rules-v1"
 CONFIDENCE_STATUS = (
     "uncalibrated: rule-based policy; scores are ranking scores, not probabilities "
     "(calibration pending grouped out-of-fold dev evaluation)"
@@ -51,6 +61,15 @@ def is_consistent(c: CandidateView) -> bool:
         and _status(c, "title") is CheckStatus.AGREE
         and _status(c, "author") is CheckStatus.AGREE
         and not c.unicode_flags
+    )
+
+
+def is_compatible(c: CandidateView) -> bool:
+    """Not contradicted by anything the query supplied: unknown is compatible."""
+    return (
+        c.conflicts == 0
+        and _status(c, "title") is CheckStatus.AGREE
+        and _status(c, "author") is not CheckStatus.DISAGREE
     )
 
 
@@ -106,6 +125,15 @@ def decide(
             Outcome.REVIEW, None, _dedupe(reasons), [c.edition.edition_id for c in consistent]
         )
     if len(consistent) == 1 and has_distinguishing_agreement(consistent[0]) and not query_flags:
+        alts = [c for c in candidates if c is not consistent[0] and is_compatible(c)]
+        if alts:
+            reasons.append(Reason.UNDISTINGUISHED_ALTERNATIVE)
+            return Decision(
+                Outcome.REVIEW,
+                None,
+                _dedupe(reasons),
+                [consistent[0].edition.edition_id, *[c.edition.edition_id for c in alts]][:5],
+            )
         reasons.append(Reason.UNIQUE_CONSISTENT_MATCH)
         return Decision(Outcome.SUGGEST, consistent[0].edition.edition_id, _dedupe(reasons))
     if len(consistent) == 1:
@@ -115,6 +143,28 @@ def decide(
     # Ambiguous among the top candidates that are not contradicted.
     ambiguous = [c.edition.edition_id for c in candidates if c.conflicts == 0][:5]
     return Decision(Outcome.REVIEW, None, _dedupe(reasons), ambiguous if len(ambiguous) > 1 else [])
+
+
+def apply_catalog_scan(
+    decision: Decision, alternatives: list[CandidateView], complete: bool
+) -> Decision:
+    """Downgrade a retrieval-route SUGGEST when the catalog-wide pool holds another compatible
+    edition, or when the pool could not be enumerated completely."""
+    if decision.outcome is not Outcome.SUGGEST or decision.suggested is None:
+        return decision
+    alts = [a for a in alternatives if a.edition.edition_id != decision.suggested]
+    alts = [a for a in alts if is_compatible(a)]
+    base = [r for r in decision.reasons if r is not Reason.UNIQUE_CONSISTENT_MATCH]
+    if not complete:
+        return Decision(Outcome.REVIEW, None, _dedupe([*base, Reason.CATALOG_SCAN_INCOMPLETE]))
+    if alts:
+        return Decision(
+            Outcome.REVIEW,
+            None,
+            _dedupe([*base, Reason.CATALOG_ALTERNATIVE]),
+            [decision.suggested, *[a.edition.edition_id for a in alts]][:5],
+        )
+    return decision
 
 
 def _dedupe(reasons: list[Reason]) -> list[Reason]:

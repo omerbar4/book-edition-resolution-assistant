@@ -1,6 +1,6 @@
 # Decision policy
 
-## Current: `conservative-rules-v0` (uncalibrated)
+## Current: `conservative-rules-v1` (uncalibrated)
 
 Deterministic rules only (`src/bera/policy.py`). No threshold was fit on data, and no number
 shown is a probability: the API returns `confidence_status = "uncalibrated: …"` and
@@ -8,23 +8,57 @@ shown is a probability: the API returns `confidence_status = "uncalibrated: …"
 
 **SUGGEST** only when all of the following hold:
 - the query has no suspicious Unicode, and the suggested record has none either;
-- *ISBN route*: a checksum-valid ISBN maps to exactly one edition and no field check
-  disagrees; **or**
-- *retrieval route*: exactly one candidate is consistent (title AGREE, author AGREE, zero
-  DISAGREE) and it also agrees on a distinguishing field (isbn, format, year, publisher,
-  language, edition).
+- *ISBN route*: a checksum-valid ISBN maps to exactly one edition through an explicit catalog
+  mapping, and no field check disagrees. A record whose ISBN is missing is unknown; by
+  itself it does not invalidate the mapping. **Or**
+- *retrieval route*: all three of:
+  - exactly one candidate is consistent (title AGREE, author AGREE, zero DISAGREE);
+  - it agrees on a distinguishing field (isbn, format, year, publisher, language, edition);
+  - **no other edition is compatible** with the query (title AGREE, author not DISAGREE,
+    zero DISAGREE). Compatibility is checked against the retrieved candidates
+    (`undistinguished_alternative_unknown_fields`), and then deterministically against a
+    catalog-wide pool of every edition whose title contains the suggested title as a phrase,
+    plus every edition of the same work (`catalog_scan_found_undistinguished_alternative`).
+    If the pool cannot be enumerated completely (over 1,000 editions), the outcome is REVIEW
+    (`catalog_scan_incomplete`).
 
 Everything else is **REVIEW**, with reason codes. In particular:
 - a duplicate ISBN mapping is never auto-resolved;
 - a bad checksum yields repair *hypotheses* only (`isbn_repair_hypothesis_only`);
 - free text with no structured title or author never produces a suggestion;
-- missing metadata is `unknown`, never a conflict.
+- missing metadata is `unknown`, never a conflict, and **never distinguishing**: an
+  alternative whose author, year or format is merely missing blocks a suggestion;
+- language codes `mul` and `und` are kept as distinct values: a query language checked
+  against a record that lists only them, or a specific language plus `mul`/`und`, is
+  UNKNOWN, neither AGREE nor DISAGREE.
 
-**Adjudication is advisory in v0.** When the policy finds an ambiguous set (duplicate ISBN,
-multiple consistent candidates, or several uncontradicted candidates), a configured provider
-may be asked to choose among opaque ids `c1..c5` or abstain. Even a valid, well-evidenced
-choice leaves the outcome as REVIEW (`llm_advisory_only_pending_route_measurement`). The
-model's `confidence` is logged and displayed but never used.
+**Changes from v0 (2026-11-04, development fixes; not tuned on results).**
+1. v0 required author AGREE for consistency and ignored alternatives whose author was
+   unknown, so it suggested even though an undistinguished alternative existed.
+2. v0 inferred uniqueness from the retrieved list alone, so a compatible edition that
+   retrieval missed went unnoticed.
+3. v0 treated `mul`/`und` as a definite language conflict.
+
+Regression tests: `tests/unit/test_policy_v1.py`, which fails on v0. These fixes came from a
+synthetic development engineering check. Human-labeled dev cases are still needed to judge
+whether they help or hurt.
+
+**Not implemented:** a detector for "independently evidenced catalog inconsistency" beyond
+duplicate ISBN mappings and field conflicts.
+
+**Adjudication is advisory; the validated LLM suggestion path is NOT implemented.** When the
+policy finds an ambiguous set (duplicate ISBN, multiple consistent candidates, compatible
+alternatives, or several uncontradicted candidates), a configured provider may be asked to
+choose among opaque ids `c1..c5` or abstain. Even a valid, well-evidenced choice leaves the
+outcome as REVIEW (`llm_advisory_only_pending_route_measurement`). The model's `confidence`
+is logged and displayed but never used.
+
+**Consequence:** method 6 (routed LLM) cannot currently improve final suggestion coverage.
+Every LLM-invoked case stays REVIEW, so its final decisions are identical to method 5's
+(verified in the dev engineering check: 0 final suggestions among 140 invoked cases).
+Method 6 adds latency and an advisory choice for the human reviewer, nothing else. The
+planned path (item 7 below: route-level confidence measured on dev out-of-fold cases, with
+evidence validation) is unfinished.
 
 Field-check thresholds (`src/bera/features.py`): title AGREE ≥ 90 / DISAGREE < 60
 (rapidfuzz), author 85/60, publisher 85/60, year: equal = AGREE, 1–2 years apart = unknown

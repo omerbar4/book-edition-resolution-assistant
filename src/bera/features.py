@@ -21,6 +21,7 @@ AUTHOR_AGREE = 85.0
 AUTHOR_DISAGREE = 60.0
 PUBLISHER_AGREE = 85.0
 PUBLISHER_DISAGREE = 60.0
+VAGUE_LANGUAGE_CODES = frozenset({"mul", "und"})  # MARC: multiple / undetermined
 YEAR_NEAR = 2  # |diff| in 1..YEAR_NEAR -> UNKNOWN ("near", reprints); > YEAR_NEAR -> DISAGREE
 
 _FORMAT_SYNONYMS: dict[str, PhysicalFormat] = {
@@ -294,10 +295,17 @@ def check_fields(query: Query, edition: Edition, query_isbn13: str | None) -> li
 
     if query.language:
         code = parse_language(query.language)
-        if code is None or not edition.languages:
+        langs = set(edition.languages)
+        if code is None or code in VAGUE_LANGUAGE_CODES or not langs:
+            status = CheckStatus.UNKNOWN
+        elif code in langs:
+            status = CheckStatus.AGREE
+        elif langs & VAGUE_LANGUAGE_CODES:
+            # 'mul' / 'und' are kept as distinct values; neither proves a specific language
+            # nor rules one out.
             status = CheckStatus.UNKNOWN
         else:
-            status = CheckStatus.AGREE if code in edition.languages else CheckStatus.DISAGREE
+            status = CheckStatus.DISAGREE
         checks.append(
             FieldCheck(
                 field="language",

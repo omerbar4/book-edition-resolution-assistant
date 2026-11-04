@@ -126,3 +126,46 @@ Nothing was tuned on this analysis. The two policy errors and the ISBN rule ques
 recorded as open decisions; any policy change would be judged on human-labeled dev cases,
 not on these synthetic ones.
 
+
+### Re-check after label spec v2 and policy v1 (2026-11-04; development engineering check)
+
+Labels: `data/eval/dev_check_v3_synthetic.labels_v2.jsonl`. The 300 cases have the same
+queries as before; 18 labels changed, all logged with evidence in
+`data/eval/label_changes/`, spec in `docs/SYNTHETIC_LABEL_SPEC.md`. Results:
+`data/eval/results/dev_check_v3_labels_v2_policy_v1/`. The original cases and results are
+preserved unchanged. Under v2 labels there are 179 suggest and 121 abstain cases.
+
+| method | v1 labels, policy v0 | v2 labels, policy v0 (old outputs rescored) | v2 labels, policy v1 |
+|---|---|---|---|
+| 1 exact + fuzzy | 103 correct / 16 wrong / 117 of 133 abstain | 117 / 2 / 119 of 121 | 115 / 0 / 121 of 121 |
+| 2 BM25 | 103 / 17 / 116 | 117 / 3 / 118 | 115 / 0 / 121 |
+| 2b BM25 + trigram (default) | 103 / 17 / 116 | 117 / 3 / 118 | 115 / 0 / 121 |
+| 3 embedding | 103 / 18 / 115 | 117 / 4 / 117 | 115 / 0 / 121 |
+| 4 hybrid | 103 / 17 / 116 | 117 / 3 / 118 | 115 / 0 / 121 |
+| 5 hybrid + reranker | 103 / 17 / 116 | 117 / 3 / 118 | 115 / 0 / 121 |
+| 6 routed LLM (advisory) | 103 / 17 / 116 | 117 / 3 / 118 | 115 / 0 / 121 |
+
+"correct" and "wrong" are counted out of 300 cases; "abstain" counts correct abstentions out
+of the expected-abstain cases.
+
+How to read this:
+
+- **The zero is partly circular.** The v2 synthetic labels and policy v1 now share the same
+  rules: unknown is never distinguishing, and a unique explicit ISBN wins. Agreement on
+  synthetic cases is expected by construction. It shows the code implements the rules; it
+  says nothing about quality on real inputs. Human-labeled dev cases are required for that.
+- **Policy v1 costs 2 correct suggestions** compared with v0 on v2 labels. Both are
+  conservative reviews, where runtime checks are more permissive than the synthetic spec:
+  - syn-OL3310784M-0 (The Woman Warrior, 2005): a German translation with no author and no
+    year matches the title through `translation_of`.
+  - syn-OL7508358M-0 (Of Mice and Men, 1975): two author-less records from 1974 and 1977 are
+    year-"near" (±2 → unknown), while the spec compares years exactly.
+
+  Whether a translation title or a near year should count as distinguishing is an open owner
+  decision. Neither was tuned.
+- **LLM (method 6):** invoked on 145 of 300 cases. 36 hit the deadline, 13 had invalid
+  evidence, and 96 completed. Of the completed responses, 7 were LLM abstentions and 89 chose
+  a candidate. Of those 89 choices: 29 of 30 were correct on expected-suggest cases, and 57
+  of 59 were within the consistent set on expected-abstain cases. **Final suggestions among
+  invoked cases: 0 of 145.** Method 6's decisions are identical to method 5's, so it cannot
+  raise coverage until the validated LLM suggestion path exists.

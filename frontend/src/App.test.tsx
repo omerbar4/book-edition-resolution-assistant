@@ -55,7 +55,7 @@ function response(over: Partial<ResolveResponse> = {}): ResolveResponse {
     query_unicode_flags: [],
     confidence_status: "uncalibrated: rule-based policy",
     capabilities: { embedding_retrieval: "pending: x", reranker: "pending: x", llm: "disabled", calibration: "pending: x", lexical_retrieval: "active" },
-    policy_version: "conservative-rules-v0",
+    policy_version: "conservative-rules-v1",
     timings_ms: { total: 1.5 },
     disclaimer: "Decision support only.",
     ...over,

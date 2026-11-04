@@ -17,9 +17,9 @@
 | F2b | Embedding retrieval + hybrid | verified (wiring) | `bera.ml.EmbeddingRetriever` with pinned bge-small; smoke tests + six-system synthetic run; quality evaluation needs human labels |
 | F3 | Deterministic conflict checks | verified | `features.py`, pipeline tests |
 | F3b | Cross-encoder reranking | verified (wiring) | `CrossEncoderReranker`, pinned MiniLM; smoke tests |
-| F4 | LLM adjudication only for ambiguous top-k | verified | mock + real Qwen3-4B via local llama-server; advisory only |
+| F4 | LLM adjudication only for ambiguous top-k | verified (advisory only) | mock + real Qwen3-4B via local llama-server; advisory only: every LLM-invoked case stays REVIEW, so method 6 cannot raise suggestion coverage. Validated LLM suggestion path NOT implemented (see C3) |
 | F5 | Strict output schema + evidence validation | verified | `tests/security/test_adjudication_attacks.py` |
-| F6 | Suggest-or-review outcome | verified | `conservative-rules-v0` (uncalibrated) |
+| F6 | Suggest-or-review outcome | verified | `conservative-rules-v1` (uncalibrated): unknown fields never distinguish; catalog-wide uniqueness scan; regression tests |
 | F7 | Explicit local confirm/reject | verified | API tests + UI test + browser check |
 
 ## Models and serving

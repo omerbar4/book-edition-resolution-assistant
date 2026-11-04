@@ -22,12 +22,20 @@ from bera.models import (
     Capabilities,
     CheckStatus,
     Edition,
+    Outcome,
     Query,
     Reason,
     ResolveResponse,
     Route,
 )
-from bera.policy import CONFIDENCE_STATUS, POLICY_VERSION, decide
+from bera.policy import (
+    CONFIDENCE_STATUS,
+    POLICY_VERSION,
+    Decision,
+    apply_catalog_scan,
+    decide,
+    is_compatible,
+)
 from bera.retrieval import FtsBm25Retriever, Reranker, Retriever, TrigramRetriever, rrf_fuse
 from bera.telemetry import TraceStore
 from bera.text import detect_suspicious
@@ -164,6 +172,10 @@ class Resolver:
         timings["rerank_order"] = _ms(self.clock() - t)
 
         decision = decide(route, views, sorted(flags), pre)
+        if route is Route.RETRIEVAL and decision.outcome is Outcome.SUGGEST:
+            t = self.clock()
+            decision, views = self._catalog_scan(decision, views, query)
+            timings["catalog_scan"] = _ms(self.clock() - t)
         reasons = list(decision.reasons)
 
         # ---- adjudication (advisory only under conservative-rules-v0) --------------------
@@ -215,6 +227,29 @@ class Resolver:
         if self.traces is not None:
             self.traces.record(query, resp)
         return resp
+
+    def _catalog_scan(
+        self, decision: Decision, views: list[CandidateView], query: Query
+    ) -> tuple[Decision, list[CandidateView]]:
+        """Uniqueness across the catalog, not just the retrieved list (policy v1)."""
+        sugg = next(v for v in views if v.edition.edition_id == decision.suggested)
+        pool, complete = self.catalog.ambiguity_pool(sugg.edition.title, sugg.edition.work_id)
+        seen = {v.edition.edition_id for v in views}
+        extra = self.catalog.get(i for i in pool if i not in seen)
+        alts = [self._view(extra[i], query, None, False, None) for i in sorted(extra)]
+        alts = [a for a in alts if is_compatible(a)]
+        for a in alts:
+            a.retrieval_sources = ["catalog_ambiguity_scan"]
+        new = apply_catalog_scan(decision, alts, complete)
+        if new.outcome is Outcome.SUGGEST:
+            return new, views
+        shown = alts[:4]
+        keep = [v for v in views if v.edition.edition_id in new.ambiguous_ids]
+        rest = [v for v in views if v not in keep]
+        merged = (keep + shown + rest)[:MAX_CANDIDATES_RETURNED]
+        for rank, v in enumerate(merged, start=1):
+            v.rank = rank
+        return new, merged
 
     @staticmethod
     def _view(

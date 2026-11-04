@@ -1,0 +1,25 @@
+{
+ "label": "SYNTHETIC development labels (engineering check), not human labels",
+ "from_spec": "v1",
+ "to_spec": "v2",
+ "source_cases": "data/eval/dev_check_v3_synthetic.jsonl",
+ "source_cases_sha256": "5d03d43abda674c631325b734cecb3acd93113f4e7215ac80579ca6cdf5c9126",
+ "relabeled_cases": "data/eval/dev_check_v3_synthetic.labels_v2.jsonl",
+ "relabeled_cases_sha256": "ff76179e28a5790be0acd71dd4ce001d74c9a7bfcfd0d2feb821a148e46163b7",
+ "catalog_fixtures_sha256": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+ "cases": 300,
+ "changed": 18,
+ "transitions": {
+  "abstain->suggest": 14,
+  "suggest->abstain": 2,
+  "abstain->abstain": 2
+ },
+ "rules_applied": {
+  "unique explicit ISBN mapping, no conflict with supplied fields": 14,
+  "multiple explicit ISBN mappings -> review": 4
+ },
+ "expected_after": {
+  "suggest": 179,
+  "abstain": 121
+ }
+}

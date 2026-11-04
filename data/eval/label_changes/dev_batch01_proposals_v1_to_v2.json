@@ -1,0 +1,38 @@
+{
+ "note": "Program-drafted PROPOSAL only (not a label). The queue file data/eval/drafts/dev_batch01.jsonl is unchanged while the owner labels; human labels are blind-first and are not affected. Only proposal dev-b01-009 differs under synthetic label spec v2.",
+ "draft_id": "dev-b01-009",
+ "query": {
+  "isbn": "0-3939-4427-1",
+  "title": "Jane Eyre",
+  "publish_year": 2001
+ },
+ "proposal_v1": {
+  "expected": "abstain",
+  "gold_edition_ids": [
+   "OL13856380M",
+   "OL46077521M"
+  ],
+  "ambiguity_reason": "underspecified: 2 editions fit (1 only because a field is unknown on them)"
+ },
+ "proposal_v2": {
+  "expected": "suggest",
+  "gold_edition_ids": [
+   "OL46077521M"
+  ],
+  "ambiguity_reason": null
+ },
+ "evidence": {
+  "spec": "v2",
+  "query_isbn13": "9780393944273",
+  "explicit_isbn_mappings": [
+   "OL46077521M"
+  ],
+  "mappings_consistent_with_other_fields": [
+   "OL46077521M"
+  ],
+  "records_without_isbn_not_counted": [
+   "OL13856380M"
+  ],
+  "rule": "unique explicit ISBN mapping, no conflict with supplied fields"
+ }
+}

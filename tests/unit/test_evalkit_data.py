@@ -106,3 +106,52 @@ def test_unknown_metadata_never_counts_as_distinguishing(editions: list[Any]) ->
     # The twin's format/year are unknown, so it cannot be ruled out: no forced unique gold.
     assert case.expected == "abstain" and "SYN-TWIN" in case.gold_edition_ids
     assert "only because a field is unknown" in (case.ambiguity_reason or "")
+
+
+def _isbn_twin(e1: Any) -> Any:
+    from bera.models import PhysicalFormat
+
+    return e1.model_copy(
+        update={
+            "edition_id": "SYN-NOISBN",
+            "isbn_10": [],
+            "isbn_13": [],
+            "physical_format": PhysicalFormat.UNKNOWN,
+            "publish_year": None,
+        }
+    )
+
+
+def test_spec_v2_unique_isbn_mapping_is_unique_gold(editions: list[Any]) -> None:
+    e1 = next(e for e in editions if e.edition_id == "SYN-E0001")
+    cat = [*editions, _isbn_twin(e1)]
+    v1 = make_case(e1, [], 1, cat, "W001", "x", spec="v1")
+    v2 = make_case(e1, [], 1, cat, "W001", "x", spec="v2")
+    # v1 let a record with no ISBN "fit" an ISBN query; v2 treats its ISBN as unknown,
+    # which does not establish that it carries the queried ISBN.
+    assert v1.expected == "abstain" and "SYN-NOISBN" in v1.gold_edition_ids
+    assert v2.expected == "suggest" and v2.gold_edition_ids == ["SYN-E0001"]
+
+
+def test_spec_v2_without_isbn_still_widens_on_unknown(editions: list[Any]) -> None:
+    e1 = next(e for e in editions if e.edition_id == "SYN-E0001")
+    case = make_case(e1, ["drop_isbn"], 1, [*editions, _isbn_twin(e1)], "W001", "x", spec="v2")
+    assert case.expected == "abstain" and "SYN-NOISBN" in case.gold_edition_ids
+
+
+def test_spec_v2_multiple_explicit_mappings_abstain(editions: list[Any]) -> None:
+    e1 = next(e for e in editions if e.edition_id == "SYN-E0001")
+    dup = e1.model_copy(update={"edition_id": "SYN-DUP", "publish_year": 1901})
+    case = make_case(e1, [], 1, [*editions, dup], "W001", "x", spec="v2")
+    assert case.expected == "abstain"
+    assert "multiple explicit ISBN mappings" in (case.ambiguity_reason or "")
+
+
+def test_spec_v2_isbn_holder_conflict_abstains(editions: list[Any]) -> None:
+    from bera.evalkit.perturb import label
+
+    e1 = next(e for e in editions if e.edition_id == "SYN-E0001")
+    judged = {"isbn": e1.isbn_13[0], "title": e1.title, "publish_year": 1800}
+    exp, _, reason, ev = label(judged, e1, editions, "v2")
+    assert exp == "abstain" and reason == "ISBN holder conflicts with supplied metadata"
+    assert ev["explicit_isbn_mappings"] == ["SYN-E0001"]
