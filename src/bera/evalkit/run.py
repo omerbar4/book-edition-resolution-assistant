@@ -293,6 +293,18 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument("--llm-model", default="qwen3-4b-instruct-2507-q4km")
     p.add_argument("--frozen-tag", help="required for --split heldout")
     p.add_argument("--systems", nargs="+", help="run only these system keys (default: all)")
+    p.add_argument(
+        "--queue",
+        type=Path,
+        help="frozen labeling queue (with manifest) the human-labeled cases came from; "
+        "required for human-labeled cases so families come from the corpus mapping",
+    )
+    p.add_argument(
+        "--families",
+        type=Path,
+        default=REPO_ROOT / "data/corpus/v3_proposed/families.json",
+        help="frozen corpus work->family mapping",
+    )
     a = p.parse_args(argv)
     if a.split in ("heldout", "all") and any(
         c.split == "heldout" and c.origin != "synthetic_perturbation" for c in load_cases(a.cases)
@@ -308,6 +320,20 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         print(f"excluded {len(cases) - len(kept)} practice/exposed case(s) (provenance sidecars)")
     cases = kept
     catalog = Catalog(a.db or Settings.from_env().catalog_db)
+    family_source = None
+    if any(c.human_labeled for c in cases):
+        from bera.evalkit.families import load_frozen_queue, resolve_families
+
+        if a.queue is None:
+            raise SystemExit("human-labeled cases need --queue (frozen queue) to resolve families")
+        drafts, queue_sha = load_frozen_queue(a.queue)
+        cases = resolve_families(cases, drafts, json.loads(a.families.read_text()), catalog)
+        family_source = {
+            "queue": str(a.queue),
+            "queue_sha256": queue_sha,
+            "families": str(a.families),
+            "rule": "family = draft family; chosen editions must map to it; no fallback",
+        }
     provider = None
     if a.llm_url:
         from bera.llm.openai_compat import OpenAICompatProvider
@@ -315,6 +341,8 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         provider = OpenAICompatProvider(a.llm_url, a.llm_model)
     env = RunEnv(enable_ml=a.ml, cache_dir=REPO_ROOT / "var" / "cache", provider=provider)
     report = evaluate(catalog, cases, reps=a.reps, env=env, only=a.systems)
+    if family_source:
+        report["family_source"] = family_source
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True))
     (a.out / "report.md").write_text(markdown(report))
