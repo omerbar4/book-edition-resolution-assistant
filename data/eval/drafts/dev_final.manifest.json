@@ -1,0 +1,89 @@
+{
+ "queue": "data/eval/drafts/dev_final.jsonl",
+ "queue_sha256": "652bf313932a61163cab53d210d089f55d388698597440cc1e96f02d6e89f5c9",
+ "split": "dev",
+ "drafts": 40,
+ "families": 40,
+ "reveal": "after_batch",
+ "labels_file": "data/eval/labels/dev_final_labels.jsonl",
+ "proposal_label_spec": "v2",
+ "proposal_label_spec_note": "v2 applies to the 20 batch 03 drafts (lines byte-identical; batch 03 manifest). New drafts carry proposal_label_spec v3 per draft. v3 equals v2 on every existing template (verified on these drafts).",
+ "composition": {
+  "batch03_drafts": 20,
+  "batch03_sha256": "57013e058494d5f68622d3a14f4f19a884aebd90ff9de7de0056edb1b3d89c02",
+  "new_drafts": 20,
+  "new_drafter": "template-drafter-v5 (deterministic program; predefined strata; one query per family; pool A first; opaque ids)",
+  "new_from_pool_a": 11,
+  "new_from_pool_b": 9,
+  "stratum_quotas_new": {
+   "identifier": 4,
+   "missing_metadata": 4,
+   "author_variation": 4,
+   "edition_ambiguity": 4,
+   "format_year_conflict": 4
+  }
+ },
+ "reserves": {
+  "file": "data/eval/drafts/dev_final.reserves.jsonl",
+  "sha256": "44cec2b6391ca9f1a2bb2538c7bb9dd69231720e8b6bf59c70169fdb0a1ef542",
+  "count": 2,
+  "use": "only to replace a case excluded for exposure, in file order; never to replace a hard, skipped or disputed case"
+ },
+ "selection_criteria": {
+  "strata": {
+   "identifier": [
+    "isbn10_hyphenated",
+    "misread_isbn_digit"
+   ],
+   "missing_metadata": [
+    "title_author_only",
+    "typo_title_with_format_year"
+   ],
+   "author_variation": [
+    "initials_author",
+    "damaged_barcode_title_author_format"
+   ],
+   "edition_ambiguity": [
+    "title_author_only",
+    "initials_author"
+   ],
+   "format_year_conflict": [
+    "year_shift",
+    "format_swap"
+   ]
+  },
+  "edition_ambiguity_rule": "source in a group of >=2 family editions sharing normalized title and first author (catalog structure only)",
+  "family_rule": "one query per family; 11 untouched pool A families first, then pool B in seeded order; maximum bipartite matching of quota slots",
+  "never_used_for_selection": "drafted proposals, system outputs or scores",
+  "seed": 20261109,
+  "split_seed": 20261103,
+  "prior_queues": [
+   "data/eval/drafts/dev_batch01.jsonl",
+   "data/eval/drafts/dev_batch02.jsonl",
+   "data/eval/drafts/dev_batch03.jsonl"
+  ]
+ },
+ "corpus_sha256": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+ "generator": "scripts/make_dev_final_queue.py",
+ "validation": {
+  "batch 03 file unchanged": true,
+  "all 20 batch 03 lines present byte-identical": true,
+  "queue size 40": true,
+  "one query per family across the queue (40 distinct families)": true,
+  "all dev split by family": true,
+  "new drafts avoid used/discussed families": true,
+  "all 11 untouched pool A families used": true,
+  "remaining new families from pool B": true,
+  "stratum quotas met exactly (4 each)": true,
+  "template belongs to its stratum": true,
+  "edition-ambiguity sources sit in a same-title/author group (catalog structure)": true,
+  "every new template effective": true,
+  "new queries and proposals reproduce (spec v3)": true,
+  "spec v3 == v2 on the batch 03 drafts": true,
+  "no previously seen query": true,
+  "queries distinct": true,
+  "opaque unique ids": true,
+  "reserves: distinct pool B families not in the queue": true,
+  "corpus sha256 unchanged": true
+ }
+}

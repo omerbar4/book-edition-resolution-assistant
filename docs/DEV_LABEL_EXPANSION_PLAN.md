@@ -1,4 +1,7 @@
-# Development label expansion plan (proposed 2026-11-07; awaiting owner approval)
+# Development label expansion plan (SUPERSEDED)
+
+> Superseded on 2026-11-07 by [EVALUATION_PLAN.md](EVALUATION_PLAN.md), the fixed 100-case plan.
+> Kept as a record. Batches 04 and later described here were never generated.
 
 This plan covers development labeling after batch 02. It is a proposal: batch 03 is drafted
 under the rules below, and **no batch after 03 is generated until the owner approves this

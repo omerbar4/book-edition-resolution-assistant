@@ -166,3 +166,20 @@ probes; batch 01's queue and draft ids are left unchanged.
 Labels now store the draft's corpus family. Earlier labels (batch 02) stored the chosen
 edition's work id and are left unchanged; evaluation resolves families at load time either
 way.
+
+## Dev queue of the fixed plan (2026-11-07)
+
+- `data/eval/drafts/dev_final.jsonl`: 40 queries, one per family (the 20 batch 03 drafts
+  unchanged, plus 20 new ones). Labels go to `data/eval/labels/dev_final_labels.jsonl`.
+  Proposals are hidden until all 40 are labeled. Your progress is saved after each case, so
+  you can stop and resume.
+- Some queries state a year or format that may not match any catalog record. Judge them as
+  written:
+  - one record fits: choose it;
+  - several could fit: underspecified;
+  - none fits: choose "out_of_corpus" if the described edition is simply absent from the
+    catalog, or "contradictory" only if the supplied fields conflict with each other or with
+    an identified record.
+- Skipping is allowed and is never a label. A skipped case is kept and reported; it is not
+  replaced.
+- Plan: `docs/EVALUATION_PLAN.md`.
