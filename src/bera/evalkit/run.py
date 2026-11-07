@@ -22,6 +22,7 @@ from bera.config import REPO_ROOT, Settings
 from bera.evalkit.cases import EvalCase, load_cases
 from bera.evalkit.metrics import CaseResult, compute
 from bera.llm.provider import LLMProvider
+from bera.llm.routes import CLOSED_GATE, RouteGate
 from bera.models import AdjudicationStatus
 from bera.retrieval import (
     FtsBm25Retriever,
@@ -42,6 +43,7 @@ class RunEnv:
     enable_ml: bool = False
     cache_dir: Path = Path("var/cache")
     provider: LLMProvider | None = None  # real local provider for system 6, if running
+    route_gate: RouteGate = CLOSED_GATE  # validated LLM path; closed unless evidence given
 
 
 @dataclass(frozen=True)
@@ -126,7 +128,10 @@ SYSTEMS: list[SystemSpec] = [
 
 
 def run_system(
-    components: Components, catalog: Catalog, cases: Sequence[EvalCase]
+    components: Components,
+    catalog: Catalog,
+    cases: Sequence[EvalCase],
+    route_gate: RouteGate = CLOSED_GATE,
 ) -> list[CaseResult]:
     resolver = Resolver(
         catalog,
@@ -134,6 +139,7 @@ def run_system(
         provider=components.provider,
         retrievers=components.retrievers,
         reranker=components.reranker,
+        route_gate=route_gate,
     )
     results = []
     for c in cases:
@@ -199,7 +205,7 @@ def evaluate(
         except Blocked as exc:
             systems[spec.key] = {"label": spec.label, "status": str(exc)}
             continue
-        res = run_system(components, catalog, cases)
+        res = run_system(components, catalog, cases, env.route_gate)
         systems[spec.key] = {
             "label": spec.label,
             "status": "ran",
@@ -304,6 +310,11 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument("--frozen-tag", help="required for --split heldout")
     p.add_argument("--systems", nargs="+", help="run only these system keys (default: all)")
     p.add_argument(
+        "--llm-route-evidence",
+        type=Path,
+        help="frozen dev route evidence for the validated LLM path (default: gate closed)",
+    )
+    p.add_argument(
         "--queue",
         type=Path,
         nargs="+",
@@ -362,10 +373,16 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         from bera.llm.openai_compat import OpenAICompatProvider
 
         provider = OpenAICompatProvider(a.llm_url, a.llm_model)
-    env = RunEnv(enable_ml=a.ml, cache_dir=REPO_ROOT / "var" / "cache", provider=provider)
+    from bera.llm.routes import load_gate
+
+    gate = load_gate(a.llm_route_evidence)
+    env = RunEnv(
+        enable_ml=a.ml, cache_dir=REPO_ROOT / "var" / "cache", provider=provider, route_gate=gate
+    )
     report = evaluate(catalog, cases, reps=a.reps, env=env, only=a.systems)
     if family_source:
         report["family_source"] = family_source
+    report["llm_route_gate"] = {"source": gate.source, "open_routes": sorted(gate.open_routes)}
     import hashlib
 
     report["case_files"] = [

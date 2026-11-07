@@ -18,7 +18,7 @@ decisions.
 | Retrieval | SQLite FTS5 BM25, trigram (typo tolerant), `BAAI/bge-small-en-v1.5` embeddings, fused with RRF (k=60) |
 | Rerank | `cross-encoder/ms-marco-MiniLM-L6-v2` (uncalibrated logits, used only for ordering) |
 | Checks | deterministic field agreement/conflict checks (title, author, format, year, publisher, language, edition, study guide / box set) |
-| Policy | `conservative-rules-v1`, **uncalibrated**; model output is advisory and never turns review into suggest, so the LLM method cannot yet raise suggestion coverage (validated LLM suggestion path unfinished) |
+| Policy | `conservative-rules-v1`, **uncalibrated**. The validated LLM suggestion path is implemented as a route gate measured on dev human labels; it is currently **closed** (too few and too imprecise choices), so the LLM stays advisory and cannot raise coverage |
 | Adjudication | Qwen3-4B-Instruct-2507 Q4_K_M via a project-built `llama-server` on 127.0.0.1; strict schema, candidate allowlist, typed evidence checks, bounded attempts and deadlines |
 | UI | React review screen with local confirm/reject; blind-first labeling tab |
 | Tracing | local SQLite; queries stored only as a salted HMAC |

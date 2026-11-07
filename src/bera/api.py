@@ -47,10 +47,13 @@ def create_app(settings: Settings | None = None, resolver: Resolver | None = Non
                 f"catalog not found at {settings.catalog_db}; run: "
                 "uv run python -m bera.cli build-catalog"
             )
+        from bera.llm.routes import load_gate
+
         resolver = Resolver(
             Catalog(settings.catalog_db),
             TraceStore(settings.trace_db, settings.salt_path),
             build_provider(settings),
+            route_gate=load_gate(settings.llm_route_evidence),
         )
     app = FastAPI(title="Book Edition Resolution Assistant", version=__version__)
     app.state.resolver = resolver

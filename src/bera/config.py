@@ -20,6 +20,7 @@ class Settings:
     label_queue: Path | None = None
     labels_path: Path | None = None
     label_allow_heldout: bool = False
+    llm_route_evidence: Path | None = None  # frozen dev route evidence; None = gate closed
 
     @property
     def trace_db(self) -> Path:
@@ -51,4 +52,7 @@ class Settings:
                 )
             ),
             label_allow_heldout=os.environ.get("BERA_LABEL_ALLOW_HELDOUT") == "1",
+            llm_route_evidence=Path(r)
+            if (r := os.environ.get("BERA_LLM_ROUTE_EVIDENCE"))
+            else None,
         )

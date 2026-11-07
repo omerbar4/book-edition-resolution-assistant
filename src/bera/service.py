@@ -13,6 +13,7 @@ from bera.catalog import Catalog
 from bera.features import check_fields
 from bera.llm.adjudicator import Adjudicator
 from bera.llm.provider import LLMProvider
+from bera.llm.routes import CLOSED_GATE, GATE_ELIGIBLE_REASONS, RouteGate, route_of
 from bera.models import (
     MAX_ADJUDICATION_CANDIDATES,
     MAX_CANDIDATES_RETURNED,
@@ -69,6 +70,8 @@ class Resolver:
     provider: LLMProvider | None
     retrievers: list[Retriever] | None = None
     reranker: Reranker | None = None
+    # Validated LLM suggestion path: closed unless built from frozen dev route evidence.
+    route_gate: RouteGate = CLOSED_GATE
     clock: Callable[[], float] = time.perf_counter
 
     def __post_init__(self) -> None:
@@ -177,8 +180,9 @@ class Resolver:
             decision, views = self._catalog_scan(decision, views, query)
             timings["catalog_scan"] = _ms(self.clock() - t)
         reasons = list(decision.reasons)
+        outcome, suggested = decision.outcome, decision.suggested
 
-        # ---- adjudication (advisory only under conservative-rules-v0) --------------------
+        # ---- adjudication: advisory unless its route is open in the frozen route gate -----
         t = self.clock()
         adjudication = AdjudicationView(
             status=AdjudicationStatus.NOT_NEEDED,
@@ -204,7 +208,23 @@ class Resolver:
                         reasons.append(Reason.LLM_ABSTAINED)
                     else:
                         adjudication.agrees_with_top1 = adjudication.chosen_edition_id == amb[0]
-                        reasons.append(Reason.LLM_ADVISORY_ONLY)
+                        chosen = by_id.get(adjudication.chosen_edition_id)
+                        llm_route = route_of(
+                            adjudication.chosen_edition_id,
+                            views[0].edition.edition_id if views else None,
+                        )
+                        if (
+                            llm_route in self.route_gate.open_routes
+                            and set(decision.reasons) <= GATE_ELIGIBLE_REASONS
+                            and chosen is not None
+                            and is_compatible(chosen)
+                            and not flags
+                        ):
+                            outcome = Outcome.SUGGEST
+                            suggested = adjudication.chosen_edition_id
+                            reasons.append(Reason.LLM_VALIDATED_ROUTE)
+                        else:
+                            reasons.append(Reason.LLM_ADVISORY_ONLY)
                 else:
                     reasons.append(_ADJ_REASON[adjudication.status])
         timings["adjudication"] = _ms(self.clock() - t)
@@ -212,8 +232,8 @@ class Resolver:
 
         resp = ResolveResponse(
             request_id=request_id,
-            outcome=decision.outcome,
-            suggested_edition_id=decision.suggested,
+            outcome=outcome,
+            suggested_edition_id=suggested,
             route=route,
             reasons=list(dict.fromkeys(reasons)),
             candidates=views,

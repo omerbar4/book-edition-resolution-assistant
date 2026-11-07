@@ -151,6 +151,7 @@ class Reason(StrEnum):
     LLM_PROVIDER_ERROR = "llm_provider_error"
     LLM_DEADLINE = "llm_deadline_exceeded"
     LLM_BUDGET = "llm_budget_exceeded"
+    LLM_VALIDATED_ROUTE = "llm_validated_route"
 
 
 class CandidateView(BaseModel):
