@@ -1,0 +1,1851 @@
+{
+ "label": "DEVELOPMENT DATA: 60 human labels (one labeler), uncalibrated policy conservative-rules-v1; NOT held-out performance; NOT calibrated",
+ "case_files": [
+  "data/eval/labels/dev_batch02_labels.jsonl",
+  "data/eval/labels/dev_final_labels.jsonl"
+ ],
+ "queues": {
+  "data/eval/drafts/dev_batch02.jsonl": "554cc8635d9b99fe969b343ac08133c089023bc4f6fa2c5d638aa462ffff94cf",
+  "data/eval/drafts/dev_final.jsonl": "652bf313932a61163cab53d210d089f55d388698597440cc1e96f02d6e89f5c9"
+ },
+ "counts": {
+  "cases": 60,
+  "families": 60,
+  "human_edition": 44,
+  "human_review": 16,
+  "human_review_reasons": {
+   "underspecified": 12,
+   "out_of_corpus": 4
+  }
+ },
+ "outcome_and_suggestion_identical_across_systems": true,
+ "top1_identical_across_systems": false,
+ "interval_note": "wilson95_case_level treats cases as independent; bootstrap95_family_grouped resamples families with all their queries (1000 reps, seed 0). Every case here is from a distinct family. Bootstrap cannot show uncertainty for 0/n or n/n; use the Wilson bound for zero-event rates.",
+ "metrics_default_2b_by_group": {
+  "all": {
+   "n_cases": 60,
+   "n_families": 60,
+   "correct_suggestion_rate /N": {
+    "numerator": 16,
+    "denominator": 60,
+    "value": 0.2667,
+    "wilson95_case_level": [
+     0.1713,
+     0.3901
+    ],
+    "bootstrap95_family_grouped": [
+     0.15,
+     0.3833
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 60,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.0602
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 16,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1936
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 16,
+    "denominator": 44,
+    "value": 0.3636,
+    "wilson95_case_level": [
+     0.2378,
+     0.5113
+    ],
+    "bootstrap95_family_grouped": [
+     0.225,
+     0.5217
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 44,
+    "denominator": 44,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.9197,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 16,
+    "denominator": 16,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8064,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "never in the policy-development check": {
+   "n_cases": 43,
+   "n_families": 43,
+   "correct_suggestion_rate /N": {
+    "numerator": 11,
+    "denominator": 43,
+    "value": 0.2558,
+    "wilson95_case_level": [
+     0.1493,
+     0.4024
+    ],
+    "bootstrap95_family_grouped": [
+     0.1163,
+     0.3953
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 43,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.082
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 11,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.2588
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 11,
+    "denominator": 34,
+    "value": 0.3235,
+    "wilson95_case_level": [
+     0.1913,
+     0.4916
+    ],
+    "bootstrap95_family_grouped": [
+     0.1613,
+     0.4848
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 34,
+    "denominator": 34,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8985,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 9,
+    "denominator": 9,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7009,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "policy-development families (reported separately)": {
+   "n_cases": 17,
+   "n_families": 17,
+   "correct_suggestion_rate /N": {
+    "numerator": 5,
+    "denominator": 17,
+    "value": 0.2941,
+    "wilson95_case_level": [
+     0.1328,
+     0.5313
+    ],
+    "bootstrap95_family_grouped": [
+     0.0588,
+     0.5294
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 17,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1843
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 5,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.4345
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 5,
+    "denominator": 10,
+    "value": 0.5,
+    "wilson95_case_level": [
+     0.2366,
+     0.7634
+    ],
+    "bootstrap95_family_grouped": [
+     0.1667,
+     0.8182
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 10,
+    "denominator": 10,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7225,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 7,
+    "denominator": 7,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.6457,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  }
+ },
+ "review_causes_on_human_answerable": {
+  "insufficient distinguishing evidence": 15,
+  "damaged ISBN: repair is only a hypothesis": 6,
+  "undistinguished alternatives among retrieved candidates": 4,
+  "other: suspicious_unicode": 1,
+  "a supplied field conflicts with the top candidate": 2
+ },
+ "disagreements": {
+  "A_human_vs_drafted_proposal": {
+   "note": "measures the drafter; labels are never changed to match proposals",
+   "counts": {
+    "agree": 45,
+    "both review, different listed records": 12,
+    "human edition, proposal review": 3
+   },
+   "cases": {
+    "both review, different listed records": [
+     "d02-0589d2fcff",
+     "d02-ed610d5d91",
+     "d03-0ad6ec4b93",
+     "d03-14b21ee1ac",
+     "d03-74535cab45",
+     "d03-762da472d6",
+     "d03-8d23d849d7",
+     "d03-9de462b511",
+     "d03-a8516126b7",
+     "d03-d23ebead95",
+     "d03-d9a6484759",
+     "d03-df4da76948"
+    ],
+    "human edition, proposal review": [
+     "d02-6463d76f7e",
+     "d03-df6f5a2f7b",
+     "d03-f48c5fe4db"
+    ]
+   }
+  },
+  "B_human_vs_policy": {
+   "counts": {
+    "agree": 32,
+    "human edition, policy review": 28
+   },
+   "cases": {
+    "human edition, policy review": [
+     "d02-03c77f5cc6",
+     "d02-451a45f8ac",
+     "d02-4c2ae5e76e",
+     "d02-5ad58c7355",
+     "d02-6463d76f7e",
+     "d02-a45a6e14e1",
+     "d02-ad6b44676f",
+     "d02-b1c25eb8ef",
+     "d02-f290f0c95f",
+     "d02-f69c8768ce",
+     "d02-fdf24a4194",
+     "d03-0f3cf5a743",
+     "d03-14b62c92d6",
+     "d03-1d4f410493",
+     "d03-250eb0fe92",
+     "d03-4163d593ce",
+     "d03-5c1c081224",
+     "d03-75cf44c22c",
+     "d03-7aad427028",
+     "d03-7cc54b9b04",
+     "d03-850f54c394",
+     "d03-9cfe4ce6d4",
+     "d03-a25b4a7700",
+     "d03-afed02d380",
+     "d03-df6f5a2f7b",
+     "d03-e1efb2be9c",
+     "d03-f45519bd4a",
+     "d03-f48c5fe4db"
+    ]
+   }
+  },
+  "C_open_review_flags": {
+   "d02-6463d76f7e": [
+    "human_vs_missing_metadata_rule"
+   ]
+  }
+ },
+ "llm": {
+  "status": "advisory only in conservative-rules-v1: it cannot turn review into suggest, so it cannot raise final coverage",
+  "invocation_rate": {
+   "denominator": 60,
+   "numerator": 15,
+   "value": 0.25
+  },
+  "statuses": {
+   "completed": 12,
+   "deadline_exceeded": 1,
+   "evidence_invalid": 2,
+   "not_needed": 45
+  },
+  "tokens_total": 14684,
+  "estimated_cost": {
+   "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+   "rate_per_1k_tokens": 0.0,
+   "value": 0.0
+  },
+  "final_outcome_when_invoked": {
+   "review": 15,
+   "suggest": 0,
+   "suggest_correct": 0,
+   "suggest_on_expected_abstain": 0
+  },
+  "routes": {
+   "completed_with_choice": 12,
+   "agree_with_top1": 10,
+   "override_top1": 2,
+   "agree_route_choice_correctness": {
+    "answerable": 4,
+    "choice_in_human_gold": 4
+   },
+   "override_route_choice_correctness": {
+    "answerable": 0,
+    "choice_in_human_gold": 0
+   }
+  }
+ },
+ "latency_ms_total": {
+  "1_exact_fuzzy": {
+   "p50": 13.909,
+   "p95": 25.175
+  },
+  "2_lexical": {
+   "p50": 3.64,
+   "p95": 6.116
+  },
+  "2b_lexical_rrf": {
+   "p50": 4.447,
+   "p95": 7.625
+  },
+  "3_embedding": {
+   "p50": 9.611,
+   "p95": 15.136
+  },
+  "4_hybrid": {
+   "p50": 11.481,
+   "p95": 19.388
+  },
+  "5_hybrid_rerank": {
+   "p50": 36.546,
+   "p95": 57.991
+  },
+  "6_routed_llm": {
+   "p50": 50.605,
+   "p95": 7695.593
+  }
+ },
+ "deferred": "per-stratum, per-template and per-source-batch summaries of human answers: withheld until held-out labeling is complete (held-out uses the same templates and strata, so those base rates could bias held-out labels)",
+ "cases": [
+  {
+   "case_id": "d02-02b810abce",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-03c77f5cc6",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-0589d2fcff",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": null,
+   "compatible_candidates": 2,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-08a4bf8ae5",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-451a45f8ac",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-4a5ec910db",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-4c1008b303",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-4c2ae5e76e",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-500b786619",
+   "policy_dev_family": true,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-5ad58c7355",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-6463d76f7e",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": 1,
+   "compatible_candidates": 2,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "human edition, proposal review",
+   "open_review_flags": [
+    "human_vs_missing_metadata_rule"
+   ]
+  },
+  {
+   "case_id": "d02-a45a6e14e1",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-ad6b44676f",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-b1c25eb8ef",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-bd2b145215",
+   "policy_dev_family": true,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-ed610d5d91",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": null,
+   "compatible_candidates": 10,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-f13c90f2c1",
+   "policy_dev_family": true,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-f290f0c95f",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "isbn_exact",
+   "reasons": [
+    "suspicious_unicode"
+   ],
+   "cause_if_review": "other: suspicious_unicode",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-f69c8768ce",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d02-fdf24a4194",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-0997062a58",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-0ad6ec4b93",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": null,
+   "compatible_candidates": 6,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-0f3cf5a743",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-10956f0d07",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-14b21ee1ac",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": null,
+   "compatible_candidates": 8,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-14b62c92d6",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": 1,
+   "compatible_candidates": 3,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-1d4f410493",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence",
+    "llm_disabled"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-250eb0fe92",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "field_conflict",
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "a supplied field conflicts with the top candidate",
+   "human_gold_rank": 1,
+   "compatible_candidates": 0,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-30dd74b830",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-4163d593ce",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-5c1c081224",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-5f0e5144cc",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-74535cab45",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "isbn_duplicate",
+   "reasons": [
+    "duplicate_isbn_mapping",
+    "llm_disabled"
+   ],
+   "cause_if_review": "ISBN maps to several records",
+   "human_gold_rank": null,
+   "compatible_candidates": 2,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-75cf44c22c",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-762da472d6",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": null,
+   "compatible_candidates": 7,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-7aad427028",
+   "policy_dev_family": false,
+   "query_fields": [
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-7cc54b9b04",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-850f54c394",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-8d23d849d7",
+   "policy_dev_family": true,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "isbn_duplicate",
+   "reasons": [
+    "duplicate_isbn_mapping",
+    "llm_disabled"
+   ],
+   "cause_if_review": "ISBN maps to several records",
+   "human_gold_rank": null,
+   "compatible_candidates": 4,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-9cfe4ce6d4",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "field_conflict",
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "a supplied field conflicts with the top candidate",
+   "human_gold_rank": 1,
+   "compatible_candidates": 0,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-9de462b511",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence",
+    "llm_disabled"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": null,
+   "compatible_candidates": 5,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-a25b4a7700",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "isbn_repair",
+   "reasons": [
+    "isbn_bad_checksum",
+    "isbn_repair_hypothesis_only"
+   ],
+   "cause_if_review": "damaged ISBN: repair is only a hypothesis",
+   "human_gold_rank": 1,
+   "compatible_candidates": 2,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-a726c1f61b",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "out_of_corpus",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "field_conflict",
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "a supplied field conflicts with the top candidate",
+   "human_gold_rank": null,
+   "compatible_candidates": 0,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-a8516126b7",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": null,
+   "compatible_candidates": 4,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-af83489aca",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "out_of_corpus",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "field_conflict",
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "a supplied field conflicts with the top candidate",
+   "human_gold_rank": null,
+   "compatible_candidates": 0,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-afed02d380",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-b19fe7c00d",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "out_of_corpus",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "field_conflict",
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "a supplied field conflicts with the top candidate",
+   "human_gold_rank": null,
+   "compatible_candidates": 0,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-bb3fd433d8",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-bb7313d1c4",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "out_of_corpus",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "field_conflict",
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "a supplied field conflicts with the top candidate",
+   "human_gold_rank": null,
+   "compatible_candidates": 0,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-c47a605b4c",
+   "policy_dev_family": true,
+   "query_fields": [
+    "isbn",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-d23ebead95",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": null,
+   "compatible_candidates": 10,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-d9a6484759",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence",
+    "llm_disabled"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": null,
+   "compatible_candidates": 7,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-df4da76948",
+   "policy_dev_family": true,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "abstain",
+   "human_reason": "underspecified",
+   "human_gold_count": 0,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": null,
+   "compatible_candidates": 2,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "both review, different listed records",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-df6f5a2f7b",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": 1,
+   "compatible_candidates": 3,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "human edition, proposal review",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-e1efb2be9c",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-e54c949143",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "retrieval",
+   "reasons": [
+    "unique_consistent_match"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-e5d6255eb8",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-f3d2e5552f",
+   "policy_dev_family": false,
+   "query_fields": [
+    "isbn",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "suggest",
+   "route": "isbn_exact",
+   "reasons": [
+    "unique_isbn_no_conflict"
+   ],
+   "cause_if_review": null,
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "agree",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-f45519bd4a",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "insufficient_evidence"
+   ],
+   "cause_if_review": "insufficient distinguishing evidence",
+   "human_gold_rank": 1,
+   "compatible_candidates": 1,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "agree",
+   "open_review_flags": []
+  },
+  {
+   "case_id": "d03-f48c5fe4db",
+   "policy_dev_family": false,
+   "query_fields": [
+    "author",
+    "physical_format",
+    "publish_year",
+    "title"
+   ],
+   "human": "suggest",
+   "human_reason": null,
+   "human_gold_count": 1,
+   "policy_outcome": "review",
+   "route": "retrieval",
+   "reasons": [
+    "multiple_consistent_candidates",
+    "llm_disabled"
+   ],
+   "cause_if_review": "undistinguished alternatives among retrieved candidates",
+   "human_gold_rank": 1,
+   "compatible_candidates": 2,
+   "human_vs_policy": "human edition, policy review",
+   "human_vs_proposal": "human edition, proposal review",
+   "open_review_flags": []
+  }
+ ]
+}

@@ -189,3 +189,24 @@ and `families.json` (`bera.evalkit.families`).
   cannot raise final coverage yet.
 - Results are reported for the 8 families also used in the synthetic policy-development
   check and for the other 12. Both groups are too small to compare.
+
+## Development run on 60 human labels (2026-11-07)
+
+**Development data: 60 human labels from one labeler, from 60 distinct families; not
+held-out performance; not calibrated.** Report: `data/eval/results/dev60_human_policy_v1/`
+(harness `report.json`, plus `error_analysis.md`/`.json` from `scripts/analyze_dev_eval.py`).
+Policy, thresholds, prompts and models were unchanged. The harness now accepts several case
+files and frozen queues and records each case file's sha256.
+
+- All seven configurations made the same decisions. Correct suggestions 16/60; wrong matches
+  0/60 (case-level Wilson upper bound 0.060); top-1 44/44 on the human-answerable cases; 16/16
+  human review cases routed to review.
+- Families never in the policy-development check (43) and policy-development families (17)
+  are reported separately.
+- Coverage is limited by the policy. Causes of the 28 reviews on human-answerable cases:
+  insufficient distinguishing evidence 15, damaged-ISBN repair 6, undistinguished
+  alternatives 4, supplied-field conflict 2, unicode guard 1.
+- Disagreements are reported separately and no label was changed. The LLM is advisory: it was
+  invoked on 15/60 cases (14,684 tokens, $0 local) and changed no final outcome.
+- Withheld until held-out labeling is complete: per-stratum, per-template and per-source
+  summaries of human answers.

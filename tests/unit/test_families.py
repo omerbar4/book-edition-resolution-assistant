@@ -141,3 +141,15 @@ def test_report_paths_are_repo_relative(tmp_path: Path) -> None:
     )
     outside = tmp_path / "x" / "q.jsonl"
     assert repo_relative(outside) == "q.jsonl"  # never an absolute machine path
+
+
+def test_harness_refuses_duplicate_case_ids_across_files(tmp_path: Path, cat: Catalog) -> None:
+    from bera.evalkit.run import main
+
+    one = tmp_path / "a.jsonl"
+    two = tmp_path / "b.jsonl"
+    line = label("c1", "abstain", [], "fam:A").model_dump_json() + "\n"
+    one.write_text(line)
+    two.write_text(line)
+    with pytest.raises(SystemExit, match="duplicate case ids"):
+        main(["--cases", str(one), str(two), "--db", str(cat.path), "--out", str(tmp_path / "o")])

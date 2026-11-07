@@ -293,7 +293,7 @@ def _require_frozen(tag: str | None) -> None:
 
 def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p = argparse.ArgumentParser(prog="bera-eval")
-    p.add_argument("--cases", type=Path, required=True)
+    p.add_argument("--cases", type=Path, nargs="+", required=True, help="one or more case files")
     p.add_argument("--split", choices=["dev", "heldout", "all"], default="dev")
     p.add_argument("--db", type=Path)
     p.add_argument("--out", type=Path, required=True)
@@ -306,6 +306,7 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     p.add_argument(
         "--queue",
         type=Path,
+        nargs="+",
         help="frozen labeling queue (with manifest) the human-labeled cases came from; "
         "required for human-labeled cases so families come from the corpus mapping",
     )
@@ -316,31 +317,43 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         help="frozen corpus work->family mapping",
     )
     a = p.parse_args(argv)
-    if a.split in ("heldout", "all") and any(
-        c.split == "heldout" and c.origin != "synthetic_perturbation" for c in load_cases(a.cases)
-    ):
-        _require_frozen(a.frozen_tag)
-    cases = [c for c in load_cases(a.cases) if a.split == "all" or c.split == a.split]
-    # Practice labels and labels on cases exposed before labeling (provenance sidecars) are
-    # never independent human labels: exclude them.
     from bera.evalkit.provenance import independent_human_cases
 
-    kept = independent_human_cases(cases, a.cases)
-    if len(kept) != len(cases):
-        print(f"excluded {len(cases) - len(kept)} practice/exposed case(s) (provenance sidecars)")
-    cases = kept
+    loaded = {path: load_cases(path) for path in a.cases}
+    if a.split in ("heldout", "all") and any(
+        c.split == "heldout" and c.origin != "synthetic_perturbation"
+        for cs in loaded.values()
+        for c in cs
+    ):
+        _require_frozen(a.frozen_tag)
+    cases: list[EvalCase] = []
+    for path, cs in loaded.items():
+        cs = [c for c in cs if a.split == "all" or c.split == a.split]
+        # Practice labels and labels on cases exposed before labeling (provenance sidecars
+        # next to each label file) are never independent human labels: exclude them.
+        kept = independent_human_cases(cs, path)
+        if len(kept) != len(cs):
+            print(f"excluded {len(cs) - len(kept)} practice/exposed case(s) from {path.name}")
+        cases.extend(kept)
+    ids = [c.case_id for c in cases]
+    if len(ids) != len(set(ids)):
+        raise SystemExit("duplicate case ids across case files")
     catalog = Catalog(a.db or Settings.from_env().catalog_db)
     family_source = None
     if any(c.human_labeled for c in cases):
         from bera.evalkit.families import load_frozen_queue, resolve_families
 
-        if a.queue is None:
+        if not a.queue:
             raise SystemExit("human-labeled cases need --queue (frozen queue) to resolve families")
-        drafts, queue_sha = load_frozen_queue(a.queue)
+        drafts = []
+        queues = []
+        for q in a.queue:
+            ds, sha = load_frozen_queue(q)
+            drafts.extend(ds)
+            queues.append({"queue": repo_relative(q), "queue_sha256": sha})
         cases = resolve_families(cases, drafts, json.loads(a.families.read_text()), catalog)
         family_source = {
-            "queue": repo_relative(a.queue),
-            "queue_sha256": queue_sha,
+            "queues": queues,
             "families": repo_relative(a.families),
             "rule": "family = draft family; chosen editions must map to it; no fallback",
         }
@@ -353,6 +366,12 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     report = evaluate(catalog, cases, reps=a.reps, env=env, only=a.systems)
     if family_source:
         report["family_source"] = family_source
+    import hashlib
+
+    report["case_files"] = [
+        {"path": repo_relative(x), "sha256": hashlib.sha256(x.read_bytes()).hexdigest()}
+        for x in a.cases
+    ]
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True))
     (a.out / "report.md").write_text(markdown(report))
