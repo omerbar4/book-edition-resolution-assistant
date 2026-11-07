@@ -1,5 +1,7 @@
 # Requirements tracker
 
+Last audited 2026-11-07: [REQUIREMENTS_AUDIT.md](REQUIREMENTS_AUDIT.md).
+
 **Statuses:**
 - `verified`: implemented, and checked by automated tests and/or the browser.
 - `implemented`: code exists, but its check is incomplete.
@@ -17,7 +19,7 @@
 | F2b | Embedding retrieval + hybrid | verified (wiring) | `bera.ml.EmbeddingRetriever` with pinned bge-small; smoke tests + six-system synthetic run; quality evaluation needs human labels |
 | F3 | Deterministic conflict checks | verified | `features.py`, pipeline tests |
 | F3b | Cross-encoder reranking | verified (wiring) | `CrossEncoderReranker`, pinned MiniLM; smoke tests |
-| F4 | LLM adjudication only for ambiguous top-k | verified (advisory only) | mock + real Qwen3-4B via local llama-server; advisory only: every LLM-invoked case stays REVIEW, so method 6 cannot raise suggestion coverage. Validated LLM suggestion path NOT implemented (see C3) |
+| F4 | LLM adjudication only for ambiguous top-k | verified (gate closed) | mock + real Qwen3-4B via local llama-server. Validated suggestion path implemented as a route gate (`bera.llm.routes`); closed on measured dev evidence, so the LLM stays advisory (see C3) |
 | F5 | Strict output schema + evidence validation | verified | `tests/security/test_adjudication_attacks.py` |
 | F6 | Suggest-or-review outcome | verified | `conservative-rules-v1` (uncalibrated): unknown fields never distinguish; catalog-wide uniqueness scan; regression tests |
 | F7 | Explicit local confirm/reject | verified | API tests + UI test + browser check |
@@ -35,9 +37,9 @@
 
 | # | Requirement | Status | Evidence / blocker |
 |---|---|---|---|
-| C1 | Calibrated scorer from grouped out-of-fold dev predictions | blocked | needs human-labeled dev cases (labeling UI ready) |
-| C2 | Confidence bands with k/n + Wilson intervals | implemented | `metrics.signal_buckets` over an uncalibrated signal; calibrated bands blocked on C1 |
-| C3 | LLM-override route confidence measured separately | blocked | needs dev data + real model |
+| C1 | Calibrated scorer from grouped out-of-fold dev predictions | deferred | 44 answerable dev cases: insufficient evidence; uncalibrated bands reported instead ([REQUIREMENTS_AUDIT.md](REQUIREMENTS_AUDIT.md)) |
+| C2 | Confidence bands with k/n + Wilson intervals | implemented (uncalibrated) | `metrics.signal_buckets` over an uncalibrated signal; family-grouped intervals in dev analyses |
+| C3 | LLM-override route confidence measured separately | verified | `data/eval/llm_route_evidence.json` from 60 dev human labels: agree 4/10, override 0/2; both routes closed |
 
 ## Data and evaluation
 
@@ -47,12 +49,12 @@
 | D1a | Ingestion and provenance tooling (streaming, strata, author resolution, manifest) | verified | `ingest/`, tests on synthetic dump-format files; gated downloader not run |
 | D2 | Reproducible splits grouped by work family | verified | `evalkit/splits.py`, leakage test |
 | D3 | Seeded synthetic perturbations | verified | `evalkit/perturb.py`, determinism test |
-| D4 | ≥ 100 (target 120) human-labeled cases | in progress | fixed plan [EVALUATION_PLAN.md](EVALUATION_PLAN.md): 60 dev / 40 held-out (chosen allocation; family split is 123/100). 20 eligible dev labels (batch 02); 40-case dev queue `dev_final.jsonl` served; held-out after the full-system freeze. Batch 01 = practice/exposed (0 eligible) |
+| D4 | ≥ 100 (target 120) human-labeled cases | in progress | [EVALUATION_PLAN.md](EVALUATION_PLAN.md): 60/100 eligible (all dev: batch 02 + dev_final); 40 held-out after the full-system freeze. 120 not pursued |
 | D5 | Labeling workflow + instructions + ambiguity rules | verified | guide, blind-first UI/API, dev/held-out separation tests |
-| D6 | Abstention and out-of-corpus cases | implemented (tooling) | schema + exclusion verification in corpus builder; cases blocked on corpus + labeling |
-| E1 | Six baselines compared | implemented | all six run (with --ml/--llm-url); real comparison needs human cases on the real corpus |
+| D6 | Abstention and out-of-corpus cases | partially met | 16 dev human review cases (12 underspecified, 4 out-of-corpus) + 3 held-out probes planned; ~60 target unmet |
+| E1 | Six baselines compared | verified (dev) | all six + RRF default on 60 dev human labels: identical decisions |
 | E2 | Metrics: recall@k, MRR, top-1, correct-suggestion, wrong-match, error among suggestions, abstention, correct abstention, bucket precision with n, risk-coverage, bootstrap CIs, failure categories, p50/p95 per stage, invocation rate, tokens, cost | verified | `evalkit/metrics.py` with denominator tests; engineering check run on synthetic cases |
-| E3 | Dev-only tuning; frozen policy before held-out | pending | process documented in DECISION_POLICY.md |
+| E3 | Dev-only tuning; frozen policy before held-out | pending | dev work done; owner decisions then full-system freeze ([REQUIREMENTS_AUDIT.md](REQUIREMENTS_AUDIT.md)) |
 
 ## Security, reliability and operations
 
