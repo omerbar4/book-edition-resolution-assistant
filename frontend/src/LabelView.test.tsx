@@ -215,4 +215,71 @@ describe("LabelView", () => {
     ).toBeTruthy();
     expect(screen.getByText(/1 exposed before labeling \(not counted\)/)).toBeTruthy();
   });
+
+  it("after_batch: a save shows nothing about the proposal until the batch is complete", async () => {
+    let labeled = 0;
+    const q = () => ({
+      ...queue,
+      reveal_mode: "after_batch",
+      revealed: false,
+      labeled,
+      items: [{ ...queue.items[0], labeled: labeled > 0 }],
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/label/queue") return new Response(JSON.stringify(q()));
+        if (url.startsWith("/api/label/search"))
+          return new Response(JSON.stringify(searchPage));
+        if (url === "/api/label/submit") {
+          labeled = 1;
+          return new Response(
+            JSON.stringify({ saved: true, reveal: "after_batch", remaining: 0 }),
+          );
+        }
+        if (url === "/api/label/reveal")
+          return new Response(
+            JSON.stringify({
+              items: [
+                {
+                  draft_id: "dev-001",
+                  your_label: { expected: "suggest", gold_edition_ids: ["OL1M"] },
+                  proposed: { expected: "suggest", gold_edition_ids: ["OL2M"] },
+                  agrees_with_proposal: false,
+                  template: "secret_template_name",
+                },
+              ],
+              agree: 0,
+              total: 1,
+              note: "measures the drafter",
+            }),
+          );
+        throw new Error(url);
+      }),
+    );
+    const { container } = render(<LabelView />);
+    await screen.findByText(/Query as a person typed it/);
+    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.click(await screen.findByLabelText("pick OL1M"));
+    fireEvent.change(screen.getByLabelText("Your labeler id"), {
+      target: { value: "ob" },
+    });
+    fireEvent.click(screen.getByLabelText(/One specific edition/));
+    fireEvent.click(screen.getByRole("button", { name: "Save label" }));
+    await screen.findByText(/stay hidden until every case/);
+    expect(container.textContent).not.toContain("OL2M");
+    expect(container.textContent).not.toContain("secret_template_name");
+    expect(container.textContent).not.toContain("Drafted proposal (");
+    expect(
+      (screen.getByRole("button", { name: "Save label" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "Show drafted proposals for the whole batch",
+      }),
+    );
+    await screen.findByText(/0\/1 match your labels/);
+    expect(container.textContent).toContain("OL2M");
+    expect(container.textContent).toContain("secret_template_name");
+  });
 });

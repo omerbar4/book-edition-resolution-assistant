@@ -165,6 +165,109 @@ def draft_batch_v3(
     return sorted(out, key=lambda d: d.draft_id)  # random order: ids are random
 
 
+DRAFTER_V4 = (
+    "template-drafter-v4 (deterministic program; up to max_per_family queries per family, "
+    "each from a distinct effective template; opaque ids)"
+)
+MAX_QUERIES_PER_FAMILY = 3
+
+
+def draft_batch_v4(
+    catalog: Sequence[Edition],
+    *,
+    split: Literal["dev", "heldout"],
+    split_seed: int,
+    seed: int,
+    n: int,
+    prefix: str,
+    family_of: Mapping[str, str],
+    eligible_families: set[str],
+    exclude_editions: set[str],
+    exclude_queries: set[str],
+    existing_per_family: Mapping[str, int] | None = None,
+    max_per_family: int = MAX_QUERIES_PER_FAMILY,
+) -> list[Draft]:
+    """Multi-query batch: families in random order, each contributing up to
+    `max_per_family` (minus queries it already has in earlier batches) meaningfully different
+    queries: every query in a family uses a DISTINCT template, every op of that template
+    changes the query, and no query repeats one already seen. Editions within the family may
+    differ. Selection never looks at proposals or system results. Opaque ids, random order."""
+    if max_per_family > MAX_QUERIES_PER_FAMILY:
+        raise ValueError("at most three queries per family")
+
+    def fam(e: Edition) -> str:
+        wid = e.work_id or e.edition_id
+        return family_of.get(wid, wid)
+
+    existing = existing_per_family or {}
+    rng = random.Random(seed)  # noqa: S311 - reproducible drafting, not security
+    by_family: dict[str, list[Edition]] = {}
+    for e in sorted(catalog, key=lambda e: e.edition_id):
+        f = fam(e)
+        if (
+            e.work_id
+            and f in eligible_families
+            and family_split(f, split_seed) == split
+            and e.edition_id not in exclude_editions
+        ):
+            by_family.setdefault(f, []).append(e)
+    families = sorted(by_family)
+    rng.shuffle(families)
+    names = [t[0] for t in TEMPLATES]
+    seen = set(exclude_queries)
+    used_ids: set[str] = set()
+    out: list[Draft] = []
+    for f in families:
+        room = min(max_per_family - existing.get(f, 0), n - len(out))
+        if room <= 0:
+            if len(out) >= n:
+                break
+            continue
+        order = names[:]
+        rng.shuffle(order)
+        taken = 0
+        for name in order:
+            if taken >= room:
+                break
+            eds = by_family[f][:]
+            rng.shuffle(eds)
+            for e in eds:
+                op_seed = rng.randrange(2**31)
+                if not template_effective(name, e, op_seed):
+                    continue
+                case = make_case(e, dict(TEMPLATES)[name], op_seed, catalog, f, "tmp")
+                key = query_key(case.query)
+                if key in seen:
+                    continue
+                seen.add(key)
+                token = f"{rng.getrandbits(40):010x}"
+                while token in used_ids:
+                    token = f"{rng.getrandbits(40):010x}"
+                used_ids.add(token)
+                out.append(
+                    Draft(
+                        draft_id=f"{prefix}-{token}",
+                        split=split,
+                        family=f,
+                        query=case.query,
+                        template=name,
+                        drafted_by=DRAFTER_V4,
+                        source_edition_id=e.edition_id,
+                        op_seed=op_seed,
+                        proposed=Proposed(
+                            expected=case.expected,
+                            gold_edition_ids=case.gold_edition_ids,
+                            ambiguity_reason=case.ambiguity_reason,
+                        ),
+                    )
+                )
+                taken += 1
+                break
+        if len(out) >= n:
+            break
+    return sorted(out, key=lambda d: d.draft_id)
+
+
 def template_note(d: Draft, source: Edition | None) -> str | None:
     """Plain-language note when a v1 draft's template did not apply to its source, so the
     template name does not describe the query. Reveals nothing about the answer."""

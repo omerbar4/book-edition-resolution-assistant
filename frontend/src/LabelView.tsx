@@ -18,6 +18,30 @@ interface Queue {
   skipped?: number;
   total: number;
   proposal_label_spec?: string;
+  reveal_mode?: "per_case" | "after_batch";
+  revealed?: boolean;
+}
+interface BatchRevealItem {
+  draft_id: string;
+  your_label: {
+    expected: string;
+    gold_edition_ids: string[];
+    ambiguity_reason?: string | null;
+  };
+  proposed: {
+    expected: string;
+    gold_edition_ids: string[];
+    ambiguity_reason?: string | null;
+  };
+  agrees_with_proposal: boolean;
+  template?: string;
+  template_note?: string | null;
+}
+interface BatchReveal {
+  items: BatchRevealItem[];
+  agree: number;
+  total: number;
+  note: string;
 }
 interface SearchPage {
   total: number;
@@ -83,6 +107,9 @@ export function LabelView() {
   const [labeler, setLabeler] = useState(readLabeler);
   const [notes, setNotes] = useState("");
   const [reveal, setReveal] = useState<Reveal | null>(null);
+  // after_batch queues: the save is confirmed, but nothing about the proposal is shown
+  const [deferred, setDeferred] = useState<number | null>(null);
+  const [batch, setBatch] = useState<BatchReveal | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadQueue() {
@@ -114,6 +141,7 @@ export function LabelView() {
     setReason("");
     setNotes("");
     setReveal(null);
+    setDeferred(null);
     setPage(null);
     setSkipReason("");
     setSkippedMsg(null);
@@ -129,8 +157,10 @@ export function LabelView() {
       labeler.trim() !== "" &&
       ((answer === "suggest" && gold.length > 0) ||
         (answer === "abstain" && reason !== "")) &&
-      !reveal,
-    [labeler, answer, reason, gold, reveal],
+      !reveal &&
+      deferred === null &&
+      !(queue?.reveal_mode === "after_batch" && queue.revealed),
+    [labeler, answer, reason, gold, reveal, deferred, queue],
   );
 
   async function runSearch(offset = 0) {
@@ -199,7 +229,23 @@ export function LabelView() {
       setError(`submit failed: ${res.status} ${await res.text()}`);
       return;
     }
-    setReveal((await res.json()) as Reveal);
+    const body = (await res.json()) as Reveal & {
+      reveal?: string;
+      remaining?: number;
+    };
+    if (body.reveal === "after_batch") setDeferred(body.remaining ?? 0);
+    else setReveal(body);
+    await loadQueue();
+  }
+
+  async function showBatch() {
+    setError(null);
+    const res = await fetch("/api/label/reveal");
+    if (!res.ok) {
+      setError(`reveal refused: ${res.status} ${await res.text()}`);
+      return;
+    }
+    setBatch((await res.json()) as BatchReveal);
     await loadQueue();
   }
 
@@ -495,6 +541,67 @@ export function LabelView() {
         <p role="alert" className="error">
           {error}
         </p>
+      )}
+      {deferred !== null && (
+        <p role="status">
+          Saved. Drafted proposals stay hidden until every case in this batch is
+          labeled ({deferred} remaining).
+        </p>
+      )}
+      {queue.reveal_mode === "after_batch" && queue.labeled === queue.total && (
+        <div className="query">
+          <p className="muted">
+            Every case is labeled.{" "}
+            {queue.revealed
+              ? "Proposals were revealed; labels are final."
+              : "Showing the drafted proposals makes your labels final."}
+          </p>
+          <button type="button" onClick={showBatch}>
+            Show drafted proposals for the whole batch
+          </button>
+        </div>
+      )}
+      {batch && (
+        <div className="query">
+          <p className="muted small">
+            {batch.agree}/{batch.total} match your labels. {batch.note}.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>case</th>
+                <th>your label</th>
+                <th>drafted proposal</th>
+                <th>template</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batch.items.map((x) => (
+                <tr key={x.draft_id}>
+                  <td>{x.draft_id}</td>
+                  <td>
+                    {x.your_label.expected}{" "}
+                    {x.your_label.gold_edition_ids.join(", ")}
+                    {x.your_label.ambiguity_reason
+                      ? ` (${x.your_label.ambiguity_reason})`
+                      : ""}
+                  </td>
+                  <td className={x.agrees_with_proposal ? "ok" : "warn"}>
+                    {x.proposed.expected}{" "}
+                    {x.proposed.gold_edition_ids.join(", ")}
+                    {x.proposed.ambiguity_reason
+                      ? ` (${x.proposed.ambiguity_reason})`
+                      : ""}
+                  </td>
+                  <td>
+                    {x.template ?? ""}
+                    {x.template_note ? ` · ${x.template_note}` : ""}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       {reveal && (
         <p

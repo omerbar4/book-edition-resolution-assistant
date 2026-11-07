@@ -463,3 +463,110 @@ def test_review_flag_never_edits_label_or_counts(
     rec = flag_for_review(labels, i, "human_vs_rule", "test", "x")
     assert labels.read_text() == before and rec["label_unchanged"] and not rec["affects_counts"]
     assert len(independent_human_cases(load_cases(labels), labels)) == 1
+
+
+def test_after_batch_reveal_hides_everything_until_complete(
+    tmp_path: Path, editions: list[Any], make_resolver: Any
+) -> None:
+    import hashlib
+
+    q = make_queue(tmp_path, editions)
+    q.with_suffix(".manifest.json").write_text(
+        json.dumps(
+            {
+                "queue_sha256": hashlib.sha256(q.read_bytes()).hexdigest(),
+                "proposal_label_spec": "v2",
+                "reveal": "after_batch",
+            }
+        )
+    )
+    labels = tmp_path / "labels.jsonl"
+    settings = Settings(
+        var_dir=tmp_path,
+        catalog_db=tmp_path / "x",
+        llm_provider="none",
+        mock_mode="cite_first",
+        label_queue=q,
+        labels_path=labels,
+    )
+    client = TestClient(create_app(settings, make_resolver(None)))
+    queue = client.get("/api/label/queue").json()
+    assert queue["reveal_mode"] == "after_batch" and queue["revealed"] is False
+    ids = [i["draft_id"] for i in queue["items"]]
+    templates = {json.loads(x)["template"] for x in q.read_text().splitlines()}
+    body = {"labeler": "ob", "expected": "abstain", "ambiguity_reason": "underspecified"}
+    for n, i in enumerate(ids):
+        assert client.get("/api/label/reveal").status_code == 409
+        res = client.post("/api/label/submit", json={"draft_id": i, **body})
+        assert res.status_code == 200
+        assert res.json() == {"saved": True, "reveal": "after_batch", "remaining": len(ids) - n - 1}
+        for key in LEAK_KEYS:
+            assert f'"{key}"' not in res.text, key
+        assert not any(t in res.text for t in templates)
+    rev = client.get("/api/label/reveal")
+    assert rev.status_code == 200 and rev.json()["total"] == len(ids)
+    assert {x["draft_id"] for x in rev.json()["items"]} == set(ids)
+    assert client.get("/api/label/queue").json()["revealed"] is True
+    # labels are final once proposals have been shown
+    again = client.post("/api/label/submit", json={"draft_id": ids[0], **body})
+    assert again.status_code == 409
+    assert len(labels.read_text().splitlines()) == len(ids)
+
+
+def test_per_case_queue_has_no_batch_reveal(
+    tmp_path: Path, editions: list[Any], make_resolver: Any
+) -> None:
+    q = make_queue(tmp_path, editions)
+    settings = Settings(
+        var_dir=tmp_path,
+        catalog_db=tmp_path / "x",
+        llm_provider="none",
+        mock_mode="cite_first",
+        label_queue=q,
+        labels_path=tmp_path / "l.jsonl",
+    )
+    client = TestClient(create_app(settings, make_resolver(None)))
+    assert client.get("/api/label/queue").json()["reveal_mode"] == "per_case"
+    assert client.get("/api/label/reveal").status_code == 404
+
+
+def test_drafter_v4_caps_queries_per_family_with_distinct_templates(
+    editions: list[Any],
+) -> None:
+    import re
+    from collections import Counter
+
+    from bera.evalkit.drafts import TEMPLATES, draft_batch_v4, template_effective
+
+    fam = {e.work_id: "fam:one" if i % 2 else "fam:two" for i, e in enumerate(editions)}
+    eligible = set(fam.values())
+    kw: dict[str, Any] = {
+        "split": "dev",
+        "split_seed": 0,
+        "seed": 5,
+        "n": 50,
+        "prefix": "d03",
+        "family_of": fam,
+        "eligible_families": eligible,
+        "exclude_editions": set(),
+        "exclude_queries": set(),
+    }
+    from bera.evalkit.splits import family_split
+
+    dev = {f for f in eligible if family_split(f, 0) == "dev"}
+    out = draft_batch_v4(editions, **kw)
+    assert out == draft_batch_v4(editions, **kw)  # deterministic
+    per = Counter(d.family for d in out)
+    assert set(per) <= dev and all(n <= 3 for n in per.values())
+    for f in per:
+        ts = [d.template for d in out if d.family == f]
+        assert len(ts) == len(set(ts))  # meaningfully different: distinct templates
+    by_id = {e.edition_id: e for e in editions}
+    assert all(template_effective(d.template, by_id[d.source_edition_id], d.op_seed) for d in out)
+    assert all(re.fullmatch(r"d03-[0-9a-f]{10}", d.draft_id) for d in out)
+    assert {t for t, _ in TEMPLATES} >= {d.template for d in out}
+    # the cap counts queries a family already has in earlier batches
+    capped = draft_batch_v4(editions, **kw, existing_per_family=dict.fromkeys(per, 3))
+    assert not capped
+    with pytest.raises(ValueError):
+        draft_batch_v4(editions, **kw, max_per_family=4)

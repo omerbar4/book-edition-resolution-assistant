@@ -59,6 +59,8 @@ class LabelStore:
         self.catalog = catalog
         self._lock = threading.Lock()
         self.proposal_spec = self._proposal_spec(queue)
+        self.reveal_mode = self._reveal_mode(queue)
+        self.revealed_marker = labels.with_name(labels.stem + ".revealed.json")
         sources = catalog.get(
             d.source_edition_id for d in self.drafts.values() if d.source_edition_id
         )
@@ -80,6 +82,69 @@ class LabelStore:
         if m.get("queue_sha256") != digest:
             raise RuntimeError(f"{queue} does not match {manifest} (sha256); refusing to serve")
         return str(m.get("proposal_label_spec") or "unrecorded")
+
+    @staticmethod
+    def _reveal_mode(queue: Path) -> str:
+        """ "per_case" (default; the proposal is shown after each save) or "after_batch"
+        (nothing about any proposal is shown until every case in the queue is labeled)."""
+        manifest = queue.with_suffix(".manifest.json")
+        mode = "per_case"
+        if manifest.exists():
+            mode = str(json.loads(manifest.read_text(encoding="utf-8")).get("reveal", mode))
+        if mode not in ("per_case", "after_batch"):
+            raise RuntimeError(f"unknown reveal mode {mode!r} in {manifest}")
+        return mode
+
+    def remaining(self) -> int:
+        done = self.labeled()
+        return sum(1 for i in self.drafts if i not in done)
+
+    def proposal_view(self, d: Draft, case: EvalCase) -> dict[str, object]:
+        p = d.proposed
+        return {
+            "draft_id": d.draft_id,
+            "your_label": {
+                "expected": case.expected,
+                "gold_edition_ids": case.gold_edition_ids,
+                "ambiguity_reason": case.ambiguity_reason,
+            },
+            "proposed": p.model_dump(),
+            "proposal_label_spec": self.proposal_spec,
+            "agrees_with_proposal": case.expected == p.expected
+            and set(case.gold_edition_ids) == set(p.gold_edition_ids),
+            "template": d.template,
+            "template_note": self.notes.get(d.draft_id),
+        }
+
+    def reveal_batch(self) -> dict[str, object]:
+        """All proposals at once, only when every case is labeled (after_batch mode). The
+        first reveal writes a marker; after it, labels are final and resubmission is refused."""
+        with self._lock:
+            left = self.remaining()
+            if left:
+                raise HTTPException(409, f"{left} case(s) still unlabeled; proposals stay hidden")
+            done = self.labeled()
+            if not self.revealed_marker.exists():
+                self.revealed_marker.write_text(
+                    json.dumps(
+                        {
+                            "revealed_at": datetime.now(UTC).isoformat(timespec="seconds"),
+                            "labels_sha256": hashlib.sha256(
+                                self.labels_path.read_bytes()
+                            ).hexdigest(),
+                            "note": "proposals shown for the whole batch; labels final",
+                        }
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+        items = [self.proposal_view(d, done[i]) for i, d in self.drafts.items()]
+        return {
+            "items": items,
+            "agree": sum(1 for x in items if x["agrees_with_proposal"]),
+            "total": len(items),
+            "note": "agreement with drafted proposals measures the drafter, not accuracy",
+        }
 
     def labeled(self) -> dict[str, EvalCase]:
         out: dict[str, EvalCase] = {}
@@ -119,6 +184,8 @@ class LabelStore:
         d = self.drafts.get(s.draft_id)
         if d is None:
             raise HTTPException(404, "unknown draft")
+        if self.reveal_mode == "after_batch" and self.revealed_marker.exists():
+            raise HTTPException(409, "batch proposals were revealed; labels are final")
         if s.expected == "suggest" and not s.gold_edition_ids:
             raise HTTPException(422, "choose at least one gold edition, or abstain")
         if s.expected == "abstain" and not s.ambiguity_reason:
@@ -148,15 +215,17 @@ class LabelStore:
             self.labels_path.parent.mkdir(parents=True, exist_ok=True)
             with self.labels_path.open("a", encoding="utf-8") as fh:
                 fh.write(case.model_dump_json(exclude_none=True) + "\n")
-        p = d.proposed
-        agree = s.expected == p.expected and set(s.gold_edition_ids) == set(p.gold_edition_ids)
+        if self.reveal_mode == "after_batch":
+            # nothing about the proposal (not even agreement) until the batch is complete
+            return {"saved": True, "reveal": "after_batch", "remaining": self.remaining()}
+        view = self.proposal_view(d, case)
         return {
             "saved": True,
-            "proposed": p.model_dump(),
-            "proposal_label_spec": self.proposal_spec,
-            "agrees_with_proposal": agree,
-            "template": d.template,
-            "template_note": self.notes.get(d.draft_id),
+            "proposed": view["proposed"],
+            "proposal_label_spec": view["proposal_label_spec"],
+            "agrees_with_proposal": view["agrees_with_proposal"],
+            "template": view["template"],
+            "template_note": view["template_note"],
         }
 
 
@@ -194,6 +263,8 @@ def router(store: LabelStore) -> APIRouter:
             "skipped": sum(1 for i in items if i["status"] == "skipped"),
             "total": len(items),
             "proposal_label_spec": store.proposal_spec,
+            "reveal_mode": store.reveal_mode,
+            "revealed": store.revealed_marker.exists(),
         }
 
     @r.get("/search")
@@ -209,6 +280,12 @@ def router(store: LabelStore) -> APIRouter:
     @r.post("/skip")
     def skip(s: Skip) -> dict[str, object]:
         return store.skip(s)
+
+    @r.get("/reveal")
+    def reveal() -> dict[str, object]:
+        if store.reveal_mode != "after_batch":
+            raise HTTPException(404, "this queue reveals per case after each save")
+        return store.reveal_batch()
 
     @r.post("/submit")
     def submit(s: Submission) -> dict[str, object]:
