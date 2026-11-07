@@ -6,7 +6,7 @@ interface QueueItem {
   split: string;
   query: Record<string, string | number>;
   labeled: boolean;
-  status?: "unlabeled" | "labeled" | "practice" | "skipped";
+  status?: "unlabeled" | "labeled" | "practice" | "exposed" | "skipped";
 }
 interface Queue {
   items: QueueItem[];
@@ -14,6 +14,7 @@ interface Queue {
   labeled: number;
   independent?: number;
   practice?: number;
+  exposed?: number;
   skipped?: number;
   total: number;
   proposal_label_spec?: string;
@@ -97,7 +98,9 @@ export function LabelView() {
         // start on the first case still to do (not labeled, practice or skipped)
         const first = q.items.findIndex(
           (i) =>
-            (i.status ?? (i.labeled ? "labeled" : "unlabeled")) === "unlabeled",
+            !i.labeled &&
+            (i.status ?? "unlabeled") !== "skipped" &&
+            i.status !== "practice",
         );
         if (first > 0) setIdx(first);
       })
@@ -250,6 +253,7 @@ export function LabelView() {
       <p className="muted">
         Development queue · {queue.independent ?? queue.labeled} independent
         labels · {queue.practice ?? 0} practice (not counted) ·{" "}
+        {queue.exposed ?? 0} exposed before labeling (not counted) ·{" "}
         {queue.skipped ?? 0} skipped · {queue.total} cases. Held-out cases are
         not served here.
       </p>
@@ -267,6 +271,11 @@ export function LabelView() {
           {item.status ?? (item.labeled ? "labeled" : "unlabeled")}
           {item.status === "practice"
             ? " (AI-assisted practice, not counted)"
+            : ""}
+          {item.status === "exposed"
+            ? item.labeled
+              ? " (labeled; exposed before labeling, not counted)"
+              : " (exposed before labeling: a label here will not count as independent)"
             : ""}
         </span>
         <button

@@ -187,4 +187,32 @@ describe("LabelView", () => {
     fireEvent.click(one);
     expect(save().disabled).toBe(true);
   });
+
+  it("opens on the first unlabeled case even when it is exposed, and says it won't count", async () => {
+    const q = {
+      ...queue,
+      items: [
+        { ...queue.items[0], draft_id: "dev-001", labeled: true, status: "practice" },
+        { ...queue.items[0], draft_id: "dev-002", labeled: false, status: "exposed" },
+      ],
+      total: 2,
+      labeled: 1,
+      independent: 0,
+      practice: 1,
+      exposed: 1,
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/label/queue") return new Response(JSON.stringify(q));
+        throw new Error(url);
+      }),
+    );
+    render(<LabelView />);
+    await screen.findByText(/dev-002 \(2\/2\)/);
+    expect(
+      screen.getByText(/a label here will not count as independent/),
+    ).toBeTruthy();
+    expect(screen.getByText(/1 exposed before labeling \(not counted\)/)).toBeTruthy();
+  });
 });

@@ -8,6 +8,15 @@ entries without editing them. Each record pins the exact label line it refers to
   from evaluation. Because the drafted proposal was revealed when the label was submitted,
   the case is no longer blind; a later label on the same case stays practice.
 
+`<labels>.exposures.jsonl`: one JSON object per line, appended. It records that information
+about a case's answer reached the labeler BEFORE they labeled it (for example an AI assistant
+supplied the answer, or the labeler saw material that correlates the case's generator
+template with the drafted outcome). The case need not be labeled yet. Any label on an
+exposed case, present or future, is not an independent human label: it is excluded from the
+independent count and from evaluation exactly like practice labels. Records name the kind of
+exposure only, never the answer or the drafted outcome, so the record itself leaks nothing.
+No clearing mechanism exists; re-admitting a case needs an explicit owner decision.
+
 `<labels>.skips.jsonl`: "cannot assess yet" markers. A skip is not a label, never reveals
 the proposal, and never counts. A later label supersedes it in the queue display.
 """
@@ -31,6 +40,10 @@ def provenance_path(labels: Path) -> Path:
 
 def skips_path(labels: Path) -> Path:
     return labels.with_name(labels.stem + ".skips.jsonl")
+
+
+def exposures_path(labels: Path) -> Path:
+    return labels.with_name(labels.stem + ".exposures.jsonl")
 
 
 def line_sha256(line: str) -> str:
@@ -92,7 +105,44 @@ def mark_practice(labels: Path, case_id: str, recorded_by: str, reason: str) -> 
     return rec
 
 
+def exposed_case_ids(labels: Path) -> set[str]:
+    return {r["case_id"] for r in _read(exposures_path(labels))}
+
+
+def record_exposure(
+    labels: Path, case_id: str, kind: str, assessment: str, recorded_by: str, detail: str
+) -> dict[str, Any]:
+    """Append an exposure record for `case_id` (labeled or not). Never include the answer."""
+    existing = []
+    if labels.exists():
+        existing = [
+            x
+            for x in labels.read_text(encoding="utf-8").splitlines()
+            if x.strip() and json.loads(x).get("case_id") == case_id
+        ]
+    rec = {
+        "case_id": case_id,
+        "kind": kind,
+        "assessment": assessment,
+        "excluded_from_independent_count": True,
+        "label_existed_when_recorded": bool(existing),
+        "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "recorded_by": recorded_by,
+        "detail": detail,
+    }
+    path = exposures_path(labels)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return rec
+
+
+def not_independent_case_ids(labels: Path) -> set[str]:
+    """Cases whose labels can never count as independent: practice or exposed."""
+    return practice_case_ids(labels) | exposed_case_ids(labels)
+
+
 def independent_human_cases(cases: list[EvalCase], labels: Path) -> list[EvalCase]:
-    """Drop cases whose label is marked practice in the sidecar next to `labels`."""
-    practice = practice_case_ids(labels)
-    return [c for c in cases if c.case_id not in practice]
+    """Drop cases marked practice or exposed in the sidecars next to `labels`."""
+    excluded = not_independent_case_ids(labels)
+    return [c for c in cases if c.case_id not in excluded]

@@ -308,3 +308,47 @@ def test_template_note_and_drafter_v2(editions: list[Any]) -> None:
         if d.template == "isbn10_hyphenated" and not d.query.isbn:
             assert "ISBN step was not applied" in (template_note(d, no13) or "")
     assert all(template_applies(dict(TEMPLATES)[d.template], no13) for d in v2)
+
+
+def test_exposed_case_never_counts_as_independent(
+    tmp_path: Path, editions: list[Any], make_resolver: Any
+) -> None:
+    from bera.evalkit.provenance import exposures_path, independent_human_cases, record_exposure
+
+    q = make_queue(tmp_path, editions)
+    labels = tmp_path / "labels.jsonl"
+    settings = Settings(
+        var_dir=tmp_path,
+        catalog_db=tmp_path / "x",
+        llm_provider="none",
+        mock_mode="cite_first",
+        label_queue=q,
+        labels_path=labels,
+    )
+    client = TestClient(create_app(settings, make_resolver(None)))
+    ids = [i["draft_id"] for i in client.get("/api/label/queue").json()["items"]]
+    # recorded while the case is still unlabeled
+    rec = record_exposure(labels, ids[0], "answer_supplied_by_ai", "exposed", "test", "x")
+    assert rec["label_existed_when_recorded"] is False and exposures_path(labels).exists()
+    assert not labels.exists()  # recording an exposure writes no label
+
+    body = client.get("/api/label/queue").json()
+    status = {i["draft_id"]: i["status"] for i in body["items"]}
+    assert status[ids[0]] == "exposed" and status[ids[1]] == "unlabeled"
+    assert body["exposed"] == 1 and body["independent"] == 0
+    assert "answer_supplied_by_ai" not in json.dumps(body)  # the record's details stay server-side
+
+    for i in ids[:2]:
+        client.post(
+            "/api/label/submit",
+            json={
+                "draft_id": i,
+                "labeler": "ob",
+                "expected": "abstain",
+                "ambiguity_reason": "underspecified",
+            },
+        )
+    body = client.get("/api/label/queue").json()
+    assert body["labeled"] == 2 and body["independent"] == 1 and body["exposed"] == 1
+    kept = independent_human_cases(load_cases(labels), labels)
+    assert [c.case_id for c in kept] == [ids[1]]

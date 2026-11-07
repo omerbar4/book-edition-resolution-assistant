@@ -91,3 +91,30 @@ Optionally, a second labeler on 30 cases to measure agreement.
   disabled until the answer is complete. The old screen had a checkbox reading "Correct
   behavior is human review (abstain)". It was an unticked answer option, not the answer,
   but it read like a statement.
+
+## Exposure before labeling (batch 01, recorded 2026-11-07)
+
+Exposures are recorded in `data/eval/labels/dev_labels.exposures.jsonl`, an append-only
+sidecar. A record can exist before a case is labeled. Any label on an exposed case, whether
+it already exists or is added later, is excluded from the independent count and from
+evaluation, exactly like a practice label. The queue shows such a case as `exposed`. The
+records name the kind of exposure only, never the answer or the drafted outcome. No
+clearing mechanism exists: re-admitting a case needs an explicit owner decision.
+
+| Cases | Exposure | Assessment |
+|---|---|---|
+| 007 | ChatGPT supplied the answer before labeling | exposed |
+| 010, 011, 012, 016, 017, p01, p02, p03 | template ↔ drafted-outcome table; the case's template had one drafted outcome across batch 01 | exposed: the outcome is inferable from the template name |
+| p01, p02, p03 | the draft id suffix `pNN`, shown before saving, marks the draft as a probe (a separate generation type) | exposed (in addition to the row above) |
+| 007, 008, 009, 013, 014, 015 | the same table; the case's template had more than one drafted outcome | unresolved partial exposure, excluded until the owner decides |
+
+Why the table matters for every remaining case: until commit 4dff187, every labeling
+interface showed each case's template name before saving, so the table could be matched to
+any case that was opened. The drafted proposal is a program's draft, not ground truth.
+Knowing it biases a labeler toward agreement, which also contaminates the human-vs-proposal
+agreement figure.
+
+**Result: batch 01 currently has no case that can yield an independent human label**
+(6 practice, 14 exposed). Labeling 007–020 is still useful as development practice, but
+independent labels need a fresh batch drafted after this fix. Its case ids should not mark
+probes; batch 01's queue and draft ids are left unchanged.

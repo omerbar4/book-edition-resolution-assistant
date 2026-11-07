@@ -25,7 +25,7 @@ from bera.catalog import Catalog
 from bera.evalkit.cases import EvalCase
 from bera.evalkit.drafts import Draft, load_drafts, template_note
 from bera.evalkit.label import search_page
-from bera.evalkit.provenance import append_skip, practice_case_ids, skipped
+from bera.evalkit.provenance import append_skip, exposed_case_ids, practice_case_ids, skipped
 
 AMBIGUITY_REASONS = ("underspecified", "out_of_corpus", "contradictory", "not_a_book_edition")
 
@@ -96,9 +96,12 @@ class LabelStore:
         done: dict[str, EvalCase],
         practice: set[str],
         skips: dict[str, dict[str, object]],
+        exposed: frozenset[str] | set[str] = frozenset(),
     ) -> str:
         if draft.draft_id in practice:
             return "practice"
+        if draft.draft_id in exposed:
+            return "exposed"  # labelable, but never an independent label
         if draft.draft_id in done:
             return "labeled"
         if draft.draft_id in skips:
@@ -164,6 +167,7 @@ def router(store: LabelStore) -> APIRouter:
         done = store.labeled()
         practice = practice_case_ids(store.labels_path)
         skips = skipped(store.labels_path)
+        exposed = exposed_case_ids(store.labels_path)
         items = [
             {
                 "draft_id": d.draft_id,
@@ -171,17 +175,21 @@ def router(store: LabelStore) -> APIRouter:
                 "query": d.query.model_dump(exclude_none=True),
                 # no proposal, template or template note before a label is saved
                 "labeled": d.draft_id in done,
-                "status": store.status(d, done, practice, skips),
+                "status": store.status(d, done, practice, skips, exposed),
             }
             for d in store.drafts.values()
         ]
-        independent = [i for i in done if i not in practice and i in store.drafts]
+        independent = [
+            i for i in done if i not in practice and i not in exposed and i in store.drafts
+        ]
         return {
             "items": items,
             "reasons": list(AMBIGUITY_REASONS),
             "labeled": len(done),
             "independent": len(independent),
             "practice": len(practice & set(store.drafts)),
+            # exposed before labeling (practice cases are counted once, as practice)
+            "exposed": len((exposed - practice) & set(store.drafts)),
             "skipped": sum(1 for i in items if i["status"] == "skipped"),
             "total": len(items),
             "proposal_label_spec": store.proposal_spec,
