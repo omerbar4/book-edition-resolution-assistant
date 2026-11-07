@@ -259,6 +259,16 @@ def markdown(report: dict[str, object]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def repo_relative(path: Path) -> str:
+    """Path as written into reports: relative to the repository when inside it, so reports
+    carry no machine-specific absolute paths; otherwise only the file name."""
+    p = Path(path).resolve()
+    try:
+        return p.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return p.name
+
+
 def _require_frozen(tag: str | None) -> None:
     """Held-out runs need HEAD to be exactly a tagged commit with a clean tree."""
     import subprocess
@@ -329,9 +339,9 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         drafts, queue_sha = load_frozen_queue(a.queue)
         cases = resolve_families(cases, drafts, json.loads(a.families.read_text()), catalog)
         family_source = {
-            "queue": str(a.queue),
+            "queue": repo_relative(a.queue),
             "queue_sha256": queue_sha,
-            "families": str(a.families),
+            "families": repo_relative(a.families),
             "rule": "family = draft family; chosen editions must map to it; no fallback",
         }
     provider = None

@@ -411,3 +411,36 @@ def test_template_effective_rejects_noop_ops(editions: list[Any]) -> None:
     assert not template_effective("damaged_barcode_title_author_format", no_isbn, 1)
     one_word = next(e for e in editions if e.isbn_13).model_copy(update={"authors": ("Homer",)})
     assert not template_effective("initials_author", one_word, 1)
+
+
+def test_saved_family_is_the_draft_family_not_a_work_id(
+    tmp_path: Path, editions: list[Any], catalog: Any
+) -> None:
+    from bera.labeling import Submission
+
+    q = make_queue(tmp_path, editions)
+    labels = tmp_path / "labels.jsonl"
+    store = LabelStore(q, labels, catalog, False)
+    d = next(x for x in store.drafts.values() if x.source_edition_id)
+    # a corpus family that differs from the chosen edition's work id (as with real families)
+    d = d.model_copy(update={"family": "fam:corpus-family"})
+    store.drafts[d.draft_id] = d
+    probe = next(x for x in store.drafts.values() if not x.source_edition_id)
+    store.submit(
+        Submission(
+            draft_id=d.draft_id,
+            labeler="ob",
+            expected="suggest",
+            gold_edition_ids=[d.source_edition_id],
+        )
+    )
+    store.submit(
+        Submission(
+            draft_id=probe.draft_id,
+            labeler="ob",
+            expected="abstain",
+            ambiguity_reason="out_of_corpus",
+        )
+    )
+    saved = {c.case_id: c.family for c in load_cases(labels)}
+    assert saved == {d.draft_id: d.family, probe.draft_id: probe.family}

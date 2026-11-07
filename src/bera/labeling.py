@@ -126,10 +126,11 @@ class LabelStore:
         missing = set(s.gold_edition_ids) - set(self.catalog.get(s.gold_edition_ids))
         if missing:
             raise HTTPException(422, f"unknown edition ids: {sorted(missing)}")
+        # The corpus family comes from the frozen draft (families.json at drafting time),
+        # never from the chosen edition's work id. Whether the chosen editions map to that
+        # family is checked at evaluation load time (bera.evalkit.families), which rejects
+        # conflicts instead of silently regrouping; the human's choice is saved as given.
         family = d.family
-        if s.gold_edition_ids:
-            first = self.catalog.get(s.gold_edition_ids[:1])
-            family = next(iter(first.values())).work_id or family
         case = EvalCase(
             case_id=d.draft_id,
             query=d.query,

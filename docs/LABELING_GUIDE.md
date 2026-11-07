@@ -145,3 +145,9 @@ probes; batch 01's queue and draft ids are left unchanged.
   not open the queue or manifest files, and do not consult an AI assistant or other people
   about a case before saving. If that happens, tell the maintainer so the exposure can be
   recorded. A recorded exposure excludes the case from independent counts.
+
+## Save-time family (2026-11-07)
+
+Labels now store the draft's corpus family. Earlier labels (batch 02) stored the chosen
+edition's work id and are left unchanged; evaluation resolves families at load time either
+way.

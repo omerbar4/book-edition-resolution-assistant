@@ -7,7 +7,7 @@
   },
   "confidence_note": "signal = top-1 agreements - 2*conflicts: an UNCALIBRATED ranking signal; buckets and risk-coverage use it, not a probability",
   "family_source": {
-    "families": "/Users/omerbar/Projects/book-edition-resolution-assistant/data/corpus/v3_proposed/families.json",
+    "families": "data/corpus/v3_proposed/families.json",
     "queue": "data/eval/drafts/dev_batch02.jsonl",
     "queue_sha256": "554cc8635d9b99fe969b343ac08133c089023bc4f6fa2c5d638aa462ffff94cf",
     "rule": "family = draft family; chosen editions must map to it; no fallback"

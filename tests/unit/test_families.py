@@ -128,3 +128,16 @@ def test_harness_refuses_human_cases_without_queue(tmp_path: Path, cat: Catalog)
     labels.write_text(label("c1", "abstain", [], "fam:A").model_dump_json() + "\n")
     with pytest.raises(SystemExit, match="--queue"):
         main(["--cases", str(labels), "--db", str(cat.path), "--out", str(tmp_path / "o")])
+
+
+def test_report_paths_are_repo_relative(tmp_path: Path) -> None:
+    from bera.config import REPO_ROOT
+    from bera.evalkit.run import repo_relative
+
+    inside = REPO_ROOT / "data/corpus/v3_proposed/families.json"
+    assert repo_relative(inside) == "data/corpus/v3_proposed/families.json"
+    assert repo_relative(Path("data/eval/drafts/dev_batch02.jsonl")) == (
+        "data/eval/drafts/dev_batch02.jsonl"
+    )
+    outside = tmp_path / "x" / "q.jsonl"
+    assert repo_relative(outside) == "q.jsonl"  # never an absolute machine path
