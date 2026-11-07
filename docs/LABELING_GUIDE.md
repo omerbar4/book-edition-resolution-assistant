@@ -76,6 +76,18 @@ Optionally, a second labeler on 30 cases to measure agreement.
   even if relabeled.
 - **Template notes.** Some batch-01 drafts' generator templates did not apply to their
   source record: 001 and 013 (author unchanged), 003 (no ISBN-13, so no ISBN in the query)
-  and 016 (source has no ISBN). The screen says so on those cases. The query itself is what
-  you label; fields not shown were not given. Drafter v2, used for future batches, only uses
-  templates that can apply.
+  and 016 (source has no ISBN). The query itself is what you label; fields not shown were
+  not given. Drafter v2, used for future batches, only uses templates that can apply.
+
+## Blind-labeling fix (2026-11-07)
+
+- **The template is hidden until you save.** The generator template name and template note
+  are no longer sent or shown before a label is saved. They appear after Save, with the
+  drafted proposal. In batch 01 several templates always produced the same proposed outcome
+  (for example `out_of_corpus_probe`, `title_author_only`, `misread_isbn_digit`), so the
+  name hinted at the answer.
+- **The answer is a required choice with no default.** Pick "One specific edition" (and
+  tick one or more records) or "Human review (abstain)" (and pick a reason). Save stays
+  disabled until the answer is complete. The old screen had a checkbox reading "Correct
+  behavior is human review (abstain)". It was an unticked answer option, not the answer,
+  but it read like a statement.

@@ -5,8 +5,6 @@ interface QueueItem {
   draft_id: string;
   split: string;
   query: Record<string, string | number>;
-  template: string;
-  template_note?: string | null;
   labeled: boolean;
   status?: "unlabeled" | "labeled" | "practice" | "skipped";
 }
@@ -53,7 +51,12 @@ interface Reveal {
   };
   agrees_with_proposal: boolean;
   proposal_label_spec?: string;
+  template?: string;
+  template_note?: string | null;
 }
+
+/** The labeler's answer. "" means not chosen yet; there is no default. */
+type Answer = "" | "suggest" | "abstain";
 
 const LABELER_KEY = "bera.labeler";
 
@@ -74,7 +77,7 @@ export function LabelView() {
   const [skipReason, setSkipReason] = useState("");
   const [skippedMsg, setSkippedMsg] = useState<string | null>(null);
   const [gold, setGold] = useState<string[]>([]);
-  const [abstain, setAbstain] = useState(false);
+  const [answer, setAnswer] = useState<Answer>("");
   const [reason, setReason] = useState("");
   const [labeler, setLabeler] = useState(readLabeler);
   const [notes, setNotes] = useState("");
@@ -104,7 +107,7 @@ export function LabelView() {
   const item = queue?.items[idx];
   useEffect(() => {
     setGold([]);
-    setAbstain(false);
+    setAnswer("");
     setReason("");
     setNotes("");
     setReveal(null);
@@ -121,9 +124,10 @@ export function LabelView() {
   const canSubmit = useMemo(
     () =>
       labeler.trim() !== "" &&
-      (abstain ? reason !== "" : gold.length > 0) &&
+      ((answer === "suggest" && gold.length > 0) ||
+        (answer === "abstain" && reason !== "")) &&
       !reveal,
-    [labeler, abstain, reason, gold, reveal],
+    [labeler, answer, reason, gold, reveal],
   );
 
   async function runSearch(offset = 0) {
@@ -164,7 +168,8 @@ export function LabelView() {
   }
 
   async function submit() {
-    if (!item) return;
+    if (!item || answer === "") return;
+    const abstain = answer === "abstain";
     setError(null);
     try {
       localStorage.setItem(LABELER_KEY, labeler.trim());
@@ -177,7 +182,7 @@ export function LabelView() {
       body: JSON.stringify({
         draft_id: item.draft_id,
         labeler: labeler.trim(),
-        expected: abstain ? "abstain" : "suggest",
+        expected: answer,
         gold_edition_ids: abstain
           ? reason === "underspecified"
             ? gold
@@ -286,12 +291,8 @@ export function LabelView() {
           </tbody>
         </table>
         <p className="muted small">
-          Fields not listed were not given in this query. Generator template:{" "}
-          {item.template}
+          Fields not listed were not given in this query.
         </p>
-        {item.template_note && (
-          <p className="warn small">{item.template_note}</p>
-        )}
       </div>
 
       <div className="query">
@@ -402,17 +403,30 @@ export function LabelView() {
       )}
 
       <div className="query">
-        <label>
-          <span>
+        <fieldset className="wide" aria-label="Your answer">
+          <legend>Your answer (required)</legend>
+          <label>
             <input
-              type="checkbox"
-              checked={abstain}
-              onChange={(e) => setAbstain(e.target.checked)}
+              type="radio"
+              name="answer"
+              value="suggest"
+              checked={answer === "suggest"}
+              onChange={() => setAnswer("suggest")}
             />{" "}
-            Correct behavior is human review (abstain)
-          </span>
-        </label>
-        {abstain && (
+            One specific edition (tick one or more matching records above)
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="answer"
+              value="abstain"
+              checked={answer === "abstain"}
+              onChange={() => setAnswer("abstain")}
+            />{" "}
+            Human review (abstain): choose a reason
+          </label>
+        </fieldset>
+        {answer === "abstain" && (
           <label>
             <span>Reason</span>
             <select value={reason} onChange={(e) => setReason(e.target.value)}>
@@ -489,6 +503,8 @@ export function LabelView() {
           {reveal.agrees_with_proposal
             ? "matches your label"
             : "differs from your label (your label is kept)"}
+          {reveal.template ? ` · Generator template: ${reveal.template}` : ""}
+          {reveal.template_note ? ` · ${reveal.template_note}` : ""}
         </p>
       )}
     </section>

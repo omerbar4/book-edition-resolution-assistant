@@ -1,6 +1,8 @@
 """Local labeling API (enabled with BERA_LABEL_QUEUE=<path to a dev draft file>).
 
-Blind-first protocol: GET endpoints never reveal a draft's proposed label. The proposal is
+Blind-first protocol: GET endpoints never reveal a draft's proposed label, nor its generator
+template or template note (in batch 01 several templates always produced the same proposed
+outcome, so the name hints at the answer). The proposal, template and template note are
 returned only after the human submits their own decision, together with agreement.
 Labels are appended to a labels file (latest submission per draft wins when loaded). The
 queue refuses held-out drafts unless BERA_LABEL_ALLOW_HELDOUT=1, so held-out cases stay
@@ -149,6 +151,8 @@ class LabelStore:
             "proposed": p.model_dump(),
             "proposal_label_spec": self.proposal_spec,
             "agrees_with_proposal": agree,
+            "template": d.template,
+            "template_note": self.notes.get(d.draft_id),
         }
 
 
@@ -165,8 +169,7 @@ def router(store: LabelStore) -> APIRouter:
                 "draft_id": d.draft_id,
                 "split": d.split,
                 "query": d.query.model_dump(exclude_none=True),
-                "template": d.template,
-                "template_note": store.notes.get(d.draft_id),
+                # no proposal, template or template note before a label is saved
                 "labeled": d.draft_id in done,
                 "status": store.status(d, done, practice, skips),
             }

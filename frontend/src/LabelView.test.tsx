@@ -19,7 +19,6 @@ const queue = {
       draft_id: "dev-001",
       split: "dev",
       query: { title: "Dune", physical_format: "paperback" },
-      template: "t",
       labeled: false,
     },
   ],
@@ -72,6 +71,8 @@ describe("LabelView", () => {
               saved: true,
               proposed: { expected: "suggest", gold_edition_ids: ["OL2M"] },
               agrees_with_proposal: false,
+              template: "secret_template_name",
+              template_note: null,
             }),
           );
         }
@@ -86,11 +87,16 @@ describe("LabelView", () => {
     fireEvent.change(screen.getByLabelText("Your labeler id"), {
       target: { value: "ob" },
     });
+    fireEvent.click(screen.getByLabelText(/One specific edition/));
+    expect(container.textContent).not.toContain("secret_template_name");
     fireEvent.click(screen.getByRole("button", { name: "Save label" }));
     await waitFor(() =>
       expect(screen.getByText(/Drafted proposal/)).toBeTruthy(),
     );
     expect(container.textContent).toContain("OL2M");
+    expect(container.textContent).toContain(
+      "Generator template: secret_template_name",
+    );
     expect(submitted[0]).toMatchObject({
       draft_id: "dev-001",
       labeler: "ob",
@@ -133,5 +139,52 @@ describe("LabelView", () => {
       /Nothing was labeled and the proposal stays hidden/,
     );
     expect(container.textContent).not.toContain("Drafted proposal");
+  });
+  it("has no default answer and enables Save only for a complete answer", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/label/queue")
+          return new Response(JSON.stringify(queue));
+        if (url.startsWith("/api/label/search"))
+          return new Response(JSON.stringify(searchPage));
+        throw new Error(url);
+      }),
+    );
+    const { container } = render(<LabelView />);
+    await screen.findByText(/Query as a person typed it/);
+    const one = screen.getByLabelText(/One specific edition/) as HTMLInputElement;
+    const review = screen.getByLabelText(
+      /Human review \(abstain\)/,
+    ) as HTMLInputElement;
+    // nothing is selected by default and nothing reads like a stated answer
+    expect(one.checked).toBe(false);
+    expect(review.checked).toBe(false);
+    expect(container.querySelectorAll("input:checked").length).toBe(0);
+    expect(container.textContent).not.toContain("Correct behavior is");
+    expect(container.textContent).not.toContain("Generator template");
+    const save = () =>
+      screen.getByRole("button", { name: "Save label" }) as HTMLButtonElement;
+    fireEvent.change(screen.getByLabelText("Your labeler id"), {
+      target: { value: "ob" },
+    });
+    expect(save().disabled).toBe(true);
+    // a picked record without choosing an answer is not enough
+    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    fireEvent.click(await screen.findByLabelText("pick OL1M"));
+    expect(save().disabled).toBe(true);
+    fireEvent.click(one);
+    expect(save().disabled).toBe(false);
+    // abstain needs a reason
+    fireEvent.click(review);
+    expect(save().disabled).toBe(true);
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "out_of_corpus" },
+    });
+    expect(save().disabled).toBe(false);
+    // "one edition" with no record ticked is not enough
+    fireEvent.click(screen.getByLabelText("pick OL1M"));
+    fireEvent.click(one);
+    expect(save().disabled).toBe(true);
   });
 });

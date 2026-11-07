@@ -117,6 +117,71 @@ def test_blind_first_flow(tmp_path: Path, editions: list[Any], make_resolver: An
     assert {i["draft_id"]: i["status"] for i in q2["items"]}[second] == "skipped"
 
 
+PRE_SAVE_ITEM_KEYS = {"draft_id", "split", "query", "labeled", "status"}
+LEAK_KEYS = ("proposed", "template", "template_note", "gold_edition_ids", "ambiguity_reason")
+
+
+def test_pre_save_responses_hide_template_proposal_and_gold(
+    tmp_path: Path, editions: list[Any], make_resolver: Any
+) -> None:
+    q = make_queue(tmp_path, editions)
+    labels = tmp_path / "labels.jsonl"
+    settings = Settings(
+        var_dir=tmp_path,
+        catalog_db=tmp_path / "x",
+        llm_provider="none",
+        mock_mode="cite_first",
+        label_queue=q,
+        labels_path=labels,
+    )
+    store_drafts = [json.loads(x) for x in q.read_text().splitlines()]
+    templates = {d["template"] for d in store_drafts}
+    proposed_gold = {g for d in store_drafts for g in d["proposed"]["gold_edition_ids"]}
+    client = TestClient(create_app(settings, make_resolver(None)))
+
+    def assert_blind(text: str) -> None:
+        for key in LEAK_KEYS:
+            assert f'"{key}"' not in text, key
+        for t in templates:
+            assert t not in text, t
+
+    queue = client.get("/api/label/queue")
+    assert_blind(queue.text)
+    items = queue.json()["items"]
+    assert items and all(set(i) == PRE_SAVE_ITEM_KEYS for i in items)
+    # the queue never carries a proposed gold edition id (search results may list any record)
+    assert not proposed_gold & set(json.dumps(items).split('"'))
+
+    first, second = items[0]["draft_id"], items[1]["draft_id"]
+    assert_blind(client.post("/api/label/skip", json={"draft_id": second, "labeler": "ob"}).text)
+    assert_blind(client.get("/api/label/queue").text)
+
+    # rejected submissions save nothing and reveal nothing
+    bad = client.post(
+        "/api/label/submit",
+        json={"draft_id": first, "labeler": "ob", "expected": "abstain"},
+    )
+    assert bad.status_code == 422 and not labels.exists()
+    assert_blind(bad.text)
+
+    ok = client.post(
+        "/api/label/submit",
+        json={
+            "draft_id": first,
+            "labeler": "ob",
+            "expected": "abstain",
+            "ambiguity_reason": "underspecified",
+        },
+    ).json()
+    draft = next(d for d in store_drafts if d["draft_id"] == first)
+    assert ok["saved"]
+    assert ok["proposed"]["expected"] == draft["proposed"]["expected"]
+    assert ok["proposed"]["gold_edition_ids"] == draft["proposed"]["gold_edition_ids"]
+    assert ok["template"] == draft["template"] and "template_note" in ok
+    # after a save the queue is still blind for every case, including the saved one
+    assert_blind(client.get("/api/label/queue").text)
+
+
 def test_label_endpoints_absent_without_queue(make_resolver: Any, tmp_path: Path) -> None:
     settings = Settings(
         var_dir=tmp_path, catalog_db=tmp_path / "x", llm_provider="none", mock_mode="cite_first"
