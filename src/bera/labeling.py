@@ -109,7 +109,8 @@ class LabelStore:
                 "ambiguity_reason": case.ambiguity_reason,
             },
             "proposed": p.model_dump(),
-            "proposal_label_spec": self.proposal_spec,
+            # per-draft spec when recorded (stratified drafts), else the queue manifest's
+            "proposal_label_spec": d.proposal_label_spec or self.proposal_spec,
             "agrees_with_proposal": case.expected == p.expected
             and set(case.gold_edition_ids) == set(p.gold_edition_ids),
             "template": d.template,

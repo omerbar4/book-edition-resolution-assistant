@@ -13,6 +13,12 @@ deterministically AFTER perturbation by a versioned label spec (docs/SYNTHETIC_L
 
 For abstain cases `gold_edition_ids` lists the editions consistent with the query; it is NOT
 an acceptable set (no duplicate-record equivalence is ever inferred from missing fields).
+- v3: as v2, except in the field-fit branch the source edition counts only if it fits the
+  query as written (a deliberately changed year or format is a claim, not noise), the single
+  fitting record is the gold even when it is not the source, and no fitting record means
+  catalog absence (abstain, no gold), never "contradictory". v3 equals v2 whenever the source
+  fits its own query, which holds for every template that does not change a claim.
+
 These are synthetic cases; they never count as human-labeled.
 """
 
@@ -83,7 +89,41 @@ def _lowercase_no_punct(fields: dict[str, object], e: Edition, rng: random.Rando
         fields["title"] = norm_text(str(fields["title"]))
 
 
+def _strip_to_title_author(fields: dict[str, object], e: Edition, rng: random.Random) -> None:
+    """Keep only title and author; the conflict ops then add exactly one changed claim."""
+    for k in [k for k in fields if k not in ("title", "author")]:
+        fields.pop(k)
+
+
+YEAR_SHIFTS = (-5, -4, -3, 3, 4, 5)  # never within the runtime +-2 "near" band
+YEAR_RANGE = (1450, 2026)  # inclusive; a shift outside it is skipped (no-op), never altered
+SWAP_FORMATS = tuple(
+    f.value for f in PhysicalFormat if f not in (PhysicalFormat.OTHER, PhysicalFormat.UNKNOWN)
+)
+
+
+def _year_shift(fields: dict[str, object], e: Edition, rng: random.Random) -> None:
+    """Claim a publication year 3-5 years away from the source's known year."""
+    if e.publish_year is None:
+        return
+    y = e.publish_year + rng.choice(YEAR_SHIFTS)
+    if YEAR_RANGE[0] <= y <= YEAR_RANGE[1]:
+        fields["publish_year"] = y
+
+
+def _format_swap(fields: dict[str, object], e: Edition, rng: random.Random) -> None:
+    """Claim a physical format different from the source's known format, drawn uniformly
+    (seeded) from the other known formats. Never chosen by looking at sibling editions."""
+    if e.physical_format in (PhysicalFormat.OTHER, PhysicalFormat.UNKNOWN):
+        return
+    others = [f for f in SWAP_FORMATS if f != e.physical_format.value]
+    fields["physical_format"] = rng.choice(others).replace("_", " ")
+
+
 OPS: dict[str, Op] = {
+    "strip_to_title_author": _strip_to_title_author,
+    "year_shift": _year_shift,
+    "format_swap": _format_swap,
     "typo": _typo,
     "author_last_first": _author_last_first,
     "author_initials": _author_initials,
@@ -149,7 +189,7 @@ def _fit(fields: dict[str, object], e: Edition) -> str | None:
     return "unknown" if unknown else "exact"
 
 
-LABEL_SPECS = ("v1", "v2")
+LABEL_SPECS = ("v1", "v2", "v3")
 DEFAULT_LABEL_SPEC = "v2"
 
 
@@ -165,7 +205,7 @@ def label(
         raise ValueError(f"unknown label spec {spec!r}")
     evidence: dict[str, object] = {"spec": spec}
     q = isbnlib.parse(str(judged["isbn"])) if judged.get("isbn") else None
-    if spec == "v2" and q is not None and q.valid and q.isbn13:
+    if spec in ("v2", "v3") and q is not None and q.valid and q.isbn13:
         holders = sorted(x.edition_id for x in catalog if q.isbn13 in isbn13s(x))
         rest = {k: v for k, v in judged.items() if k != "isbn"}
         by_id = {x.edition_id: x for x in catalog}
@@ -197,13 +237,29 @@ def label(
             return "abstain", holders, "ISBN holder conflicts with supplied metadata", evidence
         evidence["rule"] = "ISBN not in catalog; judged on the other fields"
     kinds = {x.edition_id: k for x in catalog if (k := _fit(judged, x)) is not None}
-    kinds.setdefault(source.edition_id, "exact")
+    if spec in ("v1", "v2"):
+        kinds.setdefault(source.edition_id, "exact")
     fits = sorted(kinds)
     via_unknown = sum(1 for k in kinds.values() if k == "unknown")
     evidence.setdefault("rule", "field fit; unknown is compatible, never distinguishing")
     evidence["fitting"] = fits
     evidence["fitting_only_via_unknown"] = sorted(i for i, k in kinds.items() if k == "unknown")
-    if len(fits) == 1:
+    if spec == "v3":
+        # v3: the source counts only if it fits the query AS WRITTEN (a deliberately changed
+        # year/format is a claim, not noise), and the one fitting record is the gold even
+        # when it is not the source. No fitting record is catalog absence, not contradiction.
+        if not fits:
+            evidence["rule"] = "no catalog record fits the supplied fields"
+            return (
+                "abstain",
+                [],
+                "catalog absence: no catalog record fits the supplied fields "
+                "(not evidence that the supplied fields contradict each other)",
+                evidence,
+            )
+        if len(fits) == 1:
+            return "suggest", fits, None, evidence
+    elif len(fits) == 1:
         return "suggest", [source.edition_id], None, evidence
     reason = f"underspecified: {len(fits)} editions fit" + (
         f" ({via_unknown} only because a field is unknown on them)" if via_unknown else ""

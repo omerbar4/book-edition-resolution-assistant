@@ -82,3 +82,21 @@ change: dev-b01-009 (Jane Eyre, ISBN 0-3939-4427-1) goes from abstain to suggest
 OL46077521M. The queue file was left unchanged while the owner labels. Proposals are shown
 only after a blind label is entered, and human labels are unaffected. Record:
 `data/eval/label_changes/dev_batch01_proposals_v1_to_v2.json`.
+
+## v3 (2026-11-07; used for the claim-changing templates)
+
+v3 is v2 with two changes in the field-fit branch. They matter only when a template changes
+a claim (`year_shift`, `format_swap`).
+
+1. **The source edition counts only if it fits the query as written.** A deliberately changed
+   year or format is a claim to judge, not noise to undo, so the source is never assumed to
+   be the answer. The single fitting record is the gold, even when it is not the source.
+2. **No fitting record is catalog absence.** It gives `abstain` with no gold, and the reason
+   "catalog absence: no catalog record fits the supplied fields". It is never labeled
+   contradictory by default. "Conflicting supplied evidence" is a different situation, for
+   example a unique ISBN whose record conflicts with a supplied field (v2 rule 4, unchanged).
+
+Records that fit only because a field is unknown still make the case underspecified. **v3
+equals v2 whenever the source fits its own query,** which holds for every template that
+changes no claim. This was verified on all 340 existing cases: batch 02, batch 03 and the 300
+dev-check cases.

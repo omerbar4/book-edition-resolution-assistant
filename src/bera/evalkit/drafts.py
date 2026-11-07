@@ -53,8 +53,19 @@ def template_applies(ops: Sequence[str], e: Edition) -> bool:
     return True
 
 
+# Claim-changing templates (format/year conflicts). Kept OUT of TEMPLATES so the v1-v4
+# rotations, and therefore batches 01-03, reproduce exactly. Proposals for these use label
+# spec v3 (a changed claim is judged as written; no fitting record = catalog absence).
+CONFLICT_TEMPLATES: list[tuple[str, list[str]]] = [
+    ("year_shift", ["strip_to_title_author", "year_shift"]),
+    ("format_swap", ["strip_to_title_author", "format_swap"]),
+]
+ALL_TEMPLATES: dict[str, list[str]] = dict(TEMPLATES) | dict(CONFLICT_TEMPLATES)
+
 # Fields a template's name promises the query still carries (v3 checks them).
 TEMPLATE_KEEPS: dict[str, tuple[str, ...]] = {
+    "year_shift": ("title", "author", "publish_year"),
+    "format_swap": ("title", "author", "physical_format"),
     "damaged_barcode_title_author_format": ("title", "author", "physical_format"),
     "typo_title_with_format_year": ("title", "physical_format", "publish_year"),
     "isbn10_hyphenated": ("isbn", "title"),
@@ -69,7 +80,7 @@ def template_effective(name: str, e: Edition, seed: int) -> bool:
     EVERY op must change the query, and the fields the template name promises must remain."""
     import random as _random
 
-    ops = dict(TEMPLATES)[name]
+    ops = ALL_TEMPLATES[name]
     rng = _random.Random(seed)  # noqa: S311 - same stream as perturbed_fields
     fields = clean_fields(e)
     for op in ops:
@@ -303,6 +314,8 @@ class Draft(BaseModel):
     drafted_by: str = DRAFTER
     source_edition_id: str | None = None
     op_seed: int | None = None  # v3: replay with perturbed_fields(source, ops, op_seed)
+    stratum: str | None = None  # stratified drafts: the predefined stratum (never sent pre-save)
+    proposal_label_spec: str | None = None  # per-draft spec; None = the queue manifest's
     proposed: Proposed
 
 
