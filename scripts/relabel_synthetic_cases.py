@@ -40,9 +40,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--changes", type=Path, required=True)
     a = ap.parse_args()
-    cases = [
-        EvalCase.model_validate_json(x) for x in a.cases.read_text().splitlines() if x.strip()
-    ]
+    cases = [EvalCase.model_validate_json(x) for x in a.cases.read_text().splitlines() if x.strip()]
     if any(c.split != "dev" for c in cases):
         raise SystemExit("refusing: only development cases may be relabeled here")
     cat = Catalog(a.db)
