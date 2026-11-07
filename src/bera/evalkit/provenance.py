@@ -17,6 +17,10 @@ independent count and from evaluation exactly like practice labels. Records name
 exposure only, never the answer or the drafted outcome, so the record itself leaks nothing.
 No clearing mechanism exists; re-admitting a case needs an explicit owner decision.
 
+`<labels>.review_flags.jsonl`: open questions about an existing label for the owner to rule
+on (for example a human-vs-rule disagreement). A flag never edits the label and never changes
+any count; the label stays exactly as saved until the owner decides.
+
 `<labels>.skips.jsonl`: "cannot assess yet" markers. A skip is not a label, never reveals
 the proposal, and never counts. A later label supersedes it in the queue display.
 """
@@ -101,6 +105,34 @@ def mark_practice(labels: Path, case_id: str, recorded_by: str, reason: str) -> 
     }
     path = provenance_path(labels)
     with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return rec
+
+
+def review_flags_path(labels: Path) -> Path:
+    return labels.with_name(labels.stem + ".review_flags.jsonl")
+
+
+def flag_for_review(
+    labels: Path, case_id: str, issue: str, recorded_by: str, detail: str
+) -> dict[str, Any]:
+    """Append an owner-review flag pinned to the latest label line for `case_id`."""
+    lines = [x for x in labels.read_text(encoding="utf-8").splitlines() if x.strip()]
+    mine = [x for x in lines if json.loads(x).get("case_id") == case_id]
+    if not mine:
+        raise ValueError(f"no label entry for {case_id}")
+    rec = {
+        "case_id": case_id,
+        "status": "open_owner_review",
+        "issue": issue,
+        "applies_to_label_sha256": line_sha256(mine[-1]),
+        "label_unchanged": True,
+        "affects_counts": False,
+        "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "recorded_by": recorded_by,
+        "detail": detail,
+    }
+    with review_flags_path(labels).open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return rec
 

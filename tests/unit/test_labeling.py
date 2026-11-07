@@ -444,3 +444,22 @@ def test_saved_family_is_the_draft_family_not_a_work_id(
     )
     saved = {c.case_id: c.family for c in load_cases(labels)}
     assert saved == {d.draft_id: d.family, probe.draft_id: probe.family}
+
+
+def test_review_flag_never_edits_label_or_counts(
+    tmp_path: Path, editions: list[Any], catalog: Any
+) -> None:
+    from bera.evalkit.provenance import flag_for_review, independent_human_cases
+    from bera.labeling import Submission
+
+    q = make_queue(tmp_path, editions)
+    labels = tmp_path / "labels.jsonl"
+    store = LabelStore(q, labels, catalog, False)
+    i = next(iter(store.drafts))
+    store.submit(
+        Submission(draft_id=i, labeler="ob", expected="abstain", ambiguity_reason="underspecified")
+    )
+    before = labels.read_text()
+    rec = flag_for_review(labels, i, "human_vs_rule", "test", "x")
+    assert labels.read_text() == before and rec["label_unchanged"] and not rec["affects_counts"]
+    assert len(independent_human_cases(load_cases(labels), labels)) == 1
