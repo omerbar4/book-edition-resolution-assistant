@@ -169,3 +169,23 @@ How to read this:
   of 59 were within the consistent set on expected-abstain cases. **Final suggestions among
   invoked cases: 0 of 145.** Method 6's decisions are identical to method 5's, so it cannot
   raise coverage until the validated LLM suggestion path exists.
+
+## Development run on human labels: batch 02 (2026-11-07)
+
+**Development data, 20 human labels from one labeler; not held-out performance; not
+calibrated.** Report: `data/eval/results/dev_batch02_human_policy_v1/` (`report.json` from the
+harness, plus `error_analysis.md`/`.json` from `scripts/analyze_dev_batch02.py`). Policy,
+thresholds, prompts and models were unchanged. Families were resolved from the frozen queue
+and `families.json` (`bera.evalkit.families`).
+
+- All seven configurations gave the same outcome and suggestion on every case. Correct
+  suggestions 7/20; wrong matches 0/20 (case-level Wilson upper bound 0.161); top-1 18/18 on
+  the human-answerable cases; 2/2 human abstentions routed to review.
+- Coverage was limited by the policy, not retrieval. The 11 reviews on human-answerable cases
+  were caused by: initials vs full author name (5), checksum-invalid ISBN repair (4), catalog
+  encoding damage tripping the unicode guard (1), and an unknown-format twin (1, which is
+  rule-consistent).
+- The LLM was invoked 2/20 times, used 1,568 tokens and cost $0 (local). It is advisory and
+  cannot raise final coverage yet.
+- Results are reported for the 8 families also used in the synthetic policy-development
+  check and for the other 12. Both groups are too small to compare.
