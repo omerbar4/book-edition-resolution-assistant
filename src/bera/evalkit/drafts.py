@@ -17,12 +17,16 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from bera.evalkit.perturb import make_case
+from bera.evalkit.perturb import OPS, clean_fields, make_case
 from bera.evalkit.splits import family_split
 from bera.models import Edition, Query
 
 DRAFTER = "template-drafter-v1 (deterministic program; not a human, not an LLM)"
 DRAFTER_V2 = "template-drafter-v2 (deterministic program; skips templates that cannot apply)"
+DRAFTER_V3 = (
+    "template-drafter-v3 (deterministic program; every op verified to change the query; "
+    "one case per family; opaque ids)"
+)
 
 # Realistic-input templates: (name, perturbation ops)
 TEMPLATES: list[tuple[str, list[str]]] = [
@@ -47,6 +51,118 @@ def template_applies(ops: Sequence[str], e: Edition) -> bool:
         ):
             return False
     return True
+
+
+# Fields a template's name promises the query still carries (v3 checks them).
+TEMPLATE_KEEPS: dict[str, tuple[str, ...]] = {
+    "damaged_barcode_title_author_format": ("title", "author", "physical_format"),
+    "typo_title_with_format_year": ("title", "physical_format", "publish_year"),
+    "isbn10_hyphenated": ("isbn", "title"),
+    "misread_isbn_digit": ("isbn",),
+    "title_author_only": ("title", "author"),
+    "initials_author": ("title", "author"),
+}
+
+
+def template_effective(name: str, e: Edition, seed: int) -> bool:
+    """v3 applicability: replaying the template's ops exactly as `perturbed_fields` does,
+    EVERY op must change the query, and the fields the template name promises must remain."""
+    import random as _random
+
+    ops = dict(TEMPLATES)[name]
+    rng = _random.Random(seed)  # noqa: S311 - same stream as perturbed_fields
+    fields = clean_fields(e)
+    for op in ops:
+        before = dict(fields)
+        OPS[op](fields, e, rng)
+        if fields == before:
+            return False
+    return all(k in fields for k in TEMPLATE_KEEPS[name])
+
+
+def query_key(q: Query | Mapping[str, Any]) -> str:
+    d = q.model_dump(exclude_none=True) if isinstance(q, Query) else dict(q)
+    return json.dumps(d, sort_keys=True, ensure_ascii=False)
+
+
+def draft_batch_v3(
+    catalog: Sequence[Edition],
+    *,
+    split: Literal["dev", "heldout"],
+    split_seed: int,
+    seed: int,
+    n: int,
+    prefix: str,
+    family_of: Mapping[str, str],
+    exclude_families: set[str],
+    exclude_editions: set[str],
+    exclude_queries: set[str],
+) -> list[Draft]:
+    """Independent-labeling batch: at most one case per family, no excluded family/edition,
+    no previously seen query, every template verified effective, and opaque random ids in
+    random order, so neither the id nor the position hints at the template or answer.
+    Proposals use the current synthetic label spec (DEFAULT_LABEL_SPEC). No probes."""
+
+    def fam(e: Edition) -> str:
+        wid = e.work_id or e.edition_id
+        return family_of.get(wid, wid)
+
+    rng = random.Random(seed)  # noqa: S311 - reproducible drafting, not security
+    by_family: dict[str, list[Edition]] = {}
+    for e in sorted(catalog, key=lambda e: e.edition_id):
+        f = fam(e)
+        if (
+            e.work_id
+            and family_split(f, split_seed) == split
+            and f not in exclude_families
+            and e.edition_id not in exclude_editions
+        ):
+            by_family.setdefault(f, []).append(e)
+    families = sorted(by_family)
+    rng.shuffle(families)
+    names = [t[0] for t in TEMPLATES]
+    out: list[Draft] = []
+    used_ids: set[str] = set()
+    k = 0
+    for f in families:
+        if len(out) >= n:
+            break
+        e = rng.choice(by_family[f])
+        op_seed = rng.randrange(2**31)
+        chosen = None
+        for j in range(len(names)):  # round-robin, first template that truly applies
+            name = names[(k + j) % len(names)]
+            if template_effective(name, e, op_seed):
+                chosen = name
+                break
+        if chosen is None:
+            continue
+        case = make_case(e, dict(TEMPLATES)[chosen], op_seed, catalog, f, "tmp")
+        if query_key(case.query) in exclude_queries:
+            continue
+        k += 1
+        token = f"{rng.getrandbits(40):010x}"
+        while token in used_ids:
+            token = f"{rng.getrandbits(40):010x}"
+        used_ids.add(token)
+        out.append(
+            Draft(
+                draft_id=f"{prefix}-{token}",
+                split=split,
+                family=f,
+                query=case.query,
+                template=chosen,
+                drafted_by=DRAFTER_V3,
+                source_edition_id=e.edition_id,
+                op_seed=op_seed,
+                proposed=Proposed(
+                    expected=case.expected,
+                    gold_edition_ids=case.gold_edition_ids,
+                    ambiguity_reason=case.ambiguity_reason,
+                ),
+            )
+        )
+    return sorted(out, key=lambda d: d.draft_id)  # random order: ids are random
 
 
 def template_note(d: Draft, source: Edition | None) -> str | None:
@@ -83,6 +199,7 @@ class Draft(BaseModel):
     template: str
     drafted_by: str = DRAFTER
     source_edition_id: str | None = None
+    op_seed: int | None = None  # v3: replay with perturbed_fields(source, ops, op_seed)
     proposed: Proposed
 
 

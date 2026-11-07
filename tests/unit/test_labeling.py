@@ -352,3 +352,62 @@ def test_exposed_case_never_counts_as_independent(
     assert body["labeled"] == 2 and body["independent"] == 1 and body["exposed"] == 1
     kept = independent_human_cases(load_cases(labels), labels)
     assert [c.case_id for c in kept] == [ids[1]]
+
+
+def test_drafter_v3_opaque_ids_exclusions_and_effective_templates(editions: list[Any]) -> None:
+    import re
+
+    from bera.evalkit.drafts import TEMPLATES, draft_batch_v3, query_key, template_effective
+    from bera.evalkit.perturb import perturbed_fields
+
+    fam = {e.work_id: f"fam:{e.work_id}" for e in editions if e.work_id}
+
+    def run(**kw: Any) -> list[Any]:
+        args: dict[str, Any] = {
+            "split": "dev",
+            "split_seed": 0,
+            "seed": 3,
+            "n": 50,
+            "prefix": "d02",
+            "family_of": fam,
+            "exclude_families": set(),
+            "exclude_editions": set(),
+            "exclude_queries": set(),
+        }
+        return draft_batch_v3(editions, **(args | kw))
+
+    base = run()
+    assert base and base == run()  # deterministic
+    by_id = {e.edition_id: e for e in editions}
+    assert len({d.family for d in base}) == len(base)  # one case per family
+    for d in base:
+        assert re.fullmatch(r"d02-[0-9a-f]{10}", d.draft_id)
+        assert d.template not in d.draft_id
+        src = by_id[d.source_edition_id]
+        assert template_effective(d.template, src, d.op_seed)
+        ops = dict(TEMPLATES)[d.template]
+        assert perturbed_fields(src, ops, d.op_seed) == d.query.model_dump(exclude_none=True)
+    assert [d.draft_id for d in base] == sorted(d.draft_id for d in base)
+
+    first = base[0]
+    excluded = run(
+        exclude_families={first.family},
+        exclude_editions={base[1].source_edition_id},
+        exclude_queries={query_key(base[-1].query)},
+    )
+    assert first.family not in {d.family for d in excluded}
+    assert base[1].source_edition_id not in {d.source_edition_id for d in excluded}
+    assert query_key(base[-1].query) not in {query_key(d.query) for d in excluded}
+
+
+def test_template_effective_rejects_noop_ops(editions: list[Any]) -> None:
+    from bera.evalkit.drafts import template_effective
+
+    no_isbn = next(e for e in editions if e.isbn_13).model_copy(
+        update={"isbn_13": (), "isbn_10": ()}
+    )
+    assert not template_effective("misread_isbn_digit", no_isbn, 1)
+    assert not template_effective("isbn10_hyphenated", no_isbn, 1)
+    assert not template_effective("damaged_barcode_title_author_format", no_isbn, 1)
+    one_word = next(e for e in editions if e.isbn_13).model_copy(update={"authors": ("Homer",)})
+    assert not template_effective("initials_author", one_word, 1)

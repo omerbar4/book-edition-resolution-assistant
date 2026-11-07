@@ -1,0 +1,38 @@
+{
+ "queue": "data/eval/drafts/dev_batch02.jsonl",
+ "queue_sha256": "554cc8635d9b99fe969b343ac08133c089023bc4f6fa2c5d638aa462ffff94cf",
+ "split": "dev",
+ "drafts": 20,
+ "drafted_by": "template-drafter-v3 (deterministic program; every op verified to change the query; one case per family; opaque ids)",
+ "generator": "scripts/make_label_batch02.py",
+ "seed": 20261107,
+ "split_seed": 20261103,
+ "corpus_sha256": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+ "proposal_label_spec": "v2",
+ "purpose": "independent human labeling (batch 01 is practice/exposed and kept separately)",
+ "labels_file": "data/eval/labels/dev_batch02_labels.jsonl",
+ "exclusions": {
+  "batch01_families": 16,
+  "discussed_cases": 24,
+  "discussed_families": 13,
+  "excluded_families_total": 24,
+  "seen_queries": 313
+ },
+ "probes": "none: 0 unused verified-absent development probes (all were used in batch 01)",
+ "validation": {
+  "count == n": true,
+  "all dev split by family": true,
+  "one case per family": true,
+  "no batch 01 family": true,
+  "no discussed family": true,
+  "no excluded source edition": true,
+  "no previously seen query": true,
+  "queries distinct": true,
+  "every template effective (each op changes the query; promised fields kept)": true,
+  "query reproduces from source+ops": true,
+  "opaque ids (d02- + 10 hex, unique)": true,
+  "no probe drafts": true,
+  "corpus sha256 unchanged": true
+ },
+ "note": "Ids are opaque and the order is random. Templates, template notes, proposals and system scores are never sent before a label is saved. The proposal is a program draft, not ground truth. Composition by template or proposed outcome is deliberately not summarized here."
+}

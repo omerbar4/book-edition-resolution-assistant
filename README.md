@@ -49,9 +49,11 @@ docker compose up --build    # binds 127.0.0.1:8000, non-root, read-only filesys
 Labeling (development queue only; held-out drafts are refused):
 
 ```bash
-BERA_CATALOG_DB=var/catalog_v3.sqlite BERA_LABEL_QUEUE=data/eval/drafts/dev_batch01.jsonl \
+BERA_CATALOG_DB=var/catalog_v3.sqlite BERA_LABEL_QUEUE=data/eval/drafts/dev_batch02.jsonl \
+  BERA_LABELS=data/eval/labels/dev_batch02_labels.jsonl \
   .tools/venv/bin/uv run python -m bera.cli serve --host 127.0.0.1 --port 8000
-# then open http://127.0.0.1:8000 and use the Labeling tab
+# then open http://127.0.0.1:8000 and use the "Label dev cases" tab.
+# Batch 02 is the independent batch; batch 01 (dev_batch01.jsonl + dev_labels.jsonl) is practice.
 ```
 
 ## Evaluation
