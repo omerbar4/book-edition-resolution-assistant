@@ -16,7 +16,7 @@ changed since then. Where the two disagree, this page is current.
 | E1 | verified on dev | **verified on held-out**: 7 configurations, 40 queries; identical final decisions | `data/eval/results/heldout40_frozen_r2/` |
 | E3 | pending (freeze) | **verified**: tag `bera-eval-freeze-2026-11-07-r2`; one scored held-out run; one documented deviation; nothing tuned on held-out | report §1, [RUN_PROCEDURE_DEVIATION.md](../data/eval/heldout/RUN_PROCEDURE_DEVIATION.md) |
 | C1 | deferred | **still deferred**: 15 held-out answerable cases add no fitting data (held-out is never used for fitting) | |
-| S8 | implemented, never executed | still never executed (no remote). The core-only install it uses now passes in a clean clone (fix merged `91adf72`) | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
+| S8 | implemented, never executed | **verified**: GitHub Actions passing on `main` (first run 42535389309 on `67f313f`: backend 232 passed / 3 skipped, frontend 11/11) | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
 | S9 | verified 2026-11-03 | **re-verified 2026-11-08**: no-cache build from a clean clone, compose healthy, uid 10001, read-only root filesystem, demo 6/6 | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
 | O2 | implemented | updated through the held-out phase | [AI_ASSISTANCE.md](AI_ASSISTANCE.md) |
 

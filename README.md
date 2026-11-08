@@ -1,5 +1,7 @@
 # Book Edition Resolution Assistant (BERA)
 
+[![ci](https://github.com/omerbar4/book-edition-resolution-assistant/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/omerbar4/book-edition-resolution-assistant/actions/workflows/ci.yml)
+
 Given an ISBN or an incomplete book description, BERA suggests the most likely Open Library
 **edition** or routes the case to **human review**. It is decision support only: it never
 creates listings, changes prices, calls external services or makes irreversible decisions.
@@ -14,6 +16,10 @@ creates listings, changes prices, calls external services or makes irreversible 
 > test timeout, docs and a demo). It no longer matches the evaluated snapshot, tag
 > `bera-eval-freeze-2026-11-07-r2`, and `freeze_manifest.py verify` fails on `main` by design.
 > The held-out numbers below describe the tagged snapshot.
+>
+> **Release `v0.1.0`** is cut from `main`. Its held-out measurements belong to
+> `bera-eval-freeze-2026-11-07-r2`; the code in `v0.1.0` adds the documented post-evaluation
+> fixes, which were **not** re-evaluated on held-out data.
 
 ## Held-out result (40 queries, 39 families, one labeler)
 
@@ -88,7 +94,9 @@ npm --prefix frontend ci && npm --prefix frontend run build
 - **What has been verified (2026-11-08, macOS arm64):**
   - a **fresh online install** from empty uv/pip/npm caches, core and `--group ml`;
   - an offline clean clone;
-  - the Docker build and compose run.
+  - the Docker build and compose run;
+  - core checks on GitHub Actions (ubuntu-24.04): 232 passed, 3 skipped (ML smoke tests), and
+    frontend 11/11.
 
   See [docs/SETUP_VERIFICATION.md](docs/SETUP_VERIFICATION.md).
 

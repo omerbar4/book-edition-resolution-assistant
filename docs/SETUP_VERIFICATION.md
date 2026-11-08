@@ -5,6 +5,7 @@
 | path | status |
 |---|---|
 | offline clean clone of `main`, core only (existing local caches) | **verified** at `9eca484`, with one deviation (uv binary) |
+| GitHub Actions CI (ubuntu-24.04, core only) | **passing** on `main` |
 | fresh online install (empty uv/pip/npm caches, this machine) | **verified** at `bbc7423`: core and `--group ml` |
 | Docker build / compose | **verified** at `bbc7423`: pinned base images pulled, no layer cache |
 | real catalog (`var/catalog_v3.sqlite`) | **rebuilt from committed data**, byte-identical to the pinned hash; no dump needed |
@@ -40,8 +41,10 @@
   imports.
 - In the main checkout, with the ml group and local weights, `pytest` gives 235 passed.
 
-**CI:** `.github/workflows/ci.yml` runs this core-only path. It has never run, because there
-is no remote.
+**CI:** `.github/workflows/ci.yml` (ubuntu-24.04, actions pinned to commit SHAs) runs this
+core-only path. The first run, on `67f313f` (run 42535389309), passed:
+- backend: 33 packages, ruff format/check, mypy, 232 passed / 3 skipped;
+- frontend: `npm ci`, typecheck, 11/11 tests, build.
 
 ## Fresh online installation (verified 2026-11-08, `bbc7423`)
 
