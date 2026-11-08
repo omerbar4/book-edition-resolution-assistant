@@ -1,6 +1,6 @@
 """Descriptive analysis of the single held-out run (data/eval/results/heldout40_frozen_r2).
 
-    uv run python scripts/analyze_heldout_eval.py
+    uv run python data/eval/heldout/analyze_heldout_eval.py
 
 Reads ONLY the committed harness report, the held-out labels and the frozen queue. It re-runs
 nothing and changes no label, policy, threshold, prompt, model or gate. Every rate carries
@@ -21,7 +21,7 @@ from bera.evalkit.cases import load_cases
 from bera.evalkit.devanalysis import metrics, ratio
 from bera.evalkit.families import load_frozen_queue
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 RUN = ROOT / "data/eval/results/heldout40_frozen_r2"
 LABELS = ROOT / "data/eval/heldout/heldout_labels.jsonl"
 QUEUE = ROOT / "data/eval/heldout/heldout_queue.jsonl"

@@ -13,7 +13,7 @@ Sources:
   [report.md](../data/eval/results/heldout40_frozen_r2/report.md) and the run log
   [run.log](../data/eval/results/heldout40_frozen_r2/run.log).
 - Descriptive analysis: [analysis.json](../data/eval/results/heldout40_frozen_r2/analysis.json),
-  built by `scripts/analyze_heldout_eval.py`. It reads only the committed report, labels and
+  built by `data/eval/heldout/analyze_heldout_eval.py`. It reads only the committed report, labels and
   queue, and re-runs nothing.
 
 ## 1. Integrity of the run
