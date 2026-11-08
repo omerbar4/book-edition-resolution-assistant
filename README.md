@@ -9,6 +9,11 @@ creates listings, changes prices, calls external services or makes irreversible 
 > **uncalibrated**, and the local LLM is **advisory only** (both of its suggestion gates are
 > closed). See [docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md) and
 > [docs/STATUS.md](docs/STATUS.md).
+>
+> **`main` contains post-evaluation changes** (a dependency fix, the health-status text, a
+> test timeout, docs and a demo). It no longer matches the evaluated snapshot, tag
+> `bera-eval-freeze-2026-11-07-r2`, and `freeze_manifest.py verify` fails on `main` by design.
+> The held-out numbers below describe the tagged snapshot.
 
 ## Held-out result (40 queries, 39 families, one labeler)
 
@@ -68,16 +73,15 @@ provenance, exposures, skips, review flags and amendments; label lines are never
 
 ```bash
 python3.12 -m venv .tools/venv && .tools/venv/bin/pip install uv==0.13.7
-.tools/venv/bin/uv sync --locked --group ml      # see the note on test dependencies
+.tools/venv/bin/uv sync --locked                 # core; add --group ml for embeddings/reranker
 .tools/venv/bin/uv run python -m bera.cli build-catalog   # 30 synthetic fixture editions
 npm --prefix frontend ci && npm --prefix frontend run build
 .tools/venv/bin/uv run python -m bera.cli serve  # http://127.0.0.1:8000
 ```
 
-- **Test dependencies:** a core-only `uv sync --locked` runs the app, but on `main` 9
-  ingestion tests and `mypy` also need numpy and the ml-group stubs. The fix, which makes
-  numpy a core dependency, is on the local branch `post-eval/core-install-deps`, kept
-  separate because the freeze pins `pyproject.toml`/`uv.lock`.
+- **Core vs ML:** a core-only `uv sync --locked` (no torch) runs the app and the full check
+  suite; the 3 ML smoke tests skip without weights. `--group ml` adds the embedding and
+  reranker stack.
 - **Checks:** `uv run ruff format --check . && uv run ruff check . && uv run mypy &&
   uv run pytest`. Frontend: `npm --prefix frontend run typecheck` and
   `VITE_API_BASE_URL=http://127.0.0.1:9 npm --prefix frontend test`.
@@ -129,7 +133,8 @@ ambiguity, duplicate ISBN, bad checksum, out of corpus). For the UI walkthrough,
   A first attempt failed at load with 0 cases scored, and that record is kept. The results
   are committed, and the frozen-system guard now refuses any further held-out run.
 - **Re-checking from committed files:**
-  - `uv run python scripts/freeze_manifest.py verify` (pins and closed gates);
+  - `uv run python scripts/freeze_manifest.py verify`: pins and closed gates. It passes on a
+    checkout of the r2 tag with the local artifacts in place; it fails on `main` by design;
   - `uv run python data/eval/heldout/build_family_supplement.py --check`;
   - `uv run python data/eval/heldout/analyze_heldout_eval.py && git diff --exit-code`.
 - **Labeling server:** `BERA_CATALOG_DB=… BERA_LABEL_QUEUE=<queue> BERA_LABELS=<labels>

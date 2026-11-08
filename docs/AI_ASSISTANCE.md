@@ -15,6 +15,7 @@ what was AI-assisted so that readers can judge the work honestly.
 | 2026-11-07 | Ruling on dev case `d02-6463d76f7e` ("Darkwoods") | presented the query and the uncontradicted catalog records, without scores or recommendations | owner amended the label to review (underspecified); the original line is preserved; this final label is counted as human reviewed but **not strictly independent** |
 | 2026-11-08 | Held-out labeling (40 cases) | served the blind queue (reveal never); never showed proposals or answers | owner labeled all 40 and self-reports no AI assistance (`heldout_labels.provenance.jsonl`) |
 | 2026-11-08 | Held-out run, family supplement and deviation note, analysis, evaluation report, README/status/demo/setup docs, frontend test-timeout fix, core-install fix branch | ran the frozen harness once (after a load failure with 0 cases scored), wrote the analysis script, documents and fixes | owner approved the deviation (option 1) and the delivery work; outputs are committed as written; nothing was tuned on held-out results |
+| 2026-11-08 | Merge of the core-install fix, health/confidence status text, docs on `main` diverging from the evaluated snapshot, catalog rebuild check | verified the branch diff, merged, edited the status strings and two tests, ran offline clean-clone checks | owner approved the merge and the text change; the freeze verifier and manifest were left unchanged |
 
 Rules:
 - AI-generated queries or labels do **not** count as human-labeled until a human reviews and

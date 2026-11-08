@@ -16,7 +16,7 @@ changed since then. Where the two disagree, this page is current.
 | E1 | verified on dev | **verified on held-out**: 7 configurations, 40 queries; identical final decisions | `data/eval/results/heldout40_frozen_r2/` |
 | E3 | pending (freeze) | **verified**: tag `bera-eval-freeze-2026-11-07-r2`; one scored held-out run; one documented deviation; nothing tuned on held-out | report §1, [RUN_PROCEDURE_DEVIATION.md](../data/eval/heldout/RUN_PROCEDURE_DEVIATION.md) |
 | C1 | deferred | **still deferred**: 15 held-out answerable cases add no fitting data (held-out is never used for fitting) | |
-| S8 | implemented, never executed | unchanged. On `main`, a core-only install fails 9 tests and mypy; fixed on branch `post-eval/core-install-deps` | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
+| S8 | implemented, never executed | still never executed (no remote). The core-only install it uses now passes in a clean clone (fix merged `91adf72`) | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
 | S9 | verified 2026-11-03 | **not re-verified**: the pinned base images are not cached locally | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
 | O2 | implemented | updated through the held-out phase | [AI_ASSISTANCE.md](AI_ASSISTANCE.md) |
 
@@ -41,23 +41,33 @@ changed since then. Where the two disagree, this page is current.
 - **Dev is not independent of the system:** dev labels were used to develop policy v2, so dev
   metrics are development evidence. Only held-out is a test.
 
-## Post-evaluation changes (separate commits)
+## Post-evaluation changes: `main` no longer matches the evaluated snapshot
 
-- **On `main`:** these don't touch frozen files, and `freeze_manifest.py verify` passes.
-  - Frontend test stability: a Testing Library async timeout of 5 s in the new
-    `frontend/vitest.setup.ts`. The test failed 1 in 25 runs under CPU load before the fix and
-    0 in 40 after.
-  - `demo/run_demo.py`, plus docs: README, this page, DEMO, SETUP_VERIFICATION, the
-    evaluation report and the AI assistance log.
-- **On local branch `post-eval/core-install-deps`, not merged:** numpy becomes a core
-  dependency, and mypy ignores the optional ml-group imports. This changes the pinned
-  `pyproject.toml`/`uv.lock`, so merging it means `freeze_manifest.py verify` will fail on
-  `main`. The tag still preserves the evaluated state.
+The evaluated system is tag **`bera-eval-freeze-2026-11-07-r2`** (`c32f7f0`), plus the
+held-out data and result commits through `863ab15`. The tag, labels, provenance sidecars,
+the family supplement, the run records and `data/eval/results/heldout40_frozen_r2/` are
+unchanged. `main` now also has post-evaluation commits. Two of them change frozen files, so
+**`scripts/freeze_manifest.py verify` fails on `main` by design**. It names `pyproject.toml`,
+`src/bera/policy.py`, `src/bera/service.py`, two tests, and the `bera.policy`/`bera.service`
+constants.
 
-## Known, unfixed (frozen code)
+The verifier and `data/freeze/freeze_manifest.json` were **not** changed. Checked on
+2026-11-08: the verifier passes at the r2 tag, in a temporary worktree using the same local
+models, catalog and llama-server binary.
 
-- `/api/health` still reports calibration as "pending: needs human-labeled dev set + grouped
-  out-of-fold fit". The labels now exist; calibration is deferred for insufficient evidence,
-  not missing labels. Fixing it is a one-line change in `src/bera/service.py:95` (frozen).
+| commit | change | touches frozen files |
+|---|---|---|
+| `a2d8f26` | frontend test stability: Testing Library async timeout 5 s (`frontend/vitest.setup.ts`); 1 failure in 25 runs under load before, 0 in 40 after | no |
+| `8f9d26a` | `demo/run_demo.py` (synthetic catalog only) | no |
+| `b221ce2` | README, STATUS, DEMO, SETUP_VERIFICATION, evaluation report, AI log | no |
+| `936d36f` via merge `91adf72` | numpy as a core dependency (needed by `rapidfuzz.process.cdist` in ingestion); mypy ignores the optional ml imports (torch, sentence-transformers) | yes: `pyproject.toml`, `uv.lock` |
+| `9eca484` | `/api/health` calibration and `confidence_status` text: uncalibrated; dev labeling and held-out evaluation complete; calibration deferred. Strings only; `POLICY_VERSION`, rules and thresholds unchanged | yes: `src/bera/policy.py`, `src/bera/service.py`, two tests |
+
+Held-out numbers describe the r2 snapshot. No held-out inference was rerun after these
+changes. Running the held-out harness on `main` is refused, both because the manifest no
+longer verifies and because results are committed outside the allowed prefix.
+
+## Known, unfixed
+
 - Deferred design items: calibrated scorer (C1), opening the LLM route, the damaged-ISBN
   fallback, unicode-guard scope, and the catalog-inconsistency detector.
