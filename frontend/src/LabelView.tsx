@@ -18,7 +18,7 @@ interface Queue {
   skipped?: number;
   total: number;
   proposal_label_spec?: string;
-  reveal_mode?: "per_case" | "after_batch";
+  reveal_mode?: "per_case" | "after_batch" | "never";
   revealed?: boolean;
 }
 interface BatchRevealItem {
@@ -233,7 +233,8 @@ export function LabelView() {
       reveal?: string;
       remaining?: number;
     };
-    if (body.reveal === "after_batch") setDeferred(body.remaining ?? 0);
+    if (body.reveal === "after_batch" || body.reveal === "never")
+      setDeferred(body.remaining ?? 0);
     else setReveal(body);
     await loadQueue();
   }
@@ -544,8 +545,9 @@ export function LabelView() {
       )}
       {deferred !== null && (
         <p role="status">
-          Saved. Drafted proposals stay hidden until every case in this batch is
-          labeled ({deferred} remaining).
+          {queue.reveal_mode === "never"
+            ? `Saved. Drafted proposals are never shown for this queue (${deferred} remaining).`
+            : `Saved. Drafted proposals stay hidden until every case in this batch is labeled (${deferred} remaining).`}
         </p>
       )}
       {queue.reveal_mode === "after_batch" && queue.labeled === queue.total && (

@@ -85,13 +85,14 @@ class LabelStore:
 
     @staticmethod
     def _reveal_mode(queue: Path) -> str:
-        """ "per_case" (default; the proposal is shown after each save) or "after_batch"
-        (nothing about any proposal is shown until every case in the queue is labeled)."""
+        """Reveal mode from the queue manifest: "per_case" (default; the proposal is shown
+        after each save), "after_batch" (nothing about any proposal is shown until every case
+        in the queue is labeled) or "never" (held-out queues: proposals are never shown)."""
         manifest = queue.with_suffix(".manifest.json")
         mode = "per_case"
         if manifest.exists():
             mode = str(json.loads(manifest.read_text(encoding="utf-8")).get("reveal", mode))
-        if mode not in ("per_case", "after_batch"):
+        if mode not in ("per_case", "after_batch", "never"):
             raise RuntimeError(f"unknown reveal mode {mode!r} in {manifest}")
         return mode
 
@@ -216,9 +217,10 @@ class LabelStore:
             self.labels_path.parent.mkdir(parents=True, exist_ok=True)
             with self.labels_path.open("a", encoding="utf-8") as fh:
                 fh.write(case.model_dump_json(exclude_none=True) + "\n")
-        if self.reveal_mode == "after_batch":
-            # nothing about the proposal (not even agreement) until the batch is complete
-            return {"saved": True, "reveal": "after_batch", "remaining": self.remaining()}
+        if self.reveal_mode in ("after_batch", "never"):
+            # nothing about the proposal (not even agreement): until the batch is complete
+            # (after_batch) or ever (never)
+            return {"saved": True, "reveal": self.reveal_mode, "remaining": self.remaining()}
         view = self.proposal_view(d, case)
         return {
             "saved": True,
@@ -284,6 +286,8 @@ def router(store: LabelStore) -> APIRouter:
 
     @r.get("/reveal")
     def reveal() -> dict[str, object]:
+        if store.reveal_mode == "never":
+            raise HTTPException(404, "proposals are never revealed for this queue")
         if store.reveal_mode != "after_batch":
             raise HTTPException(404, "this queue reveals per case after each save")
         return store.reveal_batch()

@@ -570,3 +570,96 @@ def test_drafter_v4_caps_queries_per_family_with_distinct_templates(
     assert not capped
     with pytest.raises(ValueError):
         draft_batch_v4(editions, **kw, max_per_family=4)
+
+
+def test_never_reveal_mode_hides_proposals_even_after_completion(
+    tmp_path: Path, editions: list[Any], make_resolver: Any
+) -> None:
+    import hashlib
+
+    q = make_queue(tmp_path, editions, split="heldout")
+    q.with_suffix(".manifest.json").write_text(
+        json.dumps(
+            {
+                "queue_sha256": hashlib.sha256(q.read_bytes()).hexdigest(),
+                "proposal_label_spec": "v3",
+                "reveal": "never",
+            }
+        )
+    )
+    labels = tmp_path / "heldout_labels.jsonl"
+    settings = Settings(
+        var_dir=tmp_path,
+        catalog_db=tmp_path / "x",
+        llm_provider="none",
+        mock_mode="cite_first",
+        label_queue=q,
+        labels_path=labels,
+        label_allow_heldout=True,
+    )
+    client = TestClient(create_app(settings, make_resolver(None)))
+    queue = client.get("/api/label/queue").json()
+    assert queue["reveal_mode"] == "never"
+    ids = [i["draft_id"] for i in queue["items"]]
+    templates = {json.loads(x)["template"] for x in q.read_text().splitlines()}
+    body = {"labeler": "ob", "expected": "abstain", "ambiguity_reason": "underspecified"}
+    for n, i in enumerate(ids):
+        res = client.post("/api/label/submit", json={"draft_id": i, **body})
+        assert res.json() == {"saved": True, "reveal": "never", "remaining": len(ids) - n - 1}
+        for key in LEAK_KEYS:
+            assert f'"{key}"' not in res.text, key
+        assert not any(t in res.text for t in templates)
+    assert client.get("/api/label/reveal").status_code == 404  # never, even when complete
+    assert len(labels.read_text().splitlines()) == len(ids)
+
+
+def test_rulings_never_edit_labels_and_amendments_overlay_at_load(
+    tmp_path: Path, editions: list[Any], catalog: Any
+) -> None:
+    from bera.evalkit.provenance import (
+        amendments_path,
+        apply_amendments,
+        flag_for_review,
+        record_ruling,
+        review_flags_path,
+    )
+    from bera.labeling import Submission
+
+    q = make_queue(tmp_path, editions)
+    labels = tmp_path / "labels.jsonl"
+    store = LabelStore(q, labels, catalog, False)
+    a, b = list(store.drafts)[:2]
+    for i in (a, b):
+        store.submit(
+            Submission(
+                draft_id=i, labeler="ob", expected="abstain", ambiguity_reason="underspecified"
+            )
+        )
+    before = labels.read_text()
+    flag_for_review(labels, a, "x", "t", "d")
+    record_ruling(labels, a, "reaffirmed", "owner", "keeps label")
+    with pytest.raises(ValueError):
+        record_ruling(labels, b, "amended", "owner", "missing amended label")
+    record_ruling(
+        labels,
+        b,
+        "amended",
+        "owner",
+        "now one edition",
+        amended={"expected": "suggest", "gold_edition_ids": ["E1"]},
+    )
+    assert labels.read_text() == before  # original lines untouched
+    statuses = [json.loads(x)["status"] for x in review_flags_path(labels).read_text().splitlines()]
+    assert statuses == ["open_owner_review", "resolved_owner_reaffirmed", "resolved_owner_amended"]
+    cases, applied = apply_amendments(load_cases(labels), labels)
+    assert applied == [b]
+    got = {c.case_id: (c.expected, c.gold_edition_ids) for c in cases}
+    assert got[a] == ("abstain", []) and got[b] == ("suggest", ["E1"])
+    # an amendment pinned to a different label line is refused
+    amendments_path(labels).write_text(
+        amendments_path(labels)
+        .read_text()
+        .replace('"applies_to_label_sha256": "', '"applies_to_label_sha256": "0')
+    )
+    with pytest.raises(ValueError):
+        apply_amendments(load_cases(labels), labels)

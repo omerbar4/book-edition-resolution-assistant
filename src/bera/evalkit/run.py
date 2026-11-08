@@ -328,7 +328,9 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         help="frozen corpus work->family mapping",
     )
     a = p.parse_args(argv)
-    from bera.evalkit.provenance import independent_human_cases
+    from bera.evalkit.provenance import apply_amendments, independent_human_cases
+
+    amendments_applied: list[str] = []
 
     loaded = {path: load_cases(path) for path in a.cases}
     if a.split in ("heldout", "all") and any(
@@ -345,6 +347,10 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
         kept = independent_human_cases(cs, path)
         if len(kept) != len(cs):
             print(f"excluded {len(cs) - len(kept)} practice/exposed case(s) from {path.name}")
+        kept, amended = apply_amendments(kept, path)
+        if amended:
+            print(f"applied owner amendments from {path.name}: {amended}")
+            amendments_applied.extend(amended)
         cases.extend(kept)
     ids = [c.case_id for c in cases]
     if len(ids) != len(set(ids)):
@@ -382,6 +388,7 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI
     report = evaluate(catalog, cases, reps=a.reps, env=env, only=a.systems)
     if family_source:
         report["family_source"] = family_source
+    report["owner_amendments_applied"] = amendments_applied
     report["llm_route_gate"] = {"source": gate.source, "open_routes": sorted(gate.open_routes)}
     import hashlib
 

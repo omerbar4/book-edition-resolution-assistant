@@ -137,6 +137,95 @@ def flag_for_review(
     return rec
 
 
+def amendments_path(labels: Path) -> Path:
+    return labels.with_name(labels.stem + ".amendments.jsonl")
+
+
+def record_ruling(
+    labels: Path,
+    case_id: str,
+    ruling: str,
+    ruled_by: str,
+    note: str,
+    amended: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Resolve an open review flag. The original label line is never edited.
+
+    ruling "reaffirmed": appends a resolved record to the review-flags sidecar.
+    ruling "amended": also appends the amended answer (expected, gold_edition_ids,
+    ambiguity_reason) to `<labels>.amendments.jsonl`, pinned to the original line's sha256.
+    Evaluation applies amendments at load time (apply_amendments) and reports them."""
+    if ruling not in ("reaffirmed", "amended"):
+        raise ValueError("ruling must be 'reaffirmed' or 'amended'")
+    if (ruling == "amended") != (amended is not None):
+        raise ValueError("an amended ruling needs an amended label, and only then")
+    lines = [x for x in labels.read_text(encoding="utf-8").splitlines() if x.strip()]
+    mine = [x for x in lines if json.loads(x).get("case_id") == case_id]
+    if not mine:
+        raise ValueError(f"no label entry for {case_id}")
+    now = datetime.now(UTC).isoformat(timespec="seconds")
+    pin = line_sha256(mine[-1])
+    if amended is not None:
+        keys = {"expected", "gold_edition_ids", "ambiguity_reason"}
+        if set(amended) - keys or "expected" not in amended:
+            raise ValueError(f"amended label may only set {sorted(keys)}")
+        with amendments_path(labels).open("a", encoding="utf-8") as fh:
+            fh.write(
+                json.dumps(
+                    {
+                        "case_id": case_id,
+                        "applies_to_label_sha256": pin,
+                        "amended_label": amended,
+                        "amended_by": ruled_by,
+                        "amended_at": now,
+                        "note": note,
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
+    rec = {
+        "case_id": case_id,
+        "status": f"resolved_owner_{ruling}",
+        "applies_to_label_sha256": pin,
+        "label_unchanged": True,
+        "affects_counts": False,
+        "recorded_at": now,
+        "recorded_by": ruled_by,
+        "detail": note,
+    }
+    with review_flags_path(labels).open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return rec
+
+
+def apply_amendments(cases: list[EvalCase], labels: Path) -> tuple[list[EvalCase], list[str]]:
+    """Overlay owner amendments (latest per case) whose pin matches the current label line."""
+    path = amendments_path(labels)
+    if not path.exists():
+        return cases, []
+    lines = [x for x in labels.read_text(encoding="utf-8").splitlines() if x.strip()]
+    latest_line = {json.loads(x)["case_id"]: x for x in lines}
+    amends: dict[str, dict[str, Any]] = {}
+    for r in _read(path):
+        if line_sha256(latest_line.get(r["case_id"], "")) != r["applies_to_label_sha256"]:
+            raise ValueError(f"amendment for {r['case_id']} does not match its label line")
+        amends[r["case_id"]] = r["amended_label"]
+    out = []
+    for c in cases:
+        if c.case_id in amends:
+            a = amends[c.case_id]
+            c = c.model_copy(
+                update={
+                    "expected": a["expected"],
+                    "gold_edition_ids": sorted(a.get("gold_edition_ids", [])),
+                    "ambiguity_reason": a.get("ambiguity_reason"),
+                }
+            )
+        out.append(c)
+    return out, sorted(amends)
+
+
 def exposed_case_ids(labels: Path) -> set[str]:
     return {r["case_id"] for r in _read(exposures_path(labels))}
 

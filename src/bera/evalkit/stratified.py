@@ -18,6 +18,7 @@ from __future__ import annotations
 import random
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from typing import Literal
 
 from bera.evalkit.drafts import (
     ALL_TEMPLATES,
@@ -176,6 +177,7 @@ def to_drafts(
     prefix: str,
     rng: random.Random,
     taken_ids: set[str],
+    split: Literal["dev", "heldout"] = "dev",
 ) -> list[Draft]:
     out = []
     for c in plan_items:
@@ -196,7 +198,7 @@ def to_drafts(
         out.append(
             Draft(
                 draft_id=did,
-                split="dev",
+                split=split,
                 family=c.family,
                 query=case.query,
                 template=c.template,
