@@ -1,0 +1,57 @@
+{
+ "queue": "data/eval/heldout/heldout_queue.jsonl",
+ "queue_sha256": "bfd5571184de22f50b9b3460bf3eb5cec606ffd8333a5516524f744b5e4e524b",
+ "split": "heldout",
+ "drafts": 40,
+ "families": 39,
+ "counts": {
+  "queries": 40,
+  "families": 39,
+  "in_corpus_queries": 37,
+  "probe_queries": 3,
+  "probe_families": 2
+ },
+ "family_rule": "37 in-corpus queries from distinct families; the only shared family is within the predefined probe set (two same-author probes); reserves distinct; family-grouped statistics keep the pair together",
+ "reveal": "never",
+ "labels_file": "data/eval/heldout/heldout_labels.jsonl",
+ "proposal_label_spec": "v3",
+ "frozen_tag": "bera-eval-freeze-2026-11-07-r2",
+ "frozen_commit": "c32f7f0b29cdac699d6a103715ba74c1ed985f17",
+ "generator": "scripts/make_heldout_queue.py",
+ "seed": 20261110,
+ "split_seed": 20261103,
+ "quotas": {
+  "identifier": 8,
+  "missing_metadata": 7,
+  "author_variation": 7,
+  "edition_ambiguity": 7,
+  "format_year_conflict": 8
+ },
+ "probes": 3,
+ "reserves": {
+  "file": "data/eval/heldout/heldout_queue.reserves.jsonl",
+  "sha256": "428635c8c2e9dc9d98ff5a940f5f3f01da9d8d217d175660b6459fb39b6cbfeb",
+  "count": 2,
+  "use": "only to replace a case excluded for exposure, in file order"
+ },
+ "corpus_sha256": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+ "validation": {
+  "37 in-corpus queries from 37 distinct families": true,
+  "3 probes; shared family only within the probe set": true,
+  "probe families disjoint from in-corpus and reserve families": true,
+  "2 reserves from distinct families, disjoint from the queue": true,
+  "no in-corpus query is a probe and no probe has a source edition": true,
+  "queue size 40": true,
+  "family count = 37 + distinct probe families": true,
+  "all held-out split by family": true,
+  "stratum quotas met exactly": true,
+  "template belongs to its stratum": true,
+  "every template effective": true,
+  "queries and proposals reproduce (spec v3)": true,
+  "no previously seen query": true,
+  "queries distinct": true,
+  "opaque unique ids": true,
+  "corpus sha256 unchanged": true
+ },
+ "note": "Held-out: proposals are never revealed; labels and results are never used for tuning; evaluated once with the frozen system."
+}
