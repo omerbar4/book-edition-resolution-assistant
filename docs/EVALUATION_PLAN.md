@@ -77,8 +77,14 @@ unicode-guard scope); the validated LLM suggestion path (see below).
 ## Held-out queue (40 cases, after the freeze)
 
 - **Contents:** 37 in-corpus queries from 37 distinct held-out families using the same
-  strata, plus the 3 unused verified-absent held-out probes as out-of-corpus cases, plus 2
-  sealed reserves. The generator is frozen with the system.
+  strata (8/7/7/7/8), plus the 3 unused verified-absent held-out probes as out-of-corpus
+  cases, plus 2 sealed reserves. The generator is frozen with the system.
+- **Families (owner decision 2026-11-07):** two of the three probes share an author family,
+  so the queue has **40 queries across 39 families**. That predefined probe pair is the only
+  permitted shared family. In-corpus families are unique, and reserves come from further
+  distinct families that do not overlap the queue. Family-grouped bootstrap sampling keeps
+  the pair together, and every held-out metric reports both its query count and its family
+  count.
 - **Separation:** separate directory (`data/eval/heldout/`), separate server, held-out serving
   explicitly enabled. No proposals are ever revealed for held-out cases.
 - **Results:** one harness run at the frozen tag (enforced). Held-out labels and results are

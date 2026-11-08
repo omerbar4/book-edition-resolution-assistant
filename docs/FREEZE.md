@@ -1,5 +1,15 @@
 # Full-system freeze (evaluation milestone)
 
+**Current freeze tag: `bera-eval-freeze-2026-11-07-r2`.** The earlier tag
+`bera-eval-freeze-2026-11-07` (commit 9f066a4) is kept as a record. It was **superseded
+before any held-out case or result existed**: at that tag the frozen generator refused its
+own validation and wrote nothing, because two of the three held-out probes share an author
+family, which violated "one query per family". The owner decided to keep all three probes
+(40 queries across 39 families, the shared family permitted only for that probe pair). Only
+the generator, its tests and these documents changed. Policy, models, thresholds, prompts,
+seeds and labels are unchanged. The pre-tag feasibility check now covers strata, probes and
+reserves (`scripts/make_heldout_queue.py --check-only`, which writes nothing).
+
 The freeze is the tagged commit after which held-out cases are generated, labeled and
 evaluated once. Its contents are pinned in `data/freeze/freeze_manifest.json`
 (`scripts/freeze_manifest.py write`; check with `verify`).
@@ -23,7 +33,9 @@ evaluated once. Its contents are pinned in `data/freeze/freeze_manifest.json`
   seed 20261103, `var/catalog_v3.sqlite`.
 - **Held-out generation rules:** `scripts/make_heldout_queue.py` (seed 20261110; quotas
   identifier 8, missing metadata 7, author variation 7, edition ambiguity 7, format/year
-  conflict 8; 3 verified-absent probes; 2 reserves; reveal never), plus the stratified drafter.
+  conflict 8; 3 verified-absent probes; 2 reserves; reveal never), `bera.evalkit.heldout`
+  (family rule: 37 distinct in-corpus families, a shared family only within the probe set,
+  reserves distinct and disjoint; 40 queries across 39 families), plus the stratified drafter.
 - **Evaluation protocol:** EVALUATION_PLAN, EVAL_PROTOCOL, DECISION_POLICY,
   SYNTHETIC_LABEL_SPEC, LABELING_GUIDE, REQUIREMENTS_AUDIT and REQUIREMENTS_TRACKER.
 - **Dev evidence base:** every dev label file, sidecar and queue.
@@ -50,8 +62,9 @@ evaluated once. Its contents are pinned in `data/freeze/freeze_manifest.json`
 - `scripts/freeze_manifest.py verify --pre-tag` passes: clean tree, all pins match, both LLM
   routes closed, no held-out data.
 - Backend and frontend tests, ruff, ruff format and mypy pass.
-- Held-out feasibility was checked on catalog structure only (counts; nothing written): all
-  quotas fillable.
+- Full held-out feasibility, covering strata, probes and reserves, was checked with
+  `make_heldout_queue.py --check-only` (aggregates only; nothing written): all 16 checks
+  pass, 40 queries across 39 families.
 
 ## After the tag
 

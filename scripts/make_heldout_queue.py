@@ -27,12 +27,13 @@ from collections import Counter
 from pathlib import Path
 
 from bera.catalog import Catalog
-from bera.evalkit.drafts import ALL_TEMPLATES, Draft, Proposed, query_key, template_effective
+from bera.evalkit.drafts import ALL_TEMPLATES, Draft, query_key, template_effective
+from bera.evalkit.heldout import counts, family_checks, heldout_probes
+from bera.evalkit.heldout import probe_drafts as make_probe_drafts
 from bera.evalkit.perturb import judged_fields, label, perturbed_fields
 from bera.evalkit.run import repo_relative
 from bera.evalkit.splits import family_split
 from bera.evalkit.stratified import (
-    DRAFTER_V5,
     SPEC_FOR_NEW_DRAFTS,
     STRATA,
     assign,
@@ -67,21 +68,26 @@ def git(*args: str) -> str:
     ).stdout.strip()
 
 
-def probe_family(p: dict[str, object]) -> str:
-    keys = sorted(p.get("author_keys") or [])  # type: ignore[call-overload]
-    return f"probe-author:{keys[0]}" if keys else f"probe:{p['title']}"
-
-
 def main() -> None:
     a = argparse.ArgumentParser()
     a.add_argument("--db", type=Path, required=True)
-    a.add_argument("--frozen-tag", required=True)
+    a.add_argument("--frozen-tag")
+    a.add_argument(
+        "--check-only",
+        action="store_true",
+        help="full feasibility and validation (strata, probes, reserves); writes nothing, "
+        "prints aggregates only; allowed before the tag",
+    )
     args = a.parse_args()
-    if git("status", "--porcelain"):
+    if not args.check_only and not args.frozen_tag:
+        raise SystemExit("refusing: pass --frozen-tag (or --check-only, which writes nothing)")
+    if args.check_only:
+        pass
+    elif git("status", "--porcelain"):
         raise SystemExit("refusing: working tree is not clean")
-    if git("rev-parse", f"{args.frozen_tag}^{{commit}}") != git("rev-parse", "HEAD"):
+    elif git("rev-parse", f"{args.frozen_tag}^{{commit}}") != git("rev-parse", "HEAD"):
         raise SystemExit(f"refusing: HEAD is not the freeze tag {args.frozen_tag}")
-    if OUT_DIR.exists() and any(OUT_DIR.iterdir()):
+    elif OUT_DIR.exists() and any(OUT_DIR.iterdir()):
         raise SystemExit(
             f"refusing: {OUT_DIR} already has files; the held-out queue is generated once"
         )
@@ -134,36 +140,9 @@ def main() -> None:
         if x.strip()
     ]
     status = json.loads((CORPUS / "probe_status_for_labeling.json").read_text())
-    held_probes = sorted(
-        (
-            p
-            for p in probes
-            if status.get(p["title"], {}).get("status") == "verified_absent"
-            and family_split(probe_family(p), SPLIT_SEED) == "heldout"
-        ),
-        key=lambda p: p["title"],
+    probe_drafts = make_probe_drafts(
+        heldout_probes(probes, status, SPLIT_SEED, N_PROBES), "h01", rng, taken
     )
-    probe_drafts = []
-    for p in held_probes[:N_PROBES]:
-        token = f"{rng.getrandbits(40):010x}"
-        while f"h01-{token}" in taken:
-            token = f"{rng.getrandbits(40):010x}"
-        taken.add(f"h01-{token}")
-        probe_drafts.append(
-            Draft(
-                draft_id=f"h01-{token}",
-                split="heldout",
-                family=probe_family(p),
-                query=Query(title=p["title"], author=p.get("author")),
-                template="out_of_corpus_probe",
-                drafted_by=DRAFTER_V5,
-                stratum="out_of_corpus_probe",
-                proposal_label_spec=SPEC_FOR_NEW_DRAFTS,
-                proposed=Proposed(
-                    expected="abstain", gold_edition_ids=[], ambiguity_reason="out_of_corpus"
-                ),
-            )
-        )
     queue = sorted(in_corpus + probe_drafts, key=lambda d: d.draft_id)
 
     def reproduces(d: Draft) -> bool:
@@ -176,14 +155,14 @@ def main() -> None:
             d.proposed.ambiguity_reason,
         )
 
-    fams = Counter(d.family for d in queue + reserves)
-    checks = {
+    sizes = counts(in_corpus, probe_drafts)
+    checks = family_checks(in_corpus, probe_drafts, reserves, 37, N_PROBES, N_RESERVES) | {
         "queue size 40": len(queue) == 40,
-        "37 in-corpus + 3 probes": len(in_corpus) == 37 and len(probe_drafts) == N_PROBES,
+        "family count = 37 + distinct probe families": sizes["families"]
+        == 37 + sizes["probe_families"],
         "all held-out split by family": all(
             family_split(d.family, SPLIT_SEED) == "heldout" for d in queue + reserves
         ),
-        "one query per family (incl. reserves)": all(n == 1 for n in fams.values()),
         "stratum quotas met exactly": Counter(d.stratum for d in in_corpus) == Counter(QUOTAS),
         "template belongs to its stratum": all(
             d.template in STRATA[d.stratum or ""] for d in in_corpus
@@ -204,8 +183,15 @@ def main() -> None:
     }
     for k, v in checks.items():
         print(("PASS " if v else "FAIL ") + k)
+    print(
+        f"queries {sizes['queries']} across {sizes['families']} families "
+        f"({sizes['probe_queries']} probes in {sizes['probe_families']} probe families)"
+    )
     if not all(checks.values()):
         raise SystemExit("validation failed; nothing written")
+    if args.check_only:
+        print("check-only: nothing written")
+        return
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     qpath = OUT_DIR / "heldout_queue.jsonl"
@@ -217,7 +203,11 @@ def main() -> None:
         "queue_sha256": sha256(qpath),
         "split": "heldout",
         "drafts": len(queue),
-        "families": len({d.family for d in queue}),
+        "families": sizes["families"],
+        "counts": sizes,
+        "family_rule": "37 in-corpus queries from distinct families; the only shared family is "
+        "within the predefined probe set (two same-author probes); reserves distinct; "
+        "family-grouped statistics keep the pair together",
         "reveal": "never",
         "labels_file": "data/eval/heldout/heldout_labels.jsonl",
         "proposal_label_spec": SPEC_FOR_NEW_DRAFTS,

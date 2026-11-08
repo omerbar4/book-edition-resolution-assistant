@@ -56,7 +56,11 @@ DATA = (
 )
 UNTRACKED_DATA = ("var/catalog_v3.sqlite",)
 ROUTE_EVIDENCE = "data/eval/llm_route_evidence_policy_v2_amended.json"
-GENERATION = ("scripts/make_heldout_queue.py", "src/bera/evalkit/stratified.py")
+GENERATION = (
+    "scripts/make_heldout_queue.py",
+    "src/bera/evalkit/stratified.py",
+    "src/bera/evalkit/heldout.py",
+)
 DEV_EVIDENCE_GLOBS = ("data/eval/labels/*", "data/eval/drafts/*")
 MODEL_DIR = "models"
 LLAMA_BIN = ".tools/llama.cpp/build/bin/llama-server"
