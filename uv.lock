@@ -40,6 +40,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "httpx" },
+    { name = "numpy" },
     { name = "pydantic" },
     { name = "rapidfuzz" },
     { name = "uvicorn" },
@@ -62,6 +63,7 @@ ml = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "httpx", specifier = ">=0.27,<1" },
+    { name = "numpy", specifier = ">=2,<3" },
     { name = "pydantic", specifier = ">=2.9,<3" },
     { name = "rapidfuzz", specifier = ">=3.10,<4" },
     { name = "uvicorn", specifier = ">=0.32,<1" },
