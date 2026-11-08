@@ -17,7 +17,7 @@ changed since then. Where the two disagree, this page is current.
 | E3 | pending (freeze) | **verified**: tag `bera-eval-freeze-2026-11-07-r2`; one scored held-out run; one documented deviation; nothing tuned on held-out | report §1, [RUN_PROCEDURE_DEVIATION.md](../data/eval/heldout/RUN_PROCEDURE_DEVIATION.md) |
 | C1 | deferred | **still deferred**: 15 held-out answerable cases add no fitting data (held-out is never used for fitting) | |
 | S8 | implemented, never executed | still never executed (no remote). The core-only install it uses now passes in a clean clone (fix merged `91adf72`) | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
-| S9 | verified 2026-11-03 | **not re-verified**: the pinned base images are not cached locally | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
+| S9 | verified 2026-11-03 | **re-verified 2026-11-08**: no-cache build from a clean clone, compose healthy, uid 10001, read-only root filesystem, demo 6/6 | [SETUP_VERIFICATION.md](SETUP_VERIFICATION.md) |
 | O2 | implemented | updated through the held-out phase | [AI_ASSISTANCE.md](AI_ASSISTANCE.md) |
 
 ## Labels: human reviewed vs strictly independent
@@ -69,5 +69,12 @@ longer verifies and because results are committed outside the allowed prefix.
 
 ## Known, unfixed
 
+- **Absolute home path in two committed records:**
+  - the held-out attempt-1 failure excerpt (`data/eval/heldout/heldout_run_attempts.jsonl`);
+  - an earlier version of `data/eval/results/dev_batch02_human_policy_v1/report.json` in the
+    history (`938348e`), replaced by repo-relative paths in `1574b41`.
+
+  They show only a local username and project folder, no credentials. They are kept so that
+  held-out provenance and the history leading to the frozen tags stay unaltered.
 - Deferred design items: calibrated scorer (C1), opening the LLM route, the damaged-ISBN
   fallback, unicode-guard scope, and the catalog-inconsistency detector.

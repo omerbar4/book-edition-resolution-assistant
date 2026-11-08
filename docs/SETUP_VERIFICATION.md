@@ -5,8 +5,8 @@
 | path | status |
 |---|---|
 | offline clean clone of `main`, core only (existing local caches) | **verified** at `9eca484`, with one deviation (uv binary) |
-| fresh online install (new machine, empty caches) | **not verified**: needs PyPI and npm network access |
-| Docker build / compose | **not re-verified**: the pinned base images are not cached (see below) |
+| fresh online install (empty uv/pip/npm caches, this machine) | **verified** at `bbc7423`: core and `--group ml` |
+| Docker build / compose | **verified** at `bbc7423`: pinned base images pulled, no layer cache |
 | real catalog (`var/catalog_v3.sqlite`) | **rebuilt from committed data**, byte-identical to the pinned hash; no dump needed |
 | ML smoke tests, LLM adjudication | **not reproducible from git alone**: model weights and llama.cpp need downloads |
 
@@ -43,15 +43,28 @@
 **CI:** `.github/workflows/ci.yml` runs this core-only path. It has never run, because there
 is no remote.
 
-## Fresh online installation (not verified)
+## Fresh online installation (verified 2026-11-08, `bbc7423`)
 
-The README steps need network access:
-- PyPI, for `pip install uv==0.13.7` and `uv sync --locked`, plus `--group ml` (torch,
-  sentence-transformers);
-- the npm registry, for `npm ci`.
+**Method:** a disposable clone, with **new empty** `UV_CACHE_DIR`, `PIP_CACHE_DIR` and npm
+caches, following the README exactly:
+- `python3.12 -m venv .tools/venv` (existing Homebrew Python 3.12.13);
+- `pip install uv==0.13.7` from PyPI;
+- `uv sync --locked`;
+- `npm ci` from the registry.
 
-They have not been run from empty caches on another machine. Lockfiles pin exact versions,
-and `uv.lock` pins hashes.
+| step | result |
+|---|---|
+| `pip install uv==0.13.7`, `uv sync --locked` | ok; 134 MB downloaded into the empty uv cache; numpy present, **no torch / sentence-transformers** |
+| ruff format, ruff check, mypy | pass |
+| `pytest` (core) | 232 passed, 3 skipped (ML smoke tests) |
+| frontend `npm ci` (registry), typecheck, tests, build | pass; 11/11 |
+| `uv sync --locked --group ml` | ok; cache grew to 952 MB (torch etc. from PyPI) |
+| `pytest` with ml + the existing local weights (copy-on-write clone; not re-downloaded) | **235 passed** (ML smoke tests included) |
+
+**Not covered:**
+- another operating system (beyond the Linux CI below);
+- an Intel Mac;
+- Python obtained another way.
 
 ## What can be rebuilt without the Open Library dumps
 
@@ -68,27 +81,27 @@ and `uv.lock` pins hashes.
 | frontend `dist/` | no | yes, from the npm cache (offline here) or the registry | `npm run build` (verified) |
 | `models/` (bge-small, MiniLM, Qwen3-4B GGUF; 2.5 GB) | no | **no** | `scripts/fetch_models.py --approved-by-owner` (download; pins in `models.lock.json`) |
 | `llama-server` (llama.cpp `b12081`, Metal; 353 MB tree) | no | **no** | needs the llama.cpp source (download) and a local build; binary hash pinned |
-| Docker image | no | **no** | needs the base images and package registries (below) |
+| Docker image | no | yes, with free public downloads | the pinned base images plus npm and PyPI (verified below) |
 
 **Freeze verifier:** `scripts/freeze_manifest.py verify` checks the r2 pins. It **passes at
 the tag** (checked 2026-11-08 in a temporary worktree with the same local models, catalog
 and binary). It **fails on `main` by design**, because post-evaluation commits changed
 pinned files. It also fails in any clone that lacks the models and binary.
 
-## Docker (not re-verified; nothing pulled)
+## Docker (verified 2026-11-08, `bbc7423`)
 
-`docker build` with pulling disabled was **not attempted**, because the required base images
-are not in the local image store:
+Pulled the digest-pinned base images, which are free public downloads:
 
 - `node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da`
 - `python:3.12-slim-bookworm@sha256:e697c81897302a4c4333bade000d98038fbb21eb064f8ee1fd42d02ebcd9d337`
 
-Even with both images present, the build steps need network access:
-- `npm ci` (npm registry);
-- `pip install uv==0.13.7` and `uv sync --locked` (PyPI);
-- with `INSTALL_ML=1`, torch and sentence-transformers as well.
+| step | result |
+|---|---|
+| `docker build --no-cache --pull=false .` from a clean clone | ok; every step ran (`npm ci` 176 packages, `pip install uv`, `uv sync --locked --no-dev` 20 packages); image about 84 MB, `USER bera` |
+| `docker compose up -d --build` | healthcheck `healthy`; `/api/health` gives `conservative-rules-v2`, 30 synthetic editions, LLM disabled |
+| UI | 200, with `content-security-policy` |
+| container user / filesystem | uid 10001; writing to `/app` fails (read-only root filesystem); `no-new-privileges:true`; port bound to 127.0.0.1 only |
+| `demo/run_demo.py` against the container | 6/6 expected outcomes |
 
-An offline build would need a populated BuildKit cache for those layers. A local `bera:local`
-image (2026-11-03) exists, but it predates policy v2 and was not used as evidence. The last
-verified compose run (health, resolve, UI 200, uid 10001, read-only filesystem) is from
-2026-11-03.
+The test containers, volume and images were removed afterwards. `INSTALL_ML=1` (torch in the
+image) was not built.

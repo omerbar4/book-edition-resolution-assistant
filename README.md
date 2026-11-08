@@ -85,9 +85,12 @@ npm --prefix frontend ci && npm --prefix frontend run build
 - **Checks:** `uv run ruff format --check . && uv run ruff check . && uv run mypy &&
   uv run pytest`. Frontend: `npm --prefix frontend run typecheck` and
   `VITE_API_BASE_URL=http://127.0.0.1:9 npm --prefix frontend test`.
-- **What has been verified:** these steps were checked **offline** in a disposable clean
-  clone, using existing local caches. A fresh online install on another machine has not been
-  verified. See [docs/SETUP_VERIFICATION.md](docs/SETUP_VERIFICATION.md).
+- **What has been verified (2026-11-08, macOS arm64):**
+  - a **fresh online install** from empty uv/pip/npm caches, core and `--group ml`;
+  - an offline clean clone;
+  - the Docker build and compose run.
+
+  See [docs/SETUP_VERIFICATION.md](docs/SETUP_VERIFICATION.md).
 
 Local ML weights, LLM weights and the Open Library catalog are not in git. Getting them
 needs owner-approved downloads (see MODEL_NOTICE.md, DATA_NOTICE.md and
@@ -98,8 +101,9 @@ needs owner-approved downloads (see MODEL_NOTICE.md, DATA_NOTICE.md and
 ```
 
 Docker (API + UI; LLM off by default; weights never baked in). `compose.yaml` binds to
-127.0.0.1:8000 and runs non-root with a read-only filesystem. It has **not been re-verified
-since 2026-11-03**: the pinned base images are not in the local cache.
+127.0.0.1:8000 and runs as uid 10001 with a read-only root filesystem and
+`no-new-privileges`. Verified 2026-11-08 from a clean clone with no layer cache: healthy,
+UI 200 with CSP, and 6/6 demo cases.
 
 ```bash
 docker compose up --build
