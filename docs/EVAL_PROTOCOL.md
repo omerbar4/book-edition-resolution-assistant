@@ -230,3 +230,20 @@ compatibility (`conservative-rules-v2`). Report: `data/eval/results/dev60_human_
   or format to distinguish editions), supplied-field conflict 1, unicode guard 1 (deferred).
 - LLM route evidence re-measured under v2 (`data/eval/llm_route_evidence_policy_v2.json`):
   agree 5/10, override 0/0. Both routes stay closed at the unchanged constants.
+
+## Owner amendment and refreshed dev numbers (2026-11-07)
+
+`d02-6463d76f7e` was amended, after AI-assisted review, to human review (underspecified).
+The original label line is preserved; the amendment is a separate record, applied at load
+time. System decisions are unchanged: same policy and same run. Recomputed with
+`scripts/refresh_dev_amended.py` into `data/eval/results/dev60_human_policy_v2_amended/`:
+
+- 60 cases from 60 families: 43 human edition choices, 17 human reviews.
+- Correct suggestions 28/60, wrong 0/60.
+- Correct suggestions on human-answerable cases: 28/43.
+- Human reviews routed to review: 17/17.
+- Human-answerable cases still sent to review: 15.
+- LLM agree route 4/10, override 0/0 (`data/eval/llm_route_evidence_policy_v2_amended.json`);
+  both routes are closed.
+
+This is development evidence only.

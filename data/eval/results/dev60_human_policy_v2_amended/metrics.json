@@ -1,0 +1,517 @@
+{
+ "label": "DEVELOPMENT evidence only: same 60 human labels with owner amendments applied; system decisions are those of the committed policy-v2 run (no policy or threshold change); not held-out; uncalibrated",
+ "source_report": "data/eval/results/dev60_human_policy_v2_initials/report.json",
+ "source_report_sha256": "e44fa5a32ec6cb3aa61e36f634eac5267d78b4394ded59454945b942ccfecf79",
+ "amendments_applied": [
+  "d02-6463d76f7e"
+ ],
+ "counts": {
+  "cases": 60,
+  "families": 60,
+  "human_edition": 43,
+  "human_review": 17,
+  "human_review_reasons": {
+   "underspecified": 13,
+   "out_of_corpus": 4
+  },
+  "remaining_reviews_on_human_edition_cases": 15,
+  "remaining_reviews_before_amendment": 16,
+  "wrong_suggestions": 0
+ },
+ "metrics_default_after_amendment": {
+  "all": {
+   "n_cases": 60,
+   "n_families": 60,
+   "correct_suggestion_rate /N": {
+    "numerator": 28,
+    "denominator": 60,
+    "value": 0.4667,
+    "wilson95_case_level": [
+     0.3463,
+     0.5911
+    ],
+    "bootstrap95_family_grouped": [
+     0.3333,
+     0.6
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 60,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.0602
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 28,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1206
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 28,
+    "denominator": 43,
+    "value": 0.6512,
+    "wilson95_case_level": [
+     0.5017,
+     0.7758
+    ],
+    "bootstrap95_family_grouped": [
+     0.5,
+     0.8
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 43,
+    "denominator": 43,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.918,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 17,
+    "denominator": 17,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8157,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "never in the policy-development check": {
+   "n_cases": 43,
+   "n_families": 43,
+   "correct_suggestion_rate /N": {
+    "numerator": 20,
+    "denominator": 43,
+    "value": 0.4651,
+    "wilson95_case_level": [
+     0.3251,
+     0.6108
+    ],
+    "bootstrap95_family_grouped": [
+     0.3023,
+     0.6047
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 43,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.082
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 20,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1611
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 20,
+    "denominator": 33,
+    "value": 0.6061,
+    "wilson95_case_level": [
+     0.4368,
+     0.7532
+    ],
+    "bootstrap95_family_grouped": [
+     0.4242,
+     0.7667
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 33,
+    "denominator": 33,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8957,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 10,
+    "denominator": 10,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7225,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "policy-development families": {
+   "n_cases": 17,
+   "n_families": 17,
+   "correct_suggestion_rate /N": {
+    "numerator": 8,
+    "denominator": 17,
+    "value": 0.4706,
+    "wilson95_case_level": [
+     0.2617,
+     0.6904
+    ],
+    "bootstrap95_family_grouped": [
+     0.2353,
+     0.7059
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 17,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1843
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3244
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 8,
+    "denominator": 10,
+    "value": 0.8,
+    "wilson95_case_level": [
+     0.4902,
+     0.9433
+    ],
+    "bootstrap95_family_grouped": [
+     0.5,
+     1.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 10,
+    "denominator": 10,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7225,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 7,
+    "denominator": 7,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.6457,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  }
+ },
+ "metrics_default_before_amendment": {
+  "all": {
+   "n_cases": 60,
+   "n_families": 60,
+   "correct_suggestion_rate /N": {
+    "numerator": 28,
+    "denominator": 60,
+    "value": 0.4667,
+    "wilson95_case_level": [
+     0.3463,
+     0.5911
+    ],
+    "bootstrap95_family_grouped": [
+     0.3333,
+     0.6
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 60,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.0602
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 28,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1206
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 28,
+    "denominator": 44,
+    "value": 0.6364,
+    "wilson95_case_level": [
+     0.4887,
+     0.7622
+    ],
+    "bootstrap95_family_grouped": [
+     0.4884,
+     0.7857
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 44,
+    "denominator": 44,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.9197,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 16,
+    "denominator": 16,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8064,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "never in the policy-development check": {
+   "n_cases": 43,
+   "n_families": 43,
+   "correct_suggestion_rate /N": {
+    "numerator": 20,
+    "denominator": 43,
+    "value": 0.4651,
+    "wilson95_case_level": [
+     0.3251,
+     0.6108
+    ],
+    "bootstrap95_family_grouped": [
+     0.3023,
+     0.6047
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 43,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.082
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 20,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1611
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 20,
+    "denominator": 34,
+    "value": 0.5882,
+    "wilson95_case_level": [
+     0.4222,
+     0.7363
+    ],
+    "bootstrap95_family_grouped": [
+     0.4062,
+     0.75
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 34,
+    "denominator": 34,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8985,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 9,
+    "denominator": 9,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7009,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "policy-development families": {
+   "n_cases": 17,
+   "n_families": 17,
+   "correct_suggestion_rate /N": {
+    "numerator": 8,
+    "denominator": 17,
+    "value": 0.4706,
+    "wilson95_case_level": [
+     0.2617,
+     0.6904
+    ],
+    "bootstrap95_family_grouped": [
+     0.2353,
+     0.7059
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 17,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1843
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3244
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 8,
+    "denominator": 10,
+    "value": 0.8,
+    "wilson95_case_level": [
+     0.4902,
+     0.9433
+    ],
+    "bootstrap95_family_grouped": [
+     0.5,
+     1.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 10,
+    "denominator": 10,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7225,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 7,
+    "denominator": 7,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.6457,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  }
+ }
+}
