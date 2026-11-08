@@ -2,9 +2,9 @@
 initials compatibility in the author check, bera.features / bera.text.initials_compatible).
 
 This policy uses deterministic rules only. No score here is a probability and no threshold
-was fit on data: calibration is PENDING until grouped out-of-fold dev predictions exist
-(docs/DECISION_POLICY.md). Until then, model adjudication is advisory: it can never turn a
-REVIEW into a SUGGEST.
+was fit on data. Calibration is deferred: human dev labeling and the held-out evaluation are
+complete, but there are too few answerable cases for a reliable fit (docs/STATUS.md). Model
+adjudication is advisory: it can never turn a REVIEW into a SUGGEST.
 
 SUGGEST requires ALL of:
 - no suspicious Unicode in the query, nor in the suggested record;
@@ -34,7 +34,7 @@ from bera.models import CandidateView, CheckStatus, Outcome, Reason, Route
 POLICY_VERSION = "conservative-rules-v2"
 CONFIDENCE_STATUS = (
     "uncalibrated: rule-based policy; scores are ranking scores, not probabilities "
-    "(calibration pending grouped out-of-fold dev evaluation)"
+    "(calibration deferred: too few answerable human-labeled cases for a reliable fit)"
 )
 DISTINGUISHING = frozenset(
     {"isbn", "physical_format", "publish_year", "publisher", "language", "edition"}

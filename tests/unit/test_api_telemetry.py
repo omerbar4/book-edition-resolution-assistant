@@ -34,7 +34,7 @@ def test_health_reports_pending_capabilities(client: TestClient) -> None:
     caps = body["capabilities"]
     assert caps["embedding_retrieval"] == "not configured in this process"
     assert caps["reranker"] == "not configured in this process"
-    assert caps["calibration"].startswith("pending")
+    assert caps["calibration"].startswith("uncalibrated")
     assert caps["llm"] == "disabled"
     assert body["catalog_meta"]["all_synthetic"] == "True"
 

@@ -92,7 +92,10 @@ class Resolver:
             else f"{self.provider.name} (test double, not a model)"
             if self.provider.name == "mock"
             else self.provider.name,
-            calibration="pending: needs human-labeled dev set + grouped out-of-fold fit",
+            calibration=(
+                "uncalibrated: human dev labeling and held-out evaluation are complete; "
+                "too few answerable cases for a reliable fit, so calibration is deferred"
+            ),
         )
 
     def resolve(self, query: Query) -> ResolveResponse:
