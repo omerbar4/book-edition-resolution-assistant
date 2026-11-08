@@ -55,7 +55,7 @@ DATA = (
     "data/eval/dev_check_v3_synthetic.jsonl",
 )
 UNTRACKED_DATA = ("var/catalog_v3.sqlite",)
-ROUTE_EVIDENCE = "data/eval/llm_route_evidence_policy_v2.json"
+ROUTE_EVIDENCE = "data/eval/llm_route_evidence_policy_v2_amended.json"
 GENERATION = ("scripts/make_heldout_queue.py", "src/bera/evalkit/stratified.py")
 DEV_EVIDENCE_GLOBS = ("data/eval/labels/*", "data/eval/drafts/*")
 MODEL_DIR = "models"
@@ -75,7 +75,8 @@ CONSTANT_MODULES = (
 DEFERRED = [
     "C1 calibrated scorer: insufficient evidence; confidence reported as uncalibrated bands",
     "Validated LLM suggestion path: implemented, both routes CLOSED on dev evidence "
-    "(agree 5/10, override 0/0 under policy v2; target 0.95, minimum 30)",
+    "(agree 4/10, override 0/0 under policy v2 with the owner amendment; target 0.95, "
+    "minimum 30)",
     "Damaged-ISBN fallback to other fields: deferred (rule unchanged: repair -> review)",
     "Unicode-guard scope (catalog fields not supplied by the query): deferred (unchanged)",
     "Catalog-inconsistency detector beyond duplicate ISBN and field conflicts: not implemented",
@@ -165,10 +166,12 @@ def build() -> dict[str, Any]:
         "dev_evidence": hashes(dev),
         "deferred": DEFERRED,
         "heldout_run_procedure": (
-            "After held-out labeling: create a git worktree at the freeze tag and run "
-            "bera.evalkit.run there with --split heldout --frozen-tag <tag> "
-            f"--llm-route-evidence {ROUTE_EVIDENCE}, passing the held-out label file and "
-            "queue from the main checkout. One run; nothing is changed and re-run."
+            "After held-out labeling, from the main checkout: bera.evalkit.run --split heldout "
+            "--frozen-tag <tag> --llm-route-evidence "
+            f"{ROUTE_EVIDENCE} with the held-out label file and queue. The harness accepts "
+            "HEAD beyond the tag only if the tag is an ancestor of HEAD, every file changed "
+            "since the tag is under data/eval/heldout/, the tree is clean, and this manifest "
+            "verifies. One run; nothing is changed and re-run."
         ),
     }
 

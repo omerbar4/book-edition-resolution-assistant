@@ -153,3 +153,29 @@ def test_harness_refuses_duplicate_case_ids_across_files(tmp_path: Path, cat: Ca
     two.write_text(line)
     with pytest.raises(SystemExit, match="duplicate case ids"):
         main(["--cases", str(one), str(two), "--db", str(cat.path), "--out", str(tmp_path / "o")])
+
+
+def test_post_tag_changes_allowed_only_for_heldout_data() -> None:
+    from bera.evalkit.run import post_tag_disallowed
+
+    assert (
+        post_tag_disallowed(
+            ["data/eval/heldout/heldout_queue.jsonl", "data/eval/heldout/heldout_labels.jsonl"]
+        )
+        == []
+    )
+    assert post_tag_disallowed(
+        ["data/eval/heldout/x.jsonl", "src/bera/policy.py", "data/eval/llm_route_evidence.json"]
+    ) == ["data/eval/llm_route_evidence.json", "src/bera/policy.py"]
+    assert post_tag_disallowed(["data/eval/heldoutX/evil.jsonl"]) == [
+        "data/eval/heldoutX/evil.jsonl"
+    ]
+
+
+def test_heldout_run_refuses_without_a_tag() -> None:
+    from bera.evalkit.run import _require_frozen
+
+    with pytest.raises(SystemExit, match="frozen-tag"):
+        _require_frozen(None)
+    with pytest.raises(SystemExit):
+        _require_frozen("no-such-tag-xyz")

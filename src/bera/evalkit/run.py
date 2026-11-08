@@ -275,26 +275,51 @@ def repo_relative(path: Path) -> str:
         return p.name
 
 
+# Paths that may change after the freeze tag without invalidating it: the held-out queue,
+# its labels and sidecars, and held-out results. Everything else must be byte-identical.
+POST_TAG_ALLOWED_PREFIXES = ("data/eval/heldout/",)
+
+
+def post_tag_disallowed(changed: Sequence[str]) -> list[str]:
+    """Files changed since the freeze tag that are NOT allowed to change."""
+    return sorted(f for f in changed if not f.startswith(POST_TAG_ALLOWED_PREFIXES))
+
+
 def _require_frozen(tag: str | None) -> None:
-    """Held-out runs need HEAD to be exactly a tagged commit with a clean tree."""
+    """Held-out runs need the frozen system: the tag exists and is an ancestor of HEAD, the
+    tree is clean, every file changed since the tag is held-out data, and the freeze manifest
+    verifies (code, prompt, models, binary, constants, corpus/catalog, route evidence,
+    generation rules, protocol, dev evidence). HEAD may advance beyond the tag only by
+    held-out data commits."""
     import subprocess
+    import sys
 
     if not tag:
-        raise SystemExit("refusing held-out run: pass --frozen-tag <tag> for the frozen policy")
+        raise SystemExit("refusing held-out run: pass --frozen-tag <tag> for the frozen system")
+
+    def run(*args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(  # noqa: S603 - fixed argument lists
+            list(args), cwd=REPO_ROOT, check=False, capture_output=True, text=True
+        )
 
     def git(*args: str) -> str:
-        return subprocess.run(  # noqa: S603
-            ["git", *args],  # noqa: S607 - git from PATH, fixed args
-            cwd=REPO_ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout.strip()
+        r = run("git", *args)
+        if r.returncode != 0:
+            raise SystemExit(f"refusing held-out run: git {' '.join(args)} failed")
+        return r.stdout.strip()
 
     if git("status", "--porcelain"):
         raise SystemExit("refusing held-out run: working tree is not clean")
-    if git("rev-parse", f"{tag}^{{commit}}") != git("rev-parse", "HEAD"):
-        raise SystemExit(f"refusing held-out run: HEAD is not the frozen tag {tag}")
+    tag_commit = git("rev-parse", f"{tag}^{{commit}}")
+    if run("git", "merge-base", "--is-ancestor", tag_commit, "HEAD").returncode != 0:
+        raise SystemExit(f"refusing held-out run: the freeze tag {tag} is not an ancestor of HEAD")
+    changed = git("diff", "--name-only", tag_commit, "HEAD").splitlines()
+    bad = post_tag_disallowed(changed)
+    if bad:
+        raise SystemExit(f"refusing held-out run: frozen files changed since {tag}: {bad[:5]}")
+    v = run(sys.executable, "scripts/freeze_manifest.py", "verify")
+    if v.returncode != 0:
+        raise SystemExit(f"refusing held-out run: freeze manifest does not verify\n{v.stdout}")
 
 
 def main(argv: list[str] | None = None) -> None:  # pragma: no cover - thin CLI

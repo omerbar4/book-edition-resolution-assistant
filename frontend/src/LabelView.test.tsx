@@ -316,6 +316,7 @@ describe("LabelView", () => {
     fireEvent.click(screen.getByLabelText(/One specific edition/));
     fireEvent.click(screen.getByRole("button", { name: "Save label" }));
     await screen.findByText(/never shown for this queue/);
+    expect(screen.queryByText(/Held-out queue/)).toBeNull(); // dev split in this fixture
     expect(
       screen.queryByRole("button", {
         name: "Show drafted proposals for the whole batch",

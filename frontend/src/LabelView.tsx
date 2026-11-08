@@ -298,11 +298,13 @@ export function LabelView() {
         </p>
       </details>
       <p className="muted">
-        Development queue · {queue.independent ?? queue.labeled} independent
-        labels · {queue.practice ?? 0} practice (not counted) ·{" "}
-        {queue.exposed ?? 0} exposed before labeling (not counted) ·{" "}
-        {queue.skipped ?? 0} skipped · {queue.total} cases. Held-out cases are
-        not served here.
+        {queue.items.some((i) => i.split === "heldout")
+          ? "Held-out queue (labels are never used for tuning; proposals are never shown)"
+          : "Development queue"}{" "}
+        · {queue.independent ?? queue.labeled} independent labels ·{" "}
+        {queue.practice ?? 0} practice (not counted) · {queue.exposed ?? 0}{" "}
+        exposed before labeling (not counted) · {queue.skipped ?? 0} skipped ·{" "}
+        {queue.total} cases.
       </p>
       <div className="actions">
         <button

@@ -15,9 +15,10 @@ evaluated once. Its contents are pinned in `data/freeze/freeze_manifest.json`
   constant of the decision path, recorded in the manifest.
 - **Policy:** `conservative-rules-v2` (v1 plus conservative initials compatibility). No
   dev-fitted confidence mapping exists: confidence is uncalibrated.
-- **LLM route evidence:** `data/eval/llm_route_evidence_policy_v2.json`. **Both suggestion
-  routes are closed** (agree 5/10, override 0/0; target 0.95, minimum 30); the LLM is
-  advisory.
+- **LLM route evidence:** `data/eval/llm_route_evidence_policy_v2_amended.json` (the policy
+  v2 run with the owner amendment applied). **Both suggestion routes are closed** (agree 4/10,
+  override 0/0; target 0.95, minimum 30); the LLM is advisory. The earlier evidence files are
+  kept.
 - **Corpus and catalog:** corpus v3_proposed (sha256 `cdabcf84…`), `families.json`, split
   seed 20261103, `var/catalog_v3.sqlite`.
 - **Held-out generation rules:** `scripts/make_heldout_queue.py` (seed 20261110; quotas
@@ -42,8 +43,10 @@ evaluated once. Its contents are pinned in `data/freeze/freeze_manifest.json`
 
 ## Pre-tag checklist
 
-- Disputed dev label `d02-6463d76f7e`: the owner's ruling is recorded append-only. The
-  original line is preserved, and any amendment is a separate record.
+- Disputed dev label `d02-6463d76f7e`: owner ruling recorded. It was amended, after
+  AI-assisted review, to human review with reason underspecified. The original line is
+  preserved and the amendment is a separate append-only record. Dev metrics and route
+  evidence were refreshed (`data/eval/results/dev60_human_policy_v2_amended/metrics.json`).
 - `scripts/freeze_manifest.py verify --pre-tag` passes: clean tree, all pins match, both LLM
   routes closed, no held-out data.
 - Backend and frontend tests, ruff, ruff format and mypy pass.
@@ -55,5 +58,7 @@ evaluated once. Its contents are pinned in `data/freeze/freeze_manifest.json`
 1. `scripts/make_heldout_queue.py --frozen-tag <tag>` (refuses unless HEAD is the tag and
    the tree is clean). Commit the queue, manifest and sealed reserves.
 2. Serve on a separate port with held-out serving enabled. Proposals are never revealed.
-3. After labeling: one held-out run from a worktree at the tag (see the manifest's
-   `heldout_run_procedure`). Held-out labels and results are never used for tuning.
+3. After labeling: one held-out run from the main checkout. The harness accepts HEAD beyond
+   the tag only if the tag is an ancestor of HEAD, every file changed since the tag is under
+   `data/eval/heldout/`, the tree is clean, and the freeze manifest verifies. Held-out labels
+   and results are never used for tuning.
