@@ -1,4 +1,5 @@
-"""Conservative, UNCALIBRATED decision policy `conservative-rules-v1`.
+"""Conservative, UNCALIBRATED decision policy `conservative-rules-v2` (v1 + conservative
+initials compatibility in the author check, bera.features / bera.text.initials_compatible).
 
 This policy uses deterministic rules only. No score here is a probability and no threshold
 was fit on data: calibration is PENDING until grouped out-of-fold dev predictions exist
@@ -30,7 +31,7 @@ from dataclasses import dataclass, field
 
 from bera.models import CandidateView, CheckStatus, Outcome, Reason, Route
 
-POLICY_VERSION = "conservative-rules-v1"
+POLICY_VERSION = "conservative-rules-v2"
 CONFIDENCE_STATUS = (
     "uncalibrated: rule-based policy; scores are ranking scores, not probabilities "
     "(calibration pending grouped out-of-fold dev evaluation)"

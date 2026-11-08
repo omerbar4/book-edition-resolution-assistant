@@ -1,6 +1,25 @@
 # Decision policy
 
-## Current: `conservative-rules-v1` (uncalibrated)
+## Current: `conservative-rules-v2` (uncalibrated)
+
+**v2 (2026-11-07) changes one thing from v1: conservative initials compatibility.** An author
+name counts as AGREE (supporting evidence only) when the surnames are equal and every
+supplied initial matches the given name in the same position. Examples: "S. Reynolds" ~
+"Sophia Reynolds"; "Reynolds, S."; "J.R.R. Tolkien"; "J.-P. Sartre". The rule handles
+surname-first order, punctuation and accents (`bera.text.initials_compatible`).
+
+- A conflicting initial is never upgraded and keeps its similarity status: "J. Smith" vs
+  "Mary Smith" stays UNKNOWN, so that record remains a live alternative. A conflicting
+  surname stays DISAGREE. An unverifiable extra initial, or a surname alone, is not
+  compatible.
+- It is never proof of identity or uniqueness. Missing author metadata stays UNKNOWN. Every
+  catalog-wide ambiguity check and hard rule applies unchanged: two authors sharing a surname
+  and initial both become consistent, so the case goes to review.
+- The decision was made by the owner before the rerun. The dev rerun of 60 human labels is
+  development evidence, not independent proof of improvement. Damaged-ISBN and unicode-scope
+  changes are deferred.
+
+The rest of this section describes v1, which v2 otherwise keeps.
 
 Deterministic rules only (`src/bera/policy.py`). No threshold was fit on data, and no number
 shown is a probability: the API returns `confidence_status = "uncalibrated: …"` and

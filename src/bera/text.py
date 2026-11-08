@@ -132,6 +132,51 @@ def norm_person(name: str | None) -> str:
     return strip_accents(norm_text(n))
 
 
+def person_tokens(name: str | None) -> tuple[list[str], str]:
+    """(given-name tokens, surname) for initials matching. 'Last, First' is reordered;
+    periods and hyphens separate tokens, so 'J.R.R.' gives j, r, r and 'Jean-Paul' gives
+    jean, paul; accents and case are folded. The surname is the last token."""
+    if not name:
+        return [], ""
+    n = name
+    if "," in n:
+        last, _, first = n.partition(",")
+        n = f"{first} {last}"
+    for ch in ".-\u2010\u2011":
+        n = n.replace(ch, " ")
+    tokens = strip_accents(norm_text(n)).split()
+    if not tokens:
+        return [], ""
+    return tokens[:-1], tokens[-1]
+
+
+def initials_compatible(query_author: str | None, catalog_author: str | None) -> bool:
+    """Conservative initials compatibility (supporting evidence only, never proof of identity).
+
+    True only if both names have given names, the surnames are equal, at least one given
+    name on either side is an initial, the query supplies no more given names than the
+    catalog name has, and every query given name matches the catalog given name in the same
+    position: an initial matches a name with that first letter; two full names must be equal.
+    Anything else (a different surname, a conflicting initial, an unverifiable extra given
+    name, a surname-only name, full names on both sides) is False and leaves the ordinary
+    similarity check unchanged."""
+    qg, qs = person_tokens(query_author)
+    cg, cs = person_tokens(catalog_author)
+    if not qs or qs != cs or not qg or not cg:
+        return False
+    if not any(len(t) == 1 for t in qg + cg):
+        return False
+    if len(qg) > len(cg):
+        return False
+    for a, b in zip(qg, cg, strict=False):
+        if len(a) == 1 or len(b) == 1:
+            if a[0] != b[0]:
+                return False
+        elif a != b:
+            return False
+    return True
+
+
 _LEADING_ARTICLES = frozenset(
     "the a an le la les l el los las il lo gli der die das ein eine un une".split()
 )

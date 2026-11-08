@@ -13,7 +13,7 @@ from rapidfuzz import fuzz
 
 from bera import isbn as isbnlib
 from bera.models import CheckStatus, Edition, FieldCheck, PhysicalFormat, Query
-from bera.text import norm_person, norm_text, strip_accents
+from bera.text import initials_compatible, norm_person, norm_text, strip_accents
 
 TITLE_AGREE = 90.0
 TITLE_DISAGREE = 60.0
@@ -228,13 +228,26 @@ def check_fields(query: Query, edition: Edition, query_isbn13: str | None) -> li
             )
         else:
             sim = author_similarity(query.author, edition)
+            status = _band(sim, AUTHOR_AGREE, AUTHOR_DISAGREE)
+            author_detail = f"similarity={sim:.0f}"
+            # conservative-rules-v2: an initials-compatible name (same surname, every supplied
+            # initial matching) is supporting AGREE evidence. It never proves identity or
+            # uniqueness: catalog-wide ambiguity checks and hard rules still apply. A
+            # non-compatible name keeps the similarity status above (never upgraded).
+            if status is not CheckStatus.AGREE and any(
+                initials_compatible(query.author, a) for a in edition.authors
+            ):
+                status = CheckStatus.AGREE
+                author_detail = (
+                    f"initials-compatible (supporting evidence only); similarity={sim:.0f}"
+                )
             checks.append(
                 FieldCheck(
                     field="author",
-                    status=_band(sim, AUTHOR_AGREE, AUTHOR_DISAGREE),
+                    status=status,
                     query_value=query.author,
                     candidate_value="; ".join(edition.authors),
-                    detail=f"similarity={sim:.0f}",
+                    detail=author_detail,
                 )
             )
 
