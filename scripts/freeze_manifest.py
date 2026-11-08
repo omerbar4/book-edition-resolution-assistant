@@ -126,7 +126,10 @@ def constants() -> dict[str, dict[str, Any]]:
                         else [str(x) for x in v]
                     )
                 elif isinstance(v, dict):
-                    vals[k] = json.loads(json.dumps(v, default=str))
+                    try:  # plain JSON only; dicts of callables (op registries) are code,
+                        vals[k] = json.loads(json.dumps(v))  # pinned by the file hashes
+                    except TypeError:
+                        continue
         out[name] = vals
     return out
 
