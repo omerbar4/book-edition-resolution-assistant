@@ -1,0 +1,5803 @@
+{
+  "case_files": [
+    {
+      "path": "data/eval/labels/dev_batch02_labels.jsonl",
+      "sha256": "a7153c1c36113e2bad2a54e22590a1ed374d35fde8a1f3ef13488eef681ab25f"
+    },
+    {
+      "path": "data/eval/labels/dev_final_labels.jsonl",
+      "sha256": "c6e0e0c497cecf8b31db39d8593fcf0b9a350d0005f177ccd64ea9453c0d6b83"
+    }
+  ],
+  "cases": 60,
+  "catalog_meta": {
+    "all_synthetic": "False",
+    "fixtures_sha256": "cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464",
+    "sources": "openlibrary-dump-2026-10-31"
+  },
+  "confidence_note": "signal = top-1 agreements - 2*conflicts: an UNCALIBRATED ranking signal; buckets and risk-coverage use it, not a probability",
+  "family_source": {
+    "families": "data/corpus/v3_proposed/families.json",
+    "queues": [
+      {
+        "queue": "data/eval/drafts/dev_batch02.jsonl",
+        "queue_sha256": "554cc8635d9b99fe969b343ac08133c089023bc4f6fa2c5d638aa462ffff94cf"
+      },
+      {
+        "queue": "data/eval/drafts/dev_final.jsonl",
+        "queue_sha256": "652bf313932a61163cab53d210d089f55d388698597440cc1e96f02d6e89f5c9"
+      }
+    ],
+    "rule": "family = draft family; chosen editions must map to it; no fallback"
+  },
+  "human_labeled_cases": 60,
+  "label": "evaluation",
+  "llm_route_gate": {
+    "open_routes": [],
+    "source": "none"
+  },
+  "splits_in_cases": [
+    "dev"
+  ],
+  "systems": {
+    "1_exact_fuzzy": {
+      "label": "Exact identifier + fuzzy matching",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 60,
+          "numerator": 32,
+          "value": 0.5333
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 0,
+            "numerator": 0,
+            "value": null
+          },
+          "breakdown": {
+            "choice_equals_top1": 0,
+            "choice_in_gold": {
+              "denominator": 0,
+              "numerator": 0
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 0,
+                "numerator": 0
+              },
+              "expected_suggest": {
+                "denominator": 0,
+                "numerator": 0
+              }
+            },
+            "completed_chose_a_candidate": 0,
+            "completed_llm_abstained": 0,
+            "completed_valid_responses": 0,
+            "final_outcome_when_invoked": {
+              "review": 0,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 0,
+            "invoked_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "not_completed": {}
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 60,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "statuses": {
+            "disabled": 15,
+            "not_needed": 45
+          },
+          "tokens_total": 0
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.35,
+            0.5833
+          ],
+          "error_among_suggestions": [
+            0.0,
+            0.0
+          ],
+          "top1_accuracy": [
+            1.0,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0,
+            0.0
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 16,
+          "correct_abstention": 16,
+          "correct_suggestion": 28
+        },
+        "correct_abstention_rate": {
+          "denominator": 16,
+          "numerator": 16,
+          "value": 1.0
+        },
+        "correct_suggestion_rate": {
+          "denominator": 60,
+          "numerator": 28,
+          "value": 0.4667
+        },
+        "counts": {
+          "A_answerable": 44,
+          "N": 60,
+          "S_suggested": 28,
+          "U_expected_abstain": 16,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 28,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.007,
+            "p95": 0.01
+          },
+          "catalog_scan": {
+            "p50": 1.325,
+            "p95": 6.226
+          },
+          "checks": {
+            "p50": 3.802,
+            "p95": 4.926
+          },
+          "isbn": {
+            "p50": 0.001,
+            "p95": 1.345
+          },
+          "rerank_order": {
+            "p50": 0.027,
+            "p95": 0.038
+          },
+          "retrieval": {
+            "p50": 11.674,
+            "p95": 23.5
+          },
+          "total": {
+            "p50": 16.619,
+            "p95": 28.504
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 44,
+          "numerator": 16,
+          "value": 0.3636
+        },
+        "mrr": {
+          "denominator": 44,
+          "value": 1.0
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@10": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@5": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 1,
+            "coverage": 0.0167,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 18,
+            "coverage": 0.3,
+            "risk": 0.1111,
+            "threshold": 4.0
+          },
+          {
+            "answered": 47,
+            "coverage": 0.7833,
+            "risk": 0.1489,
+            "threshold": 3.0
+          },
+          {
+            "answered": 56,
+            "coverage": 0.9333,
+            "risk": 0.2143,
+            "threshold": 2.0
+          },
+          {
+            "answered": 57,
+            "coverage": 0.95,
+            "risk": 0.2281,
+            "threshold": 1.0
+          },
+          {
+            "answered": 60,
+            "coverage": 1.0,
+            "risk": 0.2667,
+            "threshold": 0.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 1,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.2065,
+              1.0
+            ]
+          },
+          {
+            "n": 17,
+            "precision": 0.8824,
+            "signal": 4.0,
+            "top1_correct": 15,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          {
+            "n": 29,
+            "precision": 0.8276,
+            "signal": 3.0,
+            "top1_correct": 24,
+            "wilson95": [
+              0.6545,
+              0.924
+            ]
+          },
+          {
+            "n": 9,
+            "precision": 0.4444,
+            "signal": 2.0,
+            "top1_correct": 4,
+            "wilson95": [
+              0.1888,
+              0.7333
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": 1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.0,
+            "signal": 0.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.5615
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 44,
+          "numerator": 44,
+          "value": 1.0
+        },
+        "wrong_match_rate": {
+          "denominator": 60,
+          "numerator": 0,
+          "value": 0.0
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-02b810abce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7795607M",
+          "top1": "OL7795607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-03c77f5cc6",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8156709M",
+          "top1": "OL8156709M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-0589d2fcff",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23942870M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-08a4bf8ae5",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29449805M",
+          "top1": "OL29449805M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-451a45f8ac",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9118320M",
+          "top1": "OL9118320M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4a5ec910db",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9308618M",
+          "top1": "OL9308618M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c1008b303",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38945553M",
+          "top1": "OL38945553M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c2ae5e76e",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41479607M",
+          "top1": "OL41479607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-500b786619",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-5ad58c7355",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-6463d76f7e",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27649064M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-a45a6e14e1",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38335303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ad6b44676f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11176707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-b1c25eb8ef",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61799129M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-bd2b145215",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL28858501M",
+          "top1": "OL28858501M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ed610d5d91",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42669246M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f13c90f2c1",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50767901M",
+          "top1": "OL50767901M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f290f0c95f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9940464M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f69c8768ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27069305M",
+          "top1": "OL27069305M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-fdf24a4194",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51771886M",
+          "top1": "OL51771886M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0997062a58",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10690045M",
+          "top1": "OL10690045M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-0ad6ec4b93",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27350637M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0f3cf5a743",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL49738578M",
+          "top1": "OL49738578M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-10956f0d07",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36233135M",
+          "top1": "OL36233135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b21ee1ac",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL22848482M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b62c92d6",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9662106M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-1d4f410493",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11585958M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-250eb0fe92",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38237944M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-30dd74b830",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7992433M",
+          "top1": "OL7992433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-4163d593ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41828889M",
+          "top1": "OL41828889M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5c1c081224",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56388108M",
+          "top1": "OL56388108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5f0e5144cc",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9530211M",
+          "top1": "OL9530211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-74535cab45",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259891M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-75cf44c22c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54176620M",
+          "top1": "OL54176620M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-762da472d6",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42041827M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7aad427028",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7649395M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7cc54b9b04",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8444002M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-850f54c394",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL52202127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-8d23d849d7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23991536M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-9cfe4ce6d4",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37637127M",
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-9de462b511",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6388435M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a25b4a7700",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a726c1f61b",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL371791M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-a8516126b7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1567566M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-af83489aca",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51589076M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-afed02d380",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41683529M",
+          "top1": "OL41683529M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-b19fe7c00d",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46758363M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb3fd433d8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44117770M",
+          "top1": "OL44117770M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb7313d1c4",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60985278M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-c47a605b4c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8004507M",
+          "top1": "OL8004507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d23ebead95",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24019604M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d9a6484759",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11129248M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df4da76948",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL12955645M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df6f5a2f7b",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11007557M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e1efb2be9c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL42107317M",
+          "top1": "OL42107317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e54c949143",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10985862M",
+          "top1": "OL10985862M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e5d6255eb8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27586443M",
+          "top1": "OL27586443M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f3d2e5552f",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50653193M",
+          "top1": "OL50653193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f45519bd4a",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1955387M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-f48c5fe4db",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9387684M"
+        }
+      ],
+      "status": "ran"
+    },
+    "2_lexical": {
+      "label": "Lexical retrieval (FTS5 BM25)",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 60,
+          "numerator": 32,
+          "value": 0.5333
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 0,
+            "numerator": 0,
+            "value": null
+          },
+          "breakdown": {
+            "choice_equals_top1": 0,
+            "choice_in_gold": {
+              "denominator": 0,
+              "numerator": 0
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 0,
+                "numerator": 0
+              },
+              "expected_suggest": {
+                "denominator": 0,
+                "numerator": 0
+              }
+            },
+            "completed_chose_a_candidate": 0,
+            "completed_llm_abstained": 0,
+            "completed_valid_responses": 0,
+            "final_outcome_when_invoked": {
+              "review": 0,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 0,
+            "invoked_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "not_completed": {}
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 60,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "statuses": {
+            "disabled": 15,
+            "not_needed": 45
+          },
+          "tokens_total": 0
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.35,
+            0.5833
+          ],
+          "error_among_suggestions": [
+            0.0,
+            0.0
+          ],
+          "top1_accuracy": [
+            1.0,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0,
+            0.0
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 16,
+          "correct_abstention": 16,
+          "correct_suggestion": 28
+        },
+        "correct_abstention_rate": {
+          "denominator": 16,
+          "numerator": 16,
+          "value": 1.0
+        },
+        "correct_suggestion_rate": {
+          "denominator": 60,
+          "numerator": 28,
+          "value": 0.4667
+        },
+        "counts": {
+          "A_answerable": 44,
+          "N": 60,
+          "S_suggested": 28,
+          "U_expected_abstain": 16,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 28,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.004,
+            "p95": 0.01
+          },
+          "catalog_scan": {
+            "p50": 1.027,
+            "p95": 5.897
+          },
+          "checks": {
+            "p50": 3.338,
+            "p95": 5.973
+          },
+          "isbn": {
+            "p50": 0.001,
+            "p95": 1.251
+          },
+          "rerank_order": {
+            "p50": 0.024,
+            "p95": 0.055
+          },
+          "retrieval": {
+            "p50": 0.509,
+            "p95": 2.604
+          },
+          "total": {
+            "p50": 4.672,
+            "p95": 8.882
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 44,
+          "numerator": 16,
+          "value": 0.3636
+        },
+        "mrr": {
+          "denominator": 44,
+          "value": 1.0
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@10": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@5": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 1,
+            "coverage": 0.0167,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 18,
+            "coverage": 0.3,
+            "risk": 0.1111,
+            "threshold": 4.0
+          },
+          {
+            "answered": 47,
+            "coverage": 0.7833,
+            "risk": 0.1489,
+            "threshold": 3.0
+          },
+          {
+            "answered": 56,
+            "coverage": 0.9333,
+            "risk": 0.2143,
+            "threshold": 2.0
+          },
+          {
+            "answered": 57,
+            "coverage": 0.95,
+            "risk": 0.2281,
+            "threshold": 1.0
+          },
+          {
+            "answered": 60,
+            "coverage": 1.0,
+            "risk": 0.2667,
+            "threshold": 0.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 1,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.2065,
+              1.0
+            ]
+          },
+          {
+            "n": 17,
+            "precision": 0.8824,
+            "signal": 4.0,
+            "top1_correct": 15,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          {
+            "n": 29,
+            "precision": 0.8276,
+            "signal": 3.0,
+            "top1_correct": 24,
+            "wilson95": [
+              0.6545,
+              0.924
+            ]
+          },
+          {
+            "n": 9,
+            "precision": 0.4444,
+            "signal": 2.0,
+            "top1_correct": 4,
+            "wilson95": [
+              0.1888,
+              0.7333
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": 1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.0,
+            "signal": 0.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.5615
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 44,
+          "numerator": 44,
+          "value": 1.0
+        },
+        "wrong_match_rate": {
+          "denominator": 60,
+          "numerator": 0,
+          "value": 0.0
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-02b810abce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7795607M",
+          "top1": "OL7795607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-03c77f5cc6",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8156709M",
+          "top1": "OL8156709M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-0589d2fcff",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23942870M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-08a4bf8ae5",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29449805M",
+          "top1": "OL29449805M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-451a45f8ac",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9118320M",
+          "top1": "OL9118320M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4a5ec910db",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9308618M",
+          "top1": "OL9308618M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c1008b303",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38945553M",
+          "top1": "OL38945553M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c2ae5e76e",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41479607M",
+          "top1": "OL41479607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-500b786619",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-5ad58c7355",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-6463d76f7e",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27649064M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-a45a6e14e1",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38335303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ad6b44676f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11176707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-b1c25eb8ef",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61799129M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-bd2b145215",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL28858501M",
+          "top1": "OL28858501M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ed610d5d91",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42669246M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f13c90f2c1",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50767901M",
+          "top1": "OL50767901M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f290f0c95f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9940464M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f69c8768ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27069305M",
+          "top1": "OL27069305M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-fdf24a4194",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51771886M",
+          "top1": "OL51771886M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0997062a58",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10690045M",
+          "top1": "OL10690045M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-0ad6ec4b93",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27350637M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0f3cf5a743",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL49738578M",
+          "top1": "OL49738578M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-10956f0d07",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36233135M",
+          "top1": "OL36233135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b21ee1ac",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7283259M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b62c92d6",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9662106M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-1d4f410493",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11585958M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-250eb0fe92",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38237944M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-30dd74b830",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7992433M",
+          "top1": "OL7992433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-4163d593ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41828889M",
+          "top1": "OL41828889M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5c1c081224",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56388108M",
+          "top1": "OL56388108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5f0e5144cc",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9530211M",
+          "top1": "OL9530211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-74535cab45",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259891M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-75cf44c22c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54176620M",
+          "top1": "OL54176620M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-762da472d6",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42119531M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7aad427028",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7649395M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7cc54b9b04",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8444002M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-850f54c394",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL52202127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-8d23d849d7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23991536M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-9cfe4ce6d4",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37637127M",
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-9de462b511",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6388435M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a25b4a7700",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a726c1f61b",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL371791M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-a8516126b7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL31866567M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-af83489aca",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51589076M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-afed02d380",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41683529M",
+          "top1": "OL41683529M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-b19fe7c00d",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46758363M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb3fd433d8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44117770M",
+          "top1": "OL44117770M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb7313d1c4",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60985278M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-c47a605b4c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8004507M",
+          "top1": "OL8004507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d23ebead95",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28234554M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d9a6484759",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11129248M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df4da76948",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL12955645M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df6f5a2f7b",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11007557M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e1efb2be9c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL42107317M",
+          "top1": "OL42107317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e54c949143",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10985862M",
+          "top1": "OL10985862M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e5d6255eb8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27586443M",
+          "top1": "OL27586443M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f3d2e5552f",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50653193M",
+          "top1": "OL50653193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f45519bd4a",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1955387M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-f48c5fe4db",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9387684M"
+        }
+      ],
+      "status": "ran"
+    },
+    "2b_lexical_rrf": {
+      "label": "Lexical BM25 + trigram, RRF (current default)",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 60,
+          "numerator": 32,
+          "value": 0.5333
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 0,
+            "numerator": 0,
+            "value": null
+          },
+          "breakdown": {
+            "choice_equals_top1": 0,
+            "choice_in_gold": {
+              "denominator": 0,
+              "numerator": 0
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 0,
+                "numerator": 0
+              },
+              "expected_suggest": {
+                "denominator": 0,
+                "numerator": 0
+              }
+            },
+            "completed_chose_a_candidate": 0,
+            "completed_llm_abstained": 0,
+            "completed_valid_responses": 0,
+            "final_outcome_when_invoked": {
+              "review": 0,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 0,
+            "invoked_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "not_completed": {}
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 60,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "statuses": {
+            "disabled": 15,
+            "not_needed": 45
+          },
+          "tokens_total": 0
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.35,
+            0.5833
+          ],
+          "error_among_suggestions": [
+            0.0,
+            0.0
+          ],
+          "top1_accuracy": [
+            1.0,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0,
+            0.0
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 16,
+          "correct_abstention": 16,
+          "correct_suggestion": 28
+        },
+        "correct_abstention_rate": {
+          "denominator": 16,
+          "numerator": 16,
+          "value": 1.0
+        },
+        "correct_suggestion_rate": {
+          "denominator": 60,
+          "numerator": 28,
+          "value": 0.4667
+        },
+        "counts": {
+          "A_answerable": 44,
+          "N": 60,
+          "S_suggested": 28,
+          "U_expected_abstain": 16,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 28,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.003,
+            "p95": 0.007
+          },
+          "catalog_scan": {
+            "p50": 0.83,
+            "p95": 6.018
+          },
+          "checks": {
+            "p50": 3.34,
+            "p95": 5.215
+          },
+          "isbn": {
+            "p50": 0.0,
+            "p95": 1.289
+          },
+          "rerank_order": {
+            "p50": 0.024,
+            "p95": 0.036
+          },
+          "retrieval": {
+            "p50": 1.361,
+            "p95": 3.807
+          },
+          "total": {
+            "p50": 5.572,
+            "p95": 9.499
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 44,
+          "numerator": 16,
+          "value": 0.3636
+        },
+        "mrr": {
+          "denominator": 44,
+          "value": 1.0
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@10": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@5": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 1,
+            "coverage": 0.0167,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 18,
+            "coverage": 0.3,
+            "risk": 0.1111,
+            "threshold": 4.0
+          },
+          {
+            "answered": 47,
+            "coverage": 0.7833,
+            "risk": 0.1489,
+            "threshold": 3.0
+          },
+          {
+            "answered": 56,
+            "coverage": 0.9333,
+            "risk": 0.2143,
+            "threshold": 2.0
+          },
+          {
+            "answered": 57,
+            "coverage": 0.95,
+            "risk": 0.2281,
+            "threshold": 1.0
+          },
+          {
+            "answered": 60,
+            "coverage": 1.0,
+            "risk": 0.2667,
+            "threshold": 0.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 1,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.2065,
+              1.0
+            ]
+          },
+          {
+            "n": 17,
+            "precision": 0.8824,
+            "signal": 4.0,
+            "top1_correct": 15,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          {
+            "n": 29,
+            "precision": 0.8276,
+            "signal": 3.0,
+            "top1_correct": 24,
+            "wilson95": [
+              0.6545,
+              0.924
+            ]
+          },
+          {
+            "n": 9,
+            "precision": 0.4444,
+            "signal": 2.0,
+            "top1_correct": 4,
+            "wilson95": [
+              0.1888,
+              0.7333
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": 1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.0,
+            "signal": 0.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.5615
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 44,
+          "numerator": 44,
+          "value": 1.0
+        },
+        "wrong_match_rate": {
+          "denominator": 60,
+          "numerator": 0,
+          "value": 0.0
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-02b810abce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7795607M",
+          "top1": "OL7795607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-03c77f5cc6",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8156709M",
+          "top1": "OL8156709M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-0589d2fcff",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23942870M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-08a4bf8ae5",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29449805M",
+          "top1": "OL29449805M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-451a45f8ac",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9118320M",
+          "top1": "OL9118320M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4a5ec910db",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9308618M",
+          "top1": "OL9308618M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c1008b303",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38945553M",
+          "top1": "OL38945553M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c2ae5e76e",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41479607M",
+          "top1": "OL41479607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-500b786619",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-5ad58c7355",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-6463d76f7e",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27649064M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-a45a6e14e1",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38335303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ad6b44676f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11176707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-b1c25eb8ef",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61799129M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-bd2b145215",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL28858501M",
+          "top1": "OL28858501M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ed610d5d91",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42669246M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f13c90f2c1",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50767901M",
+          "top1": "OL50767901M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f290f0c95f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9940464M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f69c8768ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27069305M",
+          "top1": "OL27069305M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-fdf24a4194",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51771886M",
+          "top1": "OL51771886M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0997062a58",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10690045M",
+          "top1": "OL10690045M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-0ad6ec4b93",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27350637M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0f3cf5a743",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL49738578M",
+          "top1": "OL49738578M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-10956f0d07",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36233135M",
+          "top1": "OL36233135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b21ee1ac",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7283259M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b62c92d6",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9662106M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-1d4f410493",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11585958M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-250eb0fe92",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38237944M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-30dd74b830",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7992433M",
+          "top1": "OL7992433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-4163d593ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41828889M",
+          "top1": "OL41828889M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5c1c081224",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56388108M",
+          "top1": "OL56388108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5f0e5144cc",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9530211M",
+          "top1": "OL9530211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-74535cab45",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259891M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-75cf44c22c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54176620M",
+          "top1": "OL54176620M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-762da472d6",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42119531M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7aad427028",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7649395M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7cc54b9b04",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8444002M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-850f54c394",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL52202127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-8d23d849d7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23991536M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-9cfe4ce6d4",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37637127M",
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-9de462b511",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6388435M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a25b4a7700",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a726c1f61b",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL371791M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-a8516126b7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL31866567M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-af83489aca",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51589076M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-afed02d380",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41683529M",
+          "top1": "OL41683529M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-b19fe7c00d",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46758363M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb3fd433d8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44117770M",
+          "top1": "OL44117770M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb7313d1c4",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60985278M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-c47a605b4c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8004507M",
+          "top1": "OL8004507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d23ebead95",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28234554M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d9a6484759",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11129248M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df4da76948",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL12955645M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df6f5a2f7b",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11007557M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e1efb2be9c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL42107317M",
+          "top1": "OL42107317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e54c949143",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10985862M",
+          "top1": "OL10985862M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e5d6255eb8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27586443M",
+          "top1": "OL27586443M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f3d2e5552f",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50653193M",
+          "top1": "OL50653193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f45519bd4a",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1955387M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-f48c5fe4db",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9387684M"
+        }
+      ],
+      "status": "ran"
+    },
+    "3_embedding": {
+      "label": "Embedding retrieval (bge-small-en-v1.5)",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 60,
+          "numerator": 32,
+          "value": 0.5333
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 0,
+            "numerator": 0,
+            "value": null
+          },
+          "breakdown": {
+            "choice_equals_top1": 0,
+            "choice_in_gold": {
+              "denominator": 0,
+              "numerator": 0
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 0,
+                "numerator": 0
+              },
+              "expected_suggest": {
+                "denominator": 0,
+                "numerator": 0
+              }
+            },
+            "completed_chose_a_candidate": 0,
+            "completed_llm_abstained": 0,
+            "completed_valid_responses": 0,
+            "final_outcome_when_invoked": {
+              "review": 0,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 0,
+            "invoked_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "not_completed": {}
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 60,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "statuses": {
+            "disabled": 15,
+            "not_needed": 45
+          },
+          "tokens_total": 0
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.35,
+            0.5833
+          ],
+          "error_among_suggestions": [
+            0.0,
+            0.0
+          ],
+          "top1_accuracy": [
+            1.0,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0,
+            0.0
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 16,
+          "correct_abstention": 16,
+          "correct_suggestion": 28
+        },
+        "correct_abstention_rate": {
+          "denominator": 16,
+          "numerator": 16,
+          "value": 1.0
+        },
+        "correct_suggestion_rate": {
+          "denominator": 60,
+          "numerator": 28,
+          "value": 0.4667
+        },
+        "counts": {
+          "A_answerable": 44,
+          "N": 60,
+          "S_suggested": 28,
+          "U_expected_abstain": 16,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 28,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.009,
+            "p95": 0.013
+          },
+          "catalog_scan": {
+            "p50": 1.718,
+            "p95": 7.183
+          },
+          "checks": {
+            "p50": 3.404,
+            "p95": 7.75
+          },
+          "isbn": {
+            "p50": 0.001,
+            "p95": 1.626
+          },
+          "rerank_order": {
+            "p50": 0.032,
+            "p95": 0.046
+          },
+          "retrieval": {
+            "p50": 10.505,
+            "p95": 13.101
+          },
+          "total": {
+            "p50": 15.195,
+            "p95": 21.235
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 44,
+          "numerator": 16,
+          "value": 0.3636
+        },
+        "mrr": {
+          "denominator": 44,
+          "value": 1.0
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@10": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@5": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 1,
+            "coverage": 0.0167,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 18,
+            "coverage": 0.3,
+            "risk": 0.1111,
+            "threshold": 4.0
+          },
+          {
+            "answered": 47,
+            "coverage": 0.7833,
+            "risk": 0.1489,
+            "threshold": 3.0
+          },
+          {
+            "answered": 56,
+            "coverage": 0.9333,
+            "risk": 0.2143,
+            "threshold": 2.0
+          },
+          {
+            "answered": 57,
+            "coverage": 0.95,
+            "risk": 0.2281,
+            "threshold": 1.0
+          },
+          {
+            "answered": 60,
+            "coverage": 1.0,
+            "risk": 0.2667,
+            "threshold": 0.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 1,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.2065,
+              1.0
+            ]
+          },
+          {
+            "n": 17,
+            "precision": 0.8824,
+            "signal": 4.0,
+            "top1_correct": 15,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          {
+            "n": 29,
+            "precision": 0.8276,
+            "signal": 3.0,
+            "top1_correct": 24,
+            "wilson95": [
+              0.6545,
+              0.924
+            ]
+          },
+          {
+            "n": 9,
+            "precision": 0.4444,
+            "signal": 2.0,
+            "top1_correct": 4,
+            "wilson95": [
+              0.1888,
+              0.7333
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": 1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.0,
+            "signal": 0.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.5615
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 44,
+          "numerator": 44,
+          "value": 1.0
+        },
+        "wrong_match_rate": {
+          "denominator": 60,
+          "numerator": 0,
+          "value": 0.0
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-02b810abce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7795607M",
+          "top1": "OL7795607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-03c77f5cc6",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8156709M",
+          "top1": "OL8156709M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-0589d2fcff",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27291777M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-08a4bf8ae5",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29449805M",
+          "top1": "OL29449805M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-451a45f8ac",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9118320M",
+          "top1": "OL9118320M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4a5ec910db",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9308618M",
+          "top1": "OL9308618M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c1008b303",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38945553M",
+          "top1": "OL38945553M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c2ae5e76e",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41479607M",
+          "top1": "OL41479607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-500b786619",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-5ad58c7355",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-6463d76f7e",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27649064M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-a45a6e14e1",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38335303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ad6b44676f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11176707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-b1c25eb8ef",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61799129M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-bd2b145215",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL28858501M",
+          "top1": "OL28858501M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ed610d5d91",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42669246M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f13c90f2c1",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50767901M",
+          "top1": "OL50767901M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f290f0c95f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9940464M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f69c8768ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27069305M",
+          "top1": "OL27069305M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-fdf24a4194",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51771886M",
+          "top1": "OL51771886M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0997062a58",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10690045M",
+          "top1": "OL10690045M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-0ad6ec4b93",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32937657M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0f3cf5a743",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL49738578M",
+          "top1": "OL49738578M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-10956f0d07",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36233135M",
+          "top1": "OL36233135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b21ee1ac",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL22848482M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b62c92d6",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9662106M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-1d4f410493",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11585958M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-250eb0fe92",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38237944M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-30dd74b830",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7992433M",
+          "top1": "OL7992433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-4163d593ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41828889M",
+          "top1": "OL41828889M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5c1c081224",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56388108M",
+          "top1": "OL56388108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5f0e5144cc",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9530211M",
+          "top1": "OL9530211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-74535cab45",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259891M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-75cf44c22c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54176620M",
+          "top1": "OL54176620M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-762da472d6",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42142655M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7aad427028",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7649395M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7cc54b9b04",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8444002M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-850f54c394",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL52202127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-8d23d849d7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23991536M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-9cfe4ce6d4",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37637127M",
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-9de462b511",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6388435M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a25b4a7700",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a726c1f61b",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL371791M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-a8516126b7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23052749M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-af83489aca",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51589076M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-afed02d380",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41683529M",
+          "top1": "OL41683529M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-b19fe7c00d",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46758363M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb3fd433d8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44117770M",
+          "top1": "OL44117770M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb7313d1c4",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60985278M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-c47a605b4c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8004507M",
+          "top1": "OL8004507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d23ebead95",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL34177888M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d9a6484759",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11129248M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df4da76948",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27203781M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df6f5a2f7b",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11007557M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e1efb2be9c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL42107317M",
+          "top1": "OL42107317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e54c949143",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10985862M",
+          "top1": "OL10985862M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e5d6255eb8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27586443M",
+          "top1": "OL27586443M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f3d2e5552f",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50653193M",
+          "top1": "OL50653193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f45519bd4a",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1955387M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-f48c5fe4db",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9387684M"
+        }
+      ],
+      "status": "ran"
+    },
+    "4_hybrid": {
+      "label": "Hybrid BM25 + trigram + embedding (RRF)",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 60,
+          "numerator": 32,
+          "value": 0.5333
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 0,
+            "numerator": 0,
+            "value": null
+          },
+          "breakdown": {
+            "choice_equals_top1": 0,
+            "choice_in_gold": {
+              "denominator": 0,
+              "numerator": 0
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 0,
+                "numerator": 0
+              },
+              "expected_suggest": {
+                "denominator": 0,
+                "numerator": 0
+              }
+            },
+            "completed_chose_a_candidate": 0,
+            "completed_llm_abstained": 0,
+            "completed_valid_responses": 0,
+            "final_outcome_when_invoked": {
+              "review": 0,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 0,
+            "invoked_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "not_completed": {}
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 60,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "statuses": {
+            "disabled": 15,
+            "not_needed": 45
+          },
+          "tokens_total": 0
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.35,
+            0.5833
+          ],
+          "error_among_suggestions": [
+            0.0,
+            0.0
+          ],
+          "top1_accuracy": [
+            1.0,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0,
+            0.0
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 16,
+          "correct_abstention": 16,
+          "correct_suggestion": 28
+        },
+        "correct_abstention_rate": {
+          "denominator": 16,
+          "numerator": 16,
+          "value": 1.0
+        },
+        "correct_suggestion_rate": {
+          "denominator": 60,
+          "numerator": 28,
+          "value": 0.4667
+        },
+        "counts": {
+          "A_answerable": 44,
+          "N": 60,
+          "S_suggested": 28,
+          "U_expected_abstain": 16,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 28,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.008,
+            "p95": 0.012
+          },
+          "catalog_scan": {
+            "p50": 1.019,
+            "p95": 8.944
+          },
+          "checks": {
+            "p50": 3.604,
+            "p95": 5.886
+          },
+          "isbn": {
+            "p50": 0.001,
+            "p95": 1.332
+          },
+          "rerank_order": {
+            "p50": 0.029,
+            "p95": 0.045
+          },
+          "retrieval": {
+            "p50": 10.668,
+            "p95": 15.975
+          },
+          "total": {
+            "p50": 14.983,
+            "p95": 22.305
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 44,
+          "numerator": 16,
+          "value": 0.3636
+        },
+        "mrr": {
+          "denominator": 44,
+          "value": 1.0
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@10": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@5": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 1,
+            "coverage": 0.0167,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 18,
+            "coverage": 0.3,
+            "risk": 0.1111,
+            "threshold": 4.0
+          },
+          {
+            "answered": 47,
+            "coverage": 0.7833,
+            "risk": 0.1489,
+            "threshold": 3.0
+          },
+          {
+            "answered": 56,
+            "coverage": 0.9333,
+            "risk": 0.2143,
+            "threshold": 2.0
+          },
+          {
+            "answered": 57,
+            "coverage": 0.95,
+            "risk": 0.2281,
+            "threshold": 1.0
+          },
+          {
+            "answered": 60,
+            "coverage": 1.0,
+            "risk": 0.2667,
+            "threshold": 0.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 1,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.2065,
+              1.0
+            ]
+          },
+          {
+            "n": 17,
+            "precision": 0.8824,
+            "signal": 4.0,
+            "top1_correct": 15,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          {
+            "n": 29,
+            "precision": 0.8276,
+            "signal": 3.0,
+            "top1_correct": 24,
+            "wilson95": [
+              0.6545,
+              0.924
+            ]
+          },
+          {
+            "n": 9,
+            "precision": 0.4444,
+            "signal": 2.0,
+            "top1_correct": 4,
+            "wilson95": [
+              0.1888,
+              0.7333
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": 1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.0,
+            "signal": 0.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.5615
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 44,
+          "numerator": 44,
+          "value": 1.0
+        },
+        "wrong_match_rate": {
+          "denominator": 60,
+          "numerator": 0,
+          "value": 0.0
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-02b810abce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7795607M",
+          "top1": "OL7795607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-03c77f5cc6",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8156709M",
+          "top1": "OL8156709M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-0589d2fcff",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23942870M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-08a4bf8ae5",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29449805M",
+          "top1": "OL29449805M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-451a45f8ac",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9118320M",
+          "top1": "OL9118320M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4a5ec910db",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9308618M",
+          "top1": "OL9308618M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c1008b303",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38945553M",
+          "top1": "OL38945553M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c2ae5e76e",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41479607M",
+          "top1": "OL41479607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-500b786619",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-5ad58c7355",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-6463d76f7e",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27649064M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-a45a6e14e1",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38335303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ad6b44676f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11176707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-b1c25eb8ef",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61799129M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-bd2b145215",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL28858501M",
+          "top1": "OL28858501M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ed610d5d91",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42669246M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f13c90f2c1",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50767901M",
+          "top1": "OL50767901M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f290f0c95f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9940464M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f69c8768ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27069305M",
+          "top1": "OL27069305M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-fdf24a4194",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51771886M",
+          "top1": "OL51771886M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0997062a58",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10690045M",
+          "top1": "OL10690045M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-0ad6ec4b93",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27350637M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0f3cf5a743",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL49738578M",
+          "top1": "OL49738578M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-10956f0d07",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36233135M",
+          "top1": "OL36233135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b21ee1ac",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL22848482M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b62c92d6",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9662106M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-1d4f410493",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11585958M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-250eb0fe92",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38237944M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-30dd74b830",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7992433M",
+          "top1": "OL7992433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-4163d593ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41828889M",
+          "top1": "OL41828889M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5c1c081224",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56388108M",
+          "top1": "OL56388108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5f0e5144cc",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9530211M",
+          "top1": "OL9530211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-74535cab45",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259891M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-75cf44c22c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54176620M",
+          "top1": "OL54176620M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-762da472d6",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42119531M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7aad427028",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7649395M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7cc54b9b04",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8444002M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-850f54c394",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL52202127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-8d23d849d7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23991536M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-9cfe4ce6d4",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37637127M",
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-9de462b511",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL6388435M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a25b4a7700",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a726c1f61b",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL371791M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-a8516126b7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23052749M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-af83489aca",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51589076M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-afed02d380",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41683529M",
+          "top1": "OL41683529M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-b19fe7c00d",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46758363M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb3fd433d8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44117770M",
+          "top1": "OL44117770M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb7313d1c4",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60985278M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-c47a605b4c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8004507M",
+          "top1": "OL8004507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d23ebead95",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL24194315M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d9a6484759",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11129248M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df4da76948",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27203781M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df6f5a2f7b",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11007557M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e1efb2be9c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL42107317M",
+          "top1": "OL42107317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e54c949143",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10985862M",
+          "top1": "OL10985862M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e5d6255eb8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27586443M",
+          "top1": "OL27586443M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f3d2e5552f",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50653193M",
+          "top1": "OL50653193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f45519bd4a",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1955387M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-f48c5fe4db",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9387684M"
+        }
+      ],
+      "status": "ran"
+    },
+    "5_hybrid_rerank": {
+      "label": "Hybrid + cross-encoder reranker",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 60,
+          "numerator": 32,
+          "value": 0.5333
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 0,
+            "numerator": 0,
+            "value": null
+          },
+          "breakdown": {
+            "choice_equals_top1": 0,
+            "choice_in_gold": {
+              "denominator": 0,
+              "numerator": 0
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 0,
+                "numerator": 0
+              },
+              "expected_suggest": {
+                "denominator": 0,
+                "numerator": 0
+              }
+            },
+            "completed_chose_a_candidate": 0,
+            "completed_llm_abstained": 0,
+            "completed_valid_responses": 0,
+            "final_outcome_when_invoked": {
+              "review": 0,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 0,
+            "invoked_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "not_completed": {}
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 60,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "statuses": {
+            "disabled": 15,
+            "not_needed": 45
+          },
+          "tokens_total": 0
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.35,
+            0.5833
+          ],
+          "error_among_suggestions": [
+            0.0,
+            0.0
+          ],
+          "top1_accuracy": [
+            1.0,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0,
+            0.0
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 16,
+          "correct_abstention": 16,
+          "correct_suggestion": 28
+        },
+        "correct_abstention_rate": {
+          "denominator": 16,
+          "numerator": 16,
+          "value": 1.0
+        },
+        "correct_suggestion_rate": {
+          "denominator": 60,
+          "numerator": 28,
+          "value": 0.4667
+        },
+        "counts": {
+          "A_answerable": 44,
+          "N": 60,
+          "S_suggested": 28,
+          "U_expected_abstain": 16,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 28,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.011,
+            "p95": 0.018
+          },
+          "catalog_scan": {
+            "p50": 1.107,
+            "p95": 6.705
+          },
+          "checks": {
+            "p50": 3.495,
+            "p95": 5.268
+          },
+          "isbn": {
+            "p50": 0.001,
+            "p95": 1.546
+          },
+          "rerank_order": {
+            "p50": 26.724,
+            "p95": 45.533
+          },
+          "retrieval": {
+            "p50": 8.196,
+            "p95": 10.94
+          },
+          "total": {
+            "p50": 39.508,
+            "p95": 57.466
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 44,
+          "numerator": 16,
+          "value": 0.3636
+        },
+        "mrr": {
+          "denominator": 44,
+          "value": 1.0
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@10": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@5": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 1,
+            "coverage": 0.0167,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 18,
+            "coverage": 0.3,
+            "risk": 0.1111,
+            "threshold": 4.0
+          },
+          {
+            "answered": 47,
+            "coverage": 0.7833,
+            "risk": 0.1489,
+            "threshold": 3.0
+          },
+          {
+            "answered": 56,
+            "coverage": 0.9333,
+            "risk": 0.2143,
+            "threshold": 2.0
+          },
+          {
+            "answered": 57,
+            "coverage": 0.95,
+            "risk": 0.2281,
+            "threshold": 1.0
+          },
+          {
+            "answered": 60,
+            "coverage": 1.0,
+            "risk": 0.2667,
+            "threshold": 0.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 1,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.2065,
+              1.0
+            ]
+          },
+          {
+            "n": 17,
+            "precision": 0.8824,
+            "signal": 4.0,
+            "top1_correct": 15,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          {
+            "n": 29,
+            "precision": 0.8276,
+            "signal": 3.0,
+            "top1_correct": 24,
+            "wilson95": [
+              0.6545,
+              0.924
+            ]
+          },
+          {
+            "n": 9,
+            "precision": 0.4444,
+            "signal": 2.0,
+            "top1_correct": 4,
+            "wilson95": [
+              0.1888,
+              0.7333
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": 1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.0,
+            "signal": 0.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.5615
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 44,
+          "numerator": 44,
+          "value": 1.0
+        },
+        "wrong_match_rate": {
+          "denominator": 60,
+          "numerator": 0,
+          "value": 0.0
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-02b810abce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7795607M",
+          "top1": "OL7795607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-03c77f5cc6",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8156709M",
+          "top1": "OL8156709M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-0589d2fcff",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23942870M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-08a4bf8ae5",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29449805M",
+          "top1": "OL29449805M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-451a45f8ac",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9118320M",
+          "top1": "OL9118320M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4a5ec910db",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9308618M",
+          "top1": "OL9308618M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c1008b303",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38945553M",
+          "top1": "OL38945553M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c2ae5e76e",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41479607M",
+          "top1": "OL41479607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-500b786619",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-5ad58c7355",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d02-6463d76f7e",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27649064M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-a45a6e14e1",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38335303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ad6b44676f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11176707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-b1c25eb8ef",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61799129M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-bd2b145215",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL28858501M",
+          "top1": "OL28858501M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ed610d5d91",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42669246M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f13c90f2c1",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50767901M",
+          "top1": "OL50767901M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f290f0c95f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9940464M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f69c8768ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27069305M",
+          "top1": "OL27069305M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-fdf24a4194",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51771886M",
+          "top1": "OL51771886M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0997062a58",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10690045M",
+          "top1": "OL10690045M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-0ad6ec4b93",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32937657M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0f3cf5a743",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL49738578M",
+          "top1": "OL49738578M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-10956f0d07",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36233135M",
+          "top1": "OL36233135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b21ee1ac",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9237966M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-14b62c92d6",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9662106M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-1d4f410493",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11585958M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-250eb0fe92",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38237944M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-30dd74b830",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7992433M",
+          "top1": "OL7992433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-4163d593ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41828889M",
+          "top1": "OL41828889M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5c1c081224",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56388108M",
+          "top1": "OL56388108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5f0e5144cc",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9530211M",
+          "top1": "OL9530211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-74535cab45",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259891M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-75cf44c22c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54176620M",
+          "top1": "OL54176620M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-762da472d6",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42094666M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7aad427028",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7649395M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7cc54b9b04",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8444002M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-850f54c394",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL52202127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-8d23d849d7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23991536M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-9cfe4ce6d4",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37637127M",
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-9de462b511",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7475135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a25b4a7700",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a726c1f61b",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL371791M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-a8516126b7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8312125M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-af83489aca",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51589076M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-afed02d380",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41683529M",
+          "top1": "OL41683529M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-b19fe7c00d",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46758363M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb3fd433d8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44117770M",
+          "top1": "OL44117770M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb7313d1c4",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60985278M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-c47a605b4c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8004507M",
+          "top1": "OL8004507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d23ebead95",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28327473M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-d9a6484759",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7996147M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df4da76948",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL12955645M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-df6f5a2f7b",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11007557M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e1efb2be9c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL42107317M",
+          "top1": "OL42107317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e54c949143",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10985862M",
+          "top1": "OL10985862M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e5d6255eb8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27586443M",
+          "top1": "OL27586443M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f3d2e5552f",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50653193M",
+          "top1": "OL50653193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f45519bd4a",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1955387M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "disabled",
+          "case_id": "d03-f48c5fe4db",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9387684M"
+        }
+      ],
+      "status": "ran"
+    },
+    "6_routed_llm": {
+      "label": "Hybrid + reranker + routed local LLM adjudication (advisory)",
+      "metrics": {
+        "abstention_rate": {
+          "denominator": 60,
+          "numerator": 32,
+          "value": 0.5333
+        },
+        "adjudication": {
+          "advisory_choice_in_gold": {
+            "denominator": 10,
+            "numerator": 5,
+            "value": 0.5
+          },
+          "breakdown": {
+            "choice_equals_top1": 10,
+            "choice_in_gold": {
+              "denominator": 10,
+              "numerator": 5
+            },
+            "choice_in_gold_by_expected": {
+              "expected_abstain_choice_in_acceptable_set": {
+                "denominator": 5,
+                "numerator": 0
+              },
+              "expected_suggest": {
+                "denominator": 5,
+                "numerator": 5
+              }
+            },
+            "completed_chose_a_candidate": 10,
+            "completed_llm_abstained": 0,
+            "completed_valid_responses": 10,
+            "final_outcome_when_invoked": {
+              "review": 15,
+              "suggest": 0,
+              "suggest_correct": 0,
+              "suggest_on_expected_abstain": 0
+            },
+            "invoked": 15,
+            "invoked_by_expected": {
+              "expected_abstain": 10,
+              "expected_suggest": 5
+            },
+            "llm_abstained_by_expected": {
+              "expected_abstain": 0,
+              "expected_suggest": 0
+            },
+            "not_completed": {
+              "deadline_exceeded": 4,
+              "evidence_invalid": 1
+            }
+          },
+          "estimated_cost": {
+            "note": "local inference has no per-token charge; any non-zero rate is a hypothetical comparison",
+            "rate_per_1k_tokens": 0.0,
+            "value": 0.0
+          },
+          "invocation_rate": {
+            "denominator": 60,
+            "numerator": 15,
+            "value": 0.25
+          },
+          "statuses": {
+            "completed": 10,
+            "deadline_exceeded": 4,
+            "evidence_invalid": 1,
+            "not_needed": 45
+          },
+          "tokens_total": 10685
+        },
+        "bootstrap95_by_family": {
+          "correct_suggestion_rate": [
+            0.35,
+            0.5833
+          ],
+          "error_among_suggestions": [
+            0.0,
+            0.0
+          ],
+          "top1_accuracy": [
+            1.0,
+            1.0
+          ],
+          "wrong_match_rate": [
+            0.0,
+            0.0
+          ]
+        },
+        "categories": {
+          "conservative_abstention": 16,
+          "correct_abstention": 16,
+          "correct_suggestion": 28
+        },
+        "correct_abstention_rate": {
+          "denominator": 16,
+          "numerator": 16,
+          "value": 1.0
+        },
+        "correct_suggestion_rate": {
+          "denominator": 60,
+          "numerator": 28,
+          "value": 0.4667
+        },
+        "counts": {
+          "A_answerable": 44,
+          "N": 60,
+          "S_suggested": 28,
+          "U_expected_abstain": 16,
+          "families": 60
+        },
+        "error_among_suggestions": {
+          "denominator": 28,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "latency_ms": {
+          "adjudication": {
+            "p50": 0.015,
+            "p95": 8253.496
+          },
+          "catalog_scan": {
+            "p50": 1.465,
+            "p95": 6.686
+          },
+          "checks": {
+            "p50": 3.779,
+            "p95": 7.863
+          },
+          "isbn": {
+            "p50": 0.004,
+            "p95": 1.497
+          },
+          "rerank_order": {
+            "p50": 29.697,
+            "p95": 55.295
+          },
+          "retrieval": {
+            "p50": 9.71,
+            "p95": 161.093
+          },
+          "total": {
+            "p50": 53.84,
+            "p95": 8287.454
+          }
+        },
+        "missed_suggestion_rate": {
+          "denominator": 44,
+          "numerator": 16,
+          "value": 0.3636
+        },
+        "mrr": {
+          "denominator": 44,
+          "value": 1.0
+        },
+        "retrieval": {
+          "recall@1": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@10": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          },
+          "recall@5": {
+            "denominator": 44,
+            "numerator": 44,
+            "value": 1.0
+          }
+        },
+        "risk_coverage": [
+          {
+            "answered": 1,
+            "coverage": 0.0167,
+            "risk": 0.0,
+            "threshold": 5.0
+          },
+          {
+            "answered": 18,
+            "coverage": 0.3,
+            "risk": 0.1111,
+            "threshold": 4.0
+          },
+          {
+            "answered": 47,
+            "coverage": 0.7833,
+            "risk": 0.1489,
+            "threshold": 3.0
+          },
+          {
+            "answered": 56,
+            "coverage": 0.9333,
+            "risk": 0.2143,
+            "threshold": 2.0
+          },
+          {
+            "answered": 57,
+            "coverage": 0.95,
+            "risk": 0.2281,
+            "threshold": 1.0
+          },
+          {
+            "answered": 60,
+            "coverage": 1.0,
+            "risk": 0.2667,
+            "threshold": 0.0
+          }
+        ],
+        "signal_buckets": [
+          {
+            "n": 1,
+            "precision": 1.0,
+            "signal": 5.0,
+            "top1_correct": 1,
+            "wilson95": [
+              0.2065,
+              1.0
+            ]
+          },
+          {
+            "n": 17,
+            "precision": 0.8824,
+            "signal": 4.0,
+            "top1_correct": 15,
+            "wilson95": [
+              0.6566,
+              0.9671
+            ]
+          },
+          {
+            "n": 29,
+            "precision": 0.8276,
+            "signal": 3.0,
+            "top1_correct": 24,
+            "wilson95": [
+              0.6545,
+              0.924
+            ]
+          },
+          {
+            "n": 9,
+            "precision": 0.4444,
+            "signal": 2.0,
+            "top1_correct": 4,
+            "wilson95": [
+              0.1888,
+              0.7333
+            ]
+          },
+          {
+            "n": 1,
+            "precision": 0.0,
+            "signal": 1.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.7935
+            ]
+          },
+          {
+            "n": 3,
+            "precision": 0.0,
+            "signal": 0.0,
+            "top1_correct": 0,
+            "wilson95": [
+              0.0,
+              0.5615
+            ]
+          }
+        ],
+        "top1_accuracy": {
+          "denominator": 44,
+          "numerator": 44,
+          "value": 1.0
+        },
+        "wrong_match_rate": {
+          "denominator": 60,
+          "numerator": 0,
+          "value": 0.0
+        }
+      },
+      "per_case": [
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-02b810abce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7795607M",
+          "top1": "OL7795607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-03c77f5cc6",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8156709M",
+          "top1": "OL8156709M"
+        },
+        {
+          "adjudication_choice": "OL23942870M",
+          "adjudication_status": "completed",
+          "case_id": "d02-0589d2fcff",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23942870M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-08a4bf8ae5",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL29449805M",
+          "top1": "OL29449805M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-451a45f8ac",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9118320M",
+          "top1": "OL9118320M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4a5ec910db",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9308618M",
+          "top1": "OL9308618M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c1008b303",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL38945553M",
+          "top1": "OL38945553M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-4c2ae5e76e",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41479607M",
+          "top1": "OL41479607M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-500b786619",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54548612M",
+          "top1": "OL54548612M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-5ad58c7355",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL29821681M"
+        },
+        {
+          "adjudication_choice": "OL27649064M",
+          "adjudication_status": "completed",
+          "case_id": "d02-6463d76f7e",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL27649064M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-a45a6e14e1",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38335303M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ad6b44676f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11176707M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-b1c25eb8ef",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL61799129M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-bd2b145215",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL28858501M",
+          "top1": "OL28858501M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-ed610d5d91",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42669246M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f13c90f2c1",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50767901M",
+          "top1": "OL50767901M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f290f0c95f",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9940464M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-f69c8768ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27069305M",
+          "top1": "OL27069305M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d02-fdf24a4194",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL51771886M",
+          "top1": "OL51771886M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0997062a58",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10690045M",
+          "top1": "OL10690045M"
+        },
+        {
+          "adjudication_choice": "OL32937657M",
+          "adjudication_status": "completed",
+          "case_id": "d03-0ad6ec4b93",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL32937657M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-0f3cf5a743",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL49738578M",
+          "top1": "OL49738578M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-10956f0d07",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL36233135M",
+          "top1": "OL36233135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "d03-14b21ee1ac",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9237966M"
+        },
+        {
+          "adjudication_choice": "OL9662106M",
+          "adjudication_status": "completed",
+          "case_id": "d03-14b62c92d6",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9662106M"
+        },
+        {
+          "adjudication_choice": "OL11585958M",
+          "adjudication_status": "completed",
+          "case_id": "d03-1d4f410493",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11585958M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-250eb0fe92",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL38237944M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-30dd74b830",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL7992433M",
+          "top1": "OL7992433M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-4163d593ce",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41828889M",
+          "top1": "OL41828889M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5c1c081224",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL56388108M",
+          "top1": "OL56388108M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-5f0e5144cc",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL9530211M",
+          "top1": "OL9530211M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "evidence_invalid",
+          "case_id": "d03-74535cab45",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7259891M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-75cf44c22c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL54176620M",
+          "top1": "OL54176620M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-762da472d6",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL42094666M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7aad427028",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7649395M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-7cc54b9b04",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8444002M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-850f54c394",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL52202127M"
+        },
+        {
+          "adjudication_choice": "OL23991536M",
+          "adjudication_status": "completed",
+          "case_id": "d03-8d23d849d7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL23991536M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-9cfe4ce6d4",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL37637127M",
+          "top1": "OL37637127M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "d03-9de462b511",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7475135M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a25b4a7700",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7394551M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-a726c1f61b",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL371791M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "d03-a8516126b7",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL8312125M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-af83489aca",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL51589076M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-afed02d380",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL41683529M",
+          "top1": "OL41683529M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-b19fe7c00d",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL46758363M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb3fd433d8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL44117770M",
+          "top1": "OL44117770M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-bb7313d1c4",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL60985278M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-c47a605b4c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL8004507M",
+          "top1": "OL8004507M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "deadline_exceeded",
+          "case_id": "d03-d23ebead95",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL28327473M"
+        },
+        {
+          "adjudication_choice": "OL7996147M",
+          "adjudication_status": "completed",
+          "case_id": "d03-d9a6484759",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL7996147M"
+        },
+        {
+          "adjudication_choice": "OL12955645M",
+          "adjudication_status": "completed",
+          "case_id": "d03-df4da76948",
+          "expected": "abstain",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL12955645M"
+        },
+        {
+          "adjudication_choice": "OL11007557M",
+          "adjudication_status": "completed",
+          "case_id": "d03-df6f5a2f7b",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL11007557M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e1efb2be9c",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL42107317M",
+          "top1": "OL42107317M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e54c949143",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL10985862M",
+          "top1": "OL10985862M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-e5d6255eb8",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL27586443M",
+          "top1": "OL27586443M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f3d2e5552f",
+          "expected": "suggest",
+          "outcome": "suggest",
+          "suggested": "OL50653193M",
+          "top1": "OL50653193M"
+        },
+        {
+          "adjudication_choice": null,
+          "adjudication_status": "not_needed",
+          "case_id": "d03-f45519bd4a",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL1955387M"
+        },
+        {
+          "adjudication_choice": "OL9387684M",
+          "adjudication_status": "completed",
+          "case_id": "d03-f48c5fe4db",
+          "expected": "suggest",
+          "outcome": "review",
+          "suggested": null,
+          "top1": "OL9387684M"
+        }
+      ],
+      "status": "ran"
+    }
+  }
+}

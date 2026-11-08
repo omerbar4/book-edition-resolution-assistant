@@ -1,0 +1,363 @@
+{
+ "label": "DEVELOPMENT EVIDENCE ONLY: same 60 human labels that motivated the change; not independent proof of improvement; not held-out; uncalibrated",
+ "before": "data/eval/results/dev60_human_policy_v1/report.json",
+ "after": "data/eval/results/dev60_human_policy_v2_initials/report.json",
+ "after_policy_version": "conservative-rules-v2",
+ "change": "conservative initials compatibility (only change between the runs)",
+ "after_outcomes_identical_across_systems": true,
+ "gained_correct_suggestions": {
+  "n": 12,
+  "cases": [
+   "d02-03c77f5cc6",
+   "d02-451a45f8ac",
+   "d02-4c2ae5e76e",
+   "d02-f69c8768ce",
+   "d02-fdf24a4194",
+   "d03-0f3cf5a743",
+   "d03-4163d593ce",
+   "d03-5c1c081224",
+   "d03-75cf44c22c",
+   "d03-9cfe4ce6d4",
+   "d03-afed02d380",
+   "d03-e1efb2be9c"
+  ]
+ },
+ "lost_correct_suggestions": {
+  "n": 0,
+  "cases": []
+ },
+ "wrong_suggestions_after": {
+  "n": 0,
+  "cases": []
+ },
+ "remaining_reviews_on_human_edition_cases": {
+  "n": 16,
+  "causes": {
+   "damaged ISBN: repair is only a hypothesis": 6,
+   "undistinguished alternatives among retrieved candidates": 4,
+   "other: suspicious_unicode": 1,
+   "insufficient distinguishing evidence": 4,
+   "a supplied field conflicts with the top candidate": 1
+  },
+  "cases": [
+   {
+    "case_id": "d02-5ad58c7355",
+    "cause": "damaged ISBN: repair is only a hypothesis"
+   },
+   {
+    "case_id": "d02-6463d76f7e",
+    "cause": "undistinguished alternatives among retrieved candidates"
+   },
+   {
+    "case_id": "d02-a45a6e14e1",
+    "cause": "damaged ISBN: repair is only a hypothesis"
+   },
+   {
+    "case_id": "d02-ad6b44676f",
+    "cause": "damaged ISBN: repair is only a hypothesis"
+   },
+   {
+    "case_id": "d02-b1c25eb8ef",
+    "cause": "damaged ISBN: repair is only a hypothesis"
+   },
+   {
+    "case_id": "d02-f290f0c95f",
+    "cause": "other: suspicious_unicode"
+   },
+   {
+    "case_id": "d03-14b62c92d6",
+    "cause": "undistinguished alternatives among retrieved candidates"
+   },
+   {
+    "case_id": "d03-1d4f410493",
+    "cause": "insufficient distinguishing evidence"
+   },
+   {
+    "case_id": "d03-250eb0fe92",
+    "cause": "a supplied field conflicts with the top candidate"
+   },
+   {
+    "case_id": "d03-7aad427028",
+    "cause": "insufficient distinguishing evidence"
+   },
+   {
+    "case_id": "d03-7cc54b9b04",
+    "cause": "insufficient distinguishing evidence"
+   },
+   {
+    "case_id": "d03-850f54c394",
+    "cause": "damaged ISBN: repair is only a hypothesis"
+   },
+   {
+    "case_id": "d03-a25b4a7700",
+    "cause": "damaged ISBN: repair is only a hypothesis"
+   },
+   {
+    "case_id": "d03-df6f5a2f7b",
+    "cause": "undistinguished alternatives among retrieved candidates"
+   },
+   {
+    "case_id": "d03-f45519bd4a",
+    "cause": "insufficient distinguishing evidence"
+   },
+   {
+    "case_id": "d03-f48c5fe4db",
+    "cause": "undistinguished alternatives among retrieved candidates"
+   }
+  ]
+ },
+ "human_review_cases_still_review": 16,
+ "human_review_cases": 16,
+ "metrics_after_default": {
+  "all": {
+   "n_cases": 60,
+   "n_families": 60,
+   "correct_suggestion_rate /N": {
+    "numerator": 28,
+    "denominator": 60,
+    "value": 0.4667,
+    "wilson95_case_level": [
+     0.3463,
+     0.5911
+    ],
+    "bootstrap95_family_grouped": [
+     0.3333,
+     0.6
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 60,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.0602
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 28,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1206
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 28,
+    "denominator": 44,
+    "value": 0.6364,
+    "wilson95_case_level": [
+     0.4887,
+     0.7622
+    ],
+    "bootstrap95_family_grouped": [
+     0.4884,
+     0.7857
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 44,
+    "denominator": 44,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.9197,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 16,
+    "denominator": 16,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8064,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "never in the policy-development check": {
+   "n_cases": 43,
+   "n_families": 43,
+   "correct_suggestion_rate /N": {
+    "numerator": 20,
+    "denominator": 43,
+    "value": 0.4651,
+    "wilson95_case_level": [
+     0.3251,
+     0.6108
+    ],
+    "bootstrap95_family_grouped": [
+     0.3023,
+     0.6047
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 43,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.082
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 20,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1611
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 20,
+    "denominator": 34,
+    "value": 0.5882,
+    "wilson95_case_level": [
+     0.4222,
+     0.7363
+    ],
+    "bootstrap95_family_grouped": [
+     0.4062,
+     0.75
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 34,
+    "denominator": 34,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.8985,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 9,
+    "denominator": 9,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7009,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "policy-development families": {
+   "n_cases": 17,
+   "n_families": 17,
+   "correct_suggestion_rate /N": {
+    "numerator": 8,
+    "denominator": 17,
+    "value": 0.4706,
+    "wilson95_case_level": [
+     0.2617,
+     0.6904
+    ],
+    "bootstrap95_family_grouped": [
+     0.2353,
+     0.7059
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 17,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.1843
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3244
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 8,
+    "denominator": 10,
+    "value": 0.8,
+    "wilson95_case_level": [
+     0.4902,
+     0.9433
+    ],
+    "bootstrap95_family_grouped": [
+     0.5,
+     1.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 10,
+    "denominator": 10,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.7225,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 7,
+    "denominator": 7,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.6457,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  }
+ },
+ "gained_by_pool": {
+  "never-policy-dev": 9,
+  "policy-dev": 3
+ }
+}

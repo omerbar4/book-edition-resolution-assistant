@@ -210,3 +210,23 @@ files and frozen queues and records each case file's sha256.
   invoked on 15/60 cases (14,684 tokens, $0 local) and changed no final outcome.
 - Withheld until held-out labeling is complete: per-stratum, per-template and per-source
   summaries of human answers.
+
+## Dev rerun: policy v2, initials compatibility (2026-11-07)
+
+**Development evidence only.** These are the same 60 human labels whose analysis motivated
+the change, so this is not independent proof of improvement. It is not held-out performance
+and it is not calibrated. The only change between the runs is conservative initials
+compatibility (`conservative-rules-v2`). Report: `data/eval/results/dev60_human_policy_v2_initials/`
+(`report.json`, plus `comparison_vs_v1.json` from `scripts/compare_dev_runs.py`).
+
+- Gained 12 correct suggestions and lost none, with 0 wrong suggestions. Correct suggestions
+  rose from 16/60 to 28/60; error among suggestions is 0/28 (case-level Wilson upper bound
+  0.121). All 16 human review cases still go to review. All seven configurations still make
+  the same decisions.
+- Gains by pool: 9 in families never used in the policy-development check, 3 in
+  policy-development families.
+- 16 human-answerable cases still go to review: damaged-ISBN repair 6 (deferred),
+  undistinguished alternatives 4, insufficient distinguishing evidence 4 (for example no year
+  or format to distinguish editions), supplied-field conflict 1, unicode guard 1 (deferred).
+- LLM route evidence re-measured under v2 (`data/eval/llm_route_evidence_policy_v2.json`):
+  agree 5/10, override 0/0. Both routes stay closed at the unchanged constants.

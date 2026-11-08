@@ -1,0 +1,46 @@
+{
+ "target_precision": 0.95,
+ "min_cases": 30,
+ "routes": {
+  "agree": {
+   "n": 10,
+   "correct": 5,
+   "wilson95": [
+    0.2366,
+    0.7634
+   ],
+   "open": false,
+   "closed_because": [
+    "n=10 < 30",
+    "Wilson lower bound 0.2366 < target 0.95"
+   ]
+  },
+  "override": {
+   "n": 0,
+   "correct": 0,
+   "wilson95": null,
+   "open": false,
+   "closed_because": [
+    "n=0 < 30",
+    "Wilson lower bound None < target 0.95"
+   ]
+  }
+ },
+ "source": {
+  "report": "data/eval/results/dev60_human_policy_v2_initials/report.json",
+  "report_sha256": "e44fa5a32ec6cb3aa61e36f634eac5267d78b4394ded59454945b942ccfecf79",
+  "labels": [
+   {
+    "path": "data/eval/labels/dev_batch02_labels.jsonl",
+    "sha256": "a7153c1c36113e2bad2a54e22590a1ed374d35fde8a1f3ef13488eef681ab25f"
+   },
+   {
+    "path": "data/eval/labels/dev_final_labels.jsonl",
+    "sha256": "c6e0e0c497cecf8b31db39d8593fcf0b9a350d0005f177ccd64ea9453c0d6b83"
+   }
+  ],
+  "split": "dev",
+  "completed_choices": 10,
+  "note": "precision counts every completed choice on a route; a choice on a case the human sent to review is wrong. Constants were fixed before measurement."
+ }
+}
