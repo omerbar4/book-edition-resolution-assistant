@@ -1,0 +1,1227 @@
+{
+ "label": "HELD-OUT, single run at bera-eval-freeze-2026-11-07-r2 (attempt 2; attempt 1 failed at load, 0 cases scored). One labeler; uncalibrated; descriptive.",
+ "inputs": {
+  "data/eval/results/heldout40_frozen_r2/report.json": "9c4a4ad13d3f3d8d681e1e5dad20e083624e08a1d0ecdb4313f006d3ce668d0e",
+  "data/eval/heldout/heldout_labels.jsonl": "48978db4e3453b8d021dd671f3db8e1560751b25413de6e492017a089d9c55c6",
+  "data/eval/heldout/heldout_queue.jsonl": "bfd5571184de22f50b9b3460bf3eb5cec606ffd8333a5516524f744b5e4e524b",
+  "data/eval/heldout/heldout_families_supplement.json": "9716fa70374ae5a968b8a031265aefba493f70aa485ccafd42244217ac1cc65b"
+ },
+ "counts": {
+  "queries": 40,
+  "families": 39,
+  "human_edition": 15,
+  "human_review": 25,
+  "human_review_reasons": {
+   "underspecified": 11,
+   "out_of_corpus": 11,
+   "contradictory": 3
+  },
+  "skipped": 0,
+  "disputed_or_flagged": 0,
+  "excluded_exposed_or_practice": 0
+ },
+ "final_decisions_identical_across_all_7_configurations": true,
+ "metrics_final_decisions": {
+  "n_cases": 40,
+  "n_families": 39,
+  "correct_suggestion_rate /N": {
+   "numerator": 6,
+   "denominator": 40,
+   "value": 0.15,
+   "wilson95_case_level": [
+    0.0706,
+    0.2907
+   ],
+   "bootstrap95_family_grouped": [
+    0.05,
+    0.275
+   ]
+  },
+  "wrong_match_rate /N": {
+   "numerator": 0,
+   "denominator": 40,
+   "value": 0.0,
+   "wilson95_case_level": [
+    0.0,
+    0.0876
+   ],
+   "bootstrap95_family_grouped": [
+    0.0,
+    0.0
+   ]
+  },
+  "error_among_suggestions /S": {
+   "numerator": 0,
+   "denominator": 6,
+   "value": 0.0,
+   "wilson95_case_level": [
+    0.0,
+    0.3903
+   ],
+   "bootstrap95_family_grouped": [
+    0.0,
+    0.0
+   ]
+  },
+  "suggestion_coverage_on_answerable /A": {
+   "numerator": 6,
+   "denominator": 15,
+   "value": 0.4,
+   "wilson95_case_level": [
+    0.1982,
+    0.6425
+   ],
+   "bootstrap95_family_grouped": [
+    0.1667,
+    0.6667
+   ]
+  },
+  "top1_accuracy /A": {
+   "numerator": 14,
+   "denominator": 15,
+   "value": 0.9333,
+   "wilson95_case_level": [
+    0.7018,
+    0.9881
+   ],
+   "bootstrap95_family_grouped": [
+    0.7857,
+    1.0
+   ]
+  },
+  "correct_abstention /U": {
+   "numerator": 25,
+   "denominator": 25,
+   "value": 1.0,
+   "wilson95_case_level": [
+    0.8668,
+    1.0
+   ],
+   "bootstrap95_family_grouped": [
+    1.0,
+    1.0
+   ]
+  }
+ },
+ "metrics_by_stratum_post_hoc": {
+  "author_variation": {
+   "n_cases": 7,
+   "n_families": 7,
+   "correct_suggestion_rate /N": {
+    "numerator": 3,
+    "denominator": 7,
+    "value": 0.4286,
+    "wilson95_case_level": [
+     0.1582,
+     0.7495
+    ],
+    "bootstrap95_family_grouped": [
+     0.1429,
+     0.7143
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 7,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3543
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 3,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.5615
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 3,
+    "denominator": 5,
+    "value": 0.6,
+    "wilson95_case_level": [
+     0.2307,
+     0.8824
+    ],
+    "bootstrap95_family_grouped": [
+     0.1667,
+     1.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 5,
+    "denominator": 5,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.5655,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 2,
+    "denominator": 2,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.3424,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "edition_ambiguity": {
+   "n_cases": 7,
+   "n_families": 7,
+   "correct_suggestion_rate /N": {
+    "numerator": 0,
+    "denominator": 7,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3543
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 7,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3543
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "wilson95_case_level": null,
+    "bootstrap95_family_grouped": null
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 0,
+    "denominator": 2,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.6576
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 2,
+    "denominator": 2,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.3424,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 5,
+    "denominator": 5,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.5655,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "format_year_conflict": {
+   "n_cases": 8,
+   "n_families": 8,
+   "correct_suggestion_rate /N": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3244
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3244
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "wilson95_case_level": null,
+    "bootstrap95_family_grouped": null
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 0,
+    "denominator": 1,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.7935
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 1,
+    "denominator": 1,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.2065,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 7,
+    "denominator": 7,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.6457,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "identifier": {
+   "n_cases": 8,
+   "n_families": 8,
+   "correct_suggestion_rate /N": {
+    "numerator": 3,
+    "denominator": 8,
+    "value": 0.375,
+    "wilson95_case_level": [
+     0.1368,
+     0.6943
+    ],
+    "bootstrap95_family_grouped": [
+     0.125,
+     0.75
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3244
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 3,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.5615
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 3,
+    "denominator": 5,
+    "value": 0.6,
+    "wilson95_case_level": [
+     0.2307,
+     0.8824
+    ],
+    "bootstrap95_family_grouped": [
+     0.1667,
+     1.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 5,
+    "denominator": 5,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.5655,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 3,
+    "denominator": 3,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.4385,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "missing_metadata": {
+   "n_cases": 7,
+   "n_families": 7,
+   "correct_suggestion_rate /N": {
+    "numerator": 0,
+    "denominator": 7,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3543
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 7,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.3543
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "wilson95_case_level": null,
+    "bootstrap95_family_grouped": null
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 0,
+    "denominator": 2,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.6576
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "top1_accuracy /A": {
+    "numerator": 1,
+    "denominator": 2,
+    "value": 0.5,
+    "wilson95_case_level": [
+     0.0945,
+     0.9055
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     1.0
+    ]
+   },
+   "correct_abstention /U": {
+    "numerator": 5,
+    "denominator": 5,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.5655,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "out_of_corpus_probe": {
+   "n_cases": 3,
+   "n_families": 2,
+   "correct_suggestion_rate /N": {
+    "numerator": 0,
+    "denominator": 3,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.5615
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "wrong_match_rate /N": {
+    "numerator": 0,
+    "denominator": 3,
+    "value": 0.0,
+    "wilson95_case_level": [
+     0.0,
+     0.5615
+    ],
+    "bootstrap95_family_grouped": [
+     0.0,
+     0.0
+    ]
+   },
+   "error_among_suggestions /S": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "wilson95_case_level": null,
+    "bootstrap95_family_grouped": null
+   },
+   "suggestion_coverage_on_answerable /A": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "wilson95_case_level": null,
+    "bootstrap95_family_grouped": null
+   },
+   "top1_accuracy /A": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "wilson95_case_level": null,
+    "bootstrap95_family_grouped": null
+   },
+   "correct_abstention /U": {
+    "numerator": 3,
+    "denominator": 3,
+    "value": 1.0,
+    "wilson95_case_level": [
+     0.4385,
+     1.0
+    ],
+    "bootstrap95_family_grouped": [
+     1.0,
+     1.0
+    ]
+   }
+  }
+ },
+ "human_edition_cases_routed_to_review_by_stratum": {
+  "identifier": 2,
+  "author_variation": 2,
+  "missing_metadata": 2,
+  "edition_ambiguity": 2,
+  "format_year_conflict": 1
+ },
+ "ranking_failures_on_human_edition_cases": [
+  {
+   "stratum": "missing_metadata",
+   "outcome": "review"
+  }
+ ],
+ "human_vs_drafted_proposal_agreement": {
+  "value": {
+   "numerator": 35,
+   "denominator": 40,
+   "value": 0.875,
+   "wilson95_case_level": [
+    0.7389,
+    0.9454
+   ],
+   "bootstrap95_family_grouped": [
+    0.7692,
+    0.975
+   ]
+  },
+  "note": "measures the drafter, not system accuracy; proposals were never shown"
+ },
+ "advisory_llm_system6": {
+  "invoked /N": {
+   "numerator": 17,
+   "denominator": 40,
+   "value": 0.425,
+   "wilson95_case_level": [
+    0.2851,
+    0.578
+   ],
+   "bootstrap95_family_grouped": [
+    0.275,
+    0.575
+   ]
+  },
+  "statuses_when_invoked": {
+   "completed": 12,
+   "deadline_exceeded": 2,
+   "evidence_invalid": 3
+  },
+  "invoked_by_human_label": {
+   "suggest": 5,
+   "abstain": 12
+  },
+  "chose_a_candidate": 11,
+  "choice_in_human_gold /chose": {
+   "numerator": 2,
+   "denominator": 11,
+   "value": 0.1818,
+   "wilson95_case_level": [
+    0.0514,
+    0.477
+   ],
+   "bootstrap95_family_grouped": [
+    0.0,
+    0.4545
+   ]
+  },
+  "choice_on_human_edition_cases_correct": {
+   "numerator": 2,
+   "denominator": 2,
+   "value": 1.0,
+   "wilson95_case_level": [
+    0.3424,
+    1.0
+   ],
+   "bootstrap95_family_grouped": [
+    1.0,
+    1.0
+   ]
+  },
+  "chose_a_candidate_on_human_review_cases": 9,
+  "choice_equals_top1": 10,
+  "final_decisions_when_invoked": {
+   "review": 17
+  },
+  "changed_a_final_decision_vs_default": 0,
+  "note": "route gate closed (both routes); the LLM choice is advisory and never changed a final decision; final decisions equal the non-LLM configurations"
+ },
+ "systems": {
+  "1_exact_fuzzy": {
+   "label": "Exact identifier + fuzzy matching",
+   "status": "ran",
+   "retrieval": {
+    "recall@1": {
+     "denominator": 15,
+     "numerator": 14,
+     "value": 0.9333
+    },
+    "recall@10": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    },
+    "recall@5": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    }
+   },
+   "mrr": {
+    "denominator": 15,
+    "value": 0.9556
+   },
+   "top1_accuracy": {
+    "denominator": 15,
+    "numerator": 14,
+    "value": 0.9333
+   },
+   "latency_ms": {
+    "adjudication": {
+     "p50": 0.006,
+     "p95": 0.02
+    },
+    "catalog_scan": {
+     "p50": 1.042,
+     "p95": 1.078
+    },
+    "checks": {
+     "p50": 3.897,
+     "p95": 13.297
+    },
+    "isbn": {
+     "p50": 0.0,
+     "p95": 1.424
+    },
+    "rerank_order": {
+     "p50": 0.025,
+     "p95": 0.138
+    },
+    "retrieval": {
+     "p50": 12.864,
+     "p95": 34.769
+    },
+    "total": {
+     "p50": 16.417,
+     "p95": 41.306
+    }
+   },
+   "llm_invocations": {
+    "denominator": 40,
+    "numerator": 0,
+    "value": 0.0
+   },
+   "llm_tokens_total": 0,
+   "llm_statuses": {
+    "disabled": 16,
+    "not_needed": 24
+   }
+  },
+  "2_lexical": {
+   "label": "Lexical retrieval (FTS5 BM25)",
+   "status": "ran",
+   "retrieval": {
+    "recall@1": {
+     "denominator": 15,
+     "numerator": 14,
+     "value": 0.9333
+    },
+    "recall@10": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    },
+    "recall@5": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    }
+   },
+   "mrr": {
+    "denominator": 15,
+    "value": 0.9556
+   },
+   "top1_accuracy": {
+    "denominator": 15,
+    "numerator": 14,
+    "value": 0.9333
+   },
+   "latency_ms": {
+    "adjudication": {
+     "p50": 0.009,
+     "p95": 0.065
+    },
+    "catalog_scan": {
+     "p50": 2.928,
+     "p95": 3.099
+    },
+    "checks": {
+     "p50": 5.441,
+     "p95": 17.329
+    },
+    "isbn": {
+     "p50": 0.001,
+     "p95": 1.974
+    },
+    "rerank_order": {
+     "p50": 0.039,
+     "p95": 0.155
+    },
+    "retrieval": {
+     "p50": 1.303,
+     "p95": 4.81
+    },
+    "total": {
+     "p50": 7.81,
+     "p95": 21.995
+    }
+   },
+   "llm_invocations": {
+    "denominator": 40,
+    "numerator": 0,
+    "value": 0.0
+   },
+   "llm_tokens_total": 0,
+   "llm_statuses": {
+    "disabled": 17,
+    "not_needed": 23
+   }
+  },
+  "2b_lexical_rrf": {
+   "label": "Lexical BM25 + trigram, RRF (current default)",
+   "status": "ran",
+   "retrieval": {
+    "recall@1": {
+     "denominator": 15,
+     "numerator": 14,
+     "value": 0.9333
+    },
+    "recall@10": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    },
+    "recall@5": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    }
+   },
+   "mrr": {
+    "denominator": 15,
+    "value": 0.9556
+   },
+   "top1_accuracy": {
+    "denominator": 15,
+    "numerator": 14,
+    "value": 0.9333
+   },
+   "latency_ms": {
+    "adjudication": {
+     "p50": 0.004,
+     "p95": 0.007
+    },
+    "catalog_scan": {
+     "p50": 0.95,
+     "p95": 1.128
+    },
+    "checks": {
+     "p50": 3.398,
+     "p95": 5.231
+    },
+    "isbn": {
+     "p50": 0.0,
+     "p95": 1.36
+    },
+    "rerank_order": {
+     "p50": 0.023,
+     "p95": 0.04
+    },
+    "retrieval": {
+     "p50": 1.712,
+     "p95": 2.984
+    },
+    "total": {
+     "p50": 5.442,
+     "p95": 9.09
+    }
+   },
+   "llm_invocations": {
+    "denominator": 40,
+    "numerator": 0,
+    "value": 0.0
+   },
+   "llm_tokens_total": 0,
+   "llm_statuses": {
+    "disabled": 17,
+    "not_needed": 23
+   }
+  },
+  "3_embedding": {
+   "label": "Embedding retrieval (bge-small-en-v1.5)",
+   "status": "ran",
+   "retrieval": {
+    "recall@1": {
+     "denominator": 15,
+     "numerator": 14,
+     "value": 0.9333
+    },
+    "recall@10": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    },
+    "recall@5": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    }
+   },
+   "mrr": {
+    "denominator": 15,
+    "value": 0.9667
+   },
+   "top1_accuracy": {
+    "denominator": 15,
+    "numerator": 14,
+    "value": 0.9333
+   },
+   "latency_ms": {
+    "adjudication": {
+     "p50": 0.008,
+     "p95": 0.019
+    },
+    "catalog_scan": {
+     "p50": 1.036,
+     "p95": 1.856
+    },
+    "checks": {
+     "p50": 3.687,
+     "p95": 11.11
+    },
+    "isbn": {
+     "p50": 0.001,
+     "p95": 1.865
+    },
+    "rerank_order": {
+     "p50": 0.026,
+     "p95": 0.136
+    },
+    "retrieval": {
+     "p50": 6.992,
+     "p95": 28.328
+    },
+    "total": {
+     "p50": 11.593,
+     "p95": 53.621
+    }
+   },
+   "llm_invocations": {
+    "denominator": 40,
+    "numerator": 0,
+    "value": 0.0
+   },
+   "llm_tokens_total": 0,
+   "llm_statuses": {
+    "disabled": 16,
+    "not_needed": 24
+   }
+  },
+  "4_hybrid": {
+   "label": "Hybrid BM25 + trigram + embedding (RRF)",
+   "status": "ran",
+   "retrieval": {
+    "recall@1": {
+     "denominator": 15,
+     "numerator": 14,
+     "value": 0.9333
+    },
+    "recall@10": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    },
+    "recall@5": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    }
+   },
+   "mrr": {
+    "denominator": 15,
+    "value": 0.9667
+   },
+   "top1_accuracy": {
+    "denominator": 15,
+    "numerator": 14,
+    "value": 0.9333
+   },
+   "latency_ms": {
+    "adjudication": {
+     "p50": 0.009,
+     "p95": 0.014
+    },
+    "catalog_scan": {
+     "p50": 1.171,
+     "p95": 1.51
+    },
+    "checks": {
+     "p50": 4.137,
+     "p95": 9.478
+    },
+    "isbn": {
+     "p50": 0.001,
+     "p95": 1.872
+    },
+    "rerank_order": {
+     "p50": 0.034,
+     "p95": 0.11
+    },
+    "retrieval": {
+     "p50": 11.961,
+     "p95": 21.951
+    },
+    "total": {
+     "p50": 16.074,
+     "p95": 28.347
+    }
+   },
+   "llm_invocations": {
+    "denominator": 40,
+    "numerator": 0,
+    "value": 0.0
+   },
+   "llm_tokens_total": 0,
+   "llm_statuses": {
+    "disabled": 17,
+    "not_needed": 23
+   }
+  },
+  "5_hybrid_rerank": {
+   "label": "Hybrid + cross-encoder reranker",
+   "status": "ran",
+   "retrieval": {
+    "recall@1": {
+     "denominator": 15,
+     "numerator": 14,
+     "value": 0.9333
+    },
+    "recall@10": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    },
+    "recall@5": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    }
+   },
+   "mrr": {
+    "denominator": 15,
+    "value": 0.9667
+   },
+   "top1_accuracy": {
+    "denominator": 15,
+    "numerator": 14,
+    "value": 0.9333
+   },
+   "latency_ms": {
+    "adjudication": {
+     "p50": 0.014,
+     "p95": 0.042
+    },
+    "catalog_scan": {
+     "p50": 4.615,
+     "p95": 5.528
+    },
+    "checks": {
+     "p50": 4.197,
+     "p95": 9.993
+    },
+    "isbn": {
+     "p50": 0.001,
+     "p95": 1.684
+    },
+    "rerank_order": {
+     "p50": 28.733,
+     "p95": 45.784
+    },
+    "retrieval": {
+     "p50": 9.327,
+     "p95": 24.328
+    },
+    "total": {
+     "p50": 41.812,
+     "p95": 74.152
+    }
+   },
+   "llm_invocations": {
+    "denominator": 40,
+    "numerator": 0,
+    "value": 0.0
+   },
+   "llm_tokens_total": 0,
+   "llm_statuses": {
+    "disabled": 17,
+    "not_needed": 23
+   }
+  },
+  "6_routed_llm": {
+   "label": "Hybrid + reranker + routed local LLM adjudication (advisory)",
+   "status": "ran",
+   "retrieval": {
+    "recall@1": {
+     "denominator": 15,
+     "numerator": 14,
+     "value": 0.9333
+    },
+    "recall@10": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    },
+    "recall@5": {
+     "denominator": 15,
+     "numerator": 15,
+     "value": 1.0
+    }
+   },
+   "mrr": {
+    "denominator": 15,
+    "value": 0.9667
+   },
+   "top1_accuracy": {
+    "denominator": 15,
+    "numerator": 14,
+    "value": 0.9333
+   },
+   "latency_ms": {
+    "adjudication": {
+     "p50": 0.02,
+     "p95": 7992.517
+    },
+    "catalog_scan": {
+     "p50": 6.265,
+     "p95": 11.678
+    },
+    "checks": {
+     "p50": 5.302,
+     "p95": 11.669
+    },
+    "isbn": {
+     "p50": 0.005,
+     "p95": 1.893
+    },
+    "rerank_order": {
+     "p50": 28.925,
+     "p95": 60.713
+    },
+    "retrieval": {
+     "p50": 12.892,
+     "p95": 287.427
+    },
+    "total": {
+     "p50": 236.738,
+     "p95": 8253.486
+    }
+   },
+   "llm_invocations": {
+    "denominator": 40,
+    "numerator": 17,
+    "value": 0.425
+   },
+   "llm_tokens_total": 15799,
+   "llm_statuses": {
+    "completed": 12,
+    "deadline_exceeded": 2,
+    "evidence_invalid": 3,
+    "not_needed": 23
+   }
+  }
+ },
+ "dev60_amended_default_for_context": {
+  "n_cases": 60,
+  "n_families": 60,
+  "correct_suggestion_rate /N": {
+   "numerator": 28,
+   "denominator": 60,
+   "value": 0.4667,
+   "wilson95_case_level": [
+    0.3463,
+    0.5911
+   ],
+   "bootstrap95_family_grouped": [
+    0.3333,
+    0.6
+   ]
+  },
+  "wrong_match_rate /N": {
+   "numerator": 0,
+   "denominator": 60,
+   "value": 0.0,
+   "wilson95_case_level": [
+    0.0,
+    0.0602
+   ],
+   "bootstrap95_family_grouped": [
+    0.0,
+    0.0
+   ]
+  },
+  "error_among_suggestions /S": {
+   "numerator": 0,
+   "denominator": 28,
+   "value": 0.0,
+   "wilson95_case_level": [
+    0.0,
+    0.1206
+   ],
+   "bootstrap95_family_grouped": [
+    0.0,
+    0.0
+   ]
+  },
+  "suggestion_coverage_on_answerable /A": {
+   "numerator": 28,
+   "denominator": 43,
+   "value": 0.6512,
+   "wilson95_case_level": [
+    0.5017,
+    0.7758
+   ],
+   "bootstrap95_family_grouped": [
+    0.5,
+    0.8
+   ]
+  },
+  "top1_accuracy /A": {
+   "numerator": 43,
+   "denominator": 43,
+   "value": 1.0,
+   "wilson95_case_level": [
+    0.918,
+    1.0
+   ],
+   "bootstrap95_family_grouped": [
+    1.0,
+    1.0
+   ]
+  },
+  "correct_abstention /U": {
+   "numerator": 17,
+   "denominator": 17,
+   "value": 1.0,
+   "wilson95_case_level": [
+    0.8157,
+    1.0
+   ],
+   "bootstrap95_family_grouped": [
+    1.0,
+    1.0
+   ]
+  }
+ }
+}
