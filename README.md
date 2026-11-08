@@ -1,25 +1,66 @@
 # Book Edition Resolution Assistant (BERA)
 
 Given an ISBN or an incomplete book description, BERA suggests the most likely Open Library
-**edition** and routes uncertain cases to **human review**. It is decision support only: it
-never creates listings, changes prices, calls external services, or makes irreversible
-decisions.
+**edition** or routes the case to **human review**. It is decision support only: it never
+creates listings, changes prices, calls external services or makes irreversible decisions.
 
-> **Status.** Pipeline, local models, ingestion, labeling and the evaluation harness all
-> work. **No calibrated confidence and no real evaluation result exist yet.** Both require
-> human-labeled development cases, which are in progress. Results on synthetic fixtures are
-> engineering checks only. See [docs/REQUIREMENTS_TRACKER.md](docs/REQUIREMENTS_TRACKER.md).
+> **Status (2026-11-08).** The evaluation milestone is complete: 100 human-reviewed labels
+> (60 dev, 40 held-out), a full-system freeze, and one scored held-out run. Confidence is
+> **uncalibrated**, and the local LLM is **advisory only** (both of its suggestion gates are
+> closed). See [docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md) and
+> [docs/STATUS.md](docs/STATUS.md).
+
+## Held-out result (40 queries, 39 families, one labeler)
+
+The run used frozen tag `bera-eval-freeze-2026-11-07-r2` with policy `conservative-rules-v2`.
+
+| metric | k / n | 95% Wilson (case level) | 95% bootstrap (family grouped) |
+|---|---|---|---|
+| wrong suggestions (observed) | **0 / 40** | 0.0–8.8% | 0.0–0.0% |
+| correct suggestions, answerable queries | **6 / 15** | 19.8–64.3% | 16.7–66.7% |
+| correct suggestions, all queries | 6 / 40 | 7.1–29.1% | 5.0–27.5% |
+| error among suggestions | 0 / 6 | 0.0–39.0% | – |
+| review when the human chose review | 25 / 25 | 86.7–100% | – |
+| top-1 is the human's edition (answerable) | 14 / 15 | 70.2–98.8% | 78.6–100% |
+
+- **What 0 wrong means:** no wrong suggestion was observed in 40 queries. That is not zero
+  risk. With only 6 suggestions, the error rate among suggestions is barely constrained
+  (upper bound 39%).
+- **Coverage:** the system is conservative. 9 of the 15 answerable queries went to review.
+- **Same decisions everywhere:** all seven configurations made identical final decisions on
+  every query: exact/fuzzy, BM25, BM25+trigram (default), embedding, hybrid, hybrid+reranker,
+  and hybrid+reranker+routed LLM. The decision checks limit coverage, not retrieval
+  (recall@5 = 15/15).
+- **The LLM:** it was invoked on 17 queries and picked a candidate 11 times. Only 2 of those
+  picks matched the human's answer, and 9 were on cases the human sent to review. Its picks
+  changed no decision, because both suggestion gates are closed. This is **not** evidence
+  that the LLM improves quality.
+- **Comparison with dev (60 cases):** 28/43 answerable correct, 0/60 wrong. The dev labels
+  informed policy v2, so dev is not an independent test; the held-out set is.
+
+## Labels and their provenance
+
+| group | labels | independence |
+|---|---|---|
+| held-out | 40 | labeled blind (proposals never shown); owner self-reports no AI assistance |
+| dev, batch 02 + final | 60 | 59 used exactly as labeled. 1 (`d02-6463d76f7e`, "Darkwoods") was **amended** to human review after an **AI-assisted** review of the catalog records; the original line is preserved |
+| batch 01 | 20 drafts | **not counted**: 6 AI-assisted practice labels, 14 drafts exposed before labeling |
+
+All 100 counted cases were human reviewed. Strictly independent final labels number **99**
+(59 dev + 40 held-out), because the Darkwoods ruling was AI-assisted. Independence is
+self-reported by the single labeler and cannot be checked externally. Sidecar files record
+provenance, exposures, skips, review flags and amendments; label lines are never edited.
 
 ## Components
 
 | Stage | Implementation |
 |---|---|
-| ISBN | normalization, checksum validation, 10↔13 conversion, exact lookup; duplicate mappings and bad-checksum repair hypotheses always go to review |
-| Retrieval | SQLite FTS5 BM25, trigram (typo tolerant), `BAAI/bge-small-en-v1.5` embeddings, fused with RRF (k=60) |
-| Rerank | `cross-encoder/ms-marco-MiniLM-L6-v2` (uncalibrated logits, used only for ordering) |
-| Checks | deterministic field agreement/conflict checks (title, author, format, year, publisher, language, edition, study guide / box set) |
-| Policy | `conservative-rules-v1`, **uncalibrated**. The validated LLM suggestion path is implemented as a route gate measured on dev human labels; it is currently **closed** (too few and too imprecise choices), so the LLM stays advisory and cannot raise coverage |
-| Adjudication | Qwen3-4B-Instruct-2507 Q4_K_M via a project-built `llama-server` on 127.0.0.1; strict schema, candidate allowlist, typed evidence checks, bounded attempts and deadlines |
+| ISBN | normalization, checksum, 10↔13, exact lookup; duplicate mappings and bad-checksum repair hypotheses always go to review |
+| Retrieval | SQLite FTS5 BM25 + trigram (typo tolerant), fused with RRF (k=60); optional `BAAI/bge-small-en-v1.5` embeddings |
+| Rerank | optional `cross-encoder/ms-marco-MiniLM-L6-v2` (ordering only, uncalibrated) |
+| Checks | deterministic field agreement/conflict checks (title, author incl. conservative initials, format, year, publisher, language, edition, study guide / box set) |
+| Policy | `conservative-rules-v2`, **uncalibrated**: unknown fields never distinguish, catalog-wide uniqueness scan |
+| Adjudication | Qwen3-4B-Instruct-2507 Q4_K_M via a project-built `llama-server` on 127.0.0.1: strict schema, candidate allowlist, evidence checks, bounded attempts. **Advisory**: suggestion gates closed on dev evidence (agree 4/10, override 0/0; target 0.95, minimum 30) |
 | UI | React review screen with local confirm/reject; blind-first labeling tab |
 | Tracing | local SQLite; queries stored only as a salted HMAC |
 
@@ -27,52 +68,83 @@ decisions.
 
 ```bash
 python3.12 -m venv .tools/venv && .tools/venv/bin/pip install uv==0.13.7
-.tools/venv/bin/uv sync --locked                 # core only
-.tools/venv/bin/uv run python -m bera.cli build-catalog   # synthetic fixtures
+.tools/venv/bin/uv sync --locked --group ml      # see the note on test dependencies
+.tools/venv/bin/uv run python -m bera.cli build-catalog   # 30 synthetic fixture editions
 npm --prefix frontend ci && npm --prefix frontend run build
 .tools/venv/bin/uv run python -m bera.cli serve  # http://127.0.0.1:8000
 ```
 
-Optional local ML (requires owner-approved downloads; see MODEL_NOTICE.md):
+- **Test dependencies:** a core-only `uv sync --locked` runs the app, but on `main` 9
+  ingestion tests and `mypy` also need numpy and the ml-group stubs. The fix, which makes
+  numpy a core dependency, is on the local branch `post-eval/core-install-deps`, kept
+  separate because the freeze pins `pyproject.toml`/`uv.lock`.
+- **Checks:** `uv run ruff format --check . && uv run ruff check . && uv run mypy &&
+  uv run pytest`. Frontend: `npm --prefix frontend run typecheck` and
+  `VITE_API_BASE_URL=http://127.0.0.1:9 npm --prefix frontend test`.
+- **What has been verified:** these steps were checked **offline** in a disposable clean
+  clone, using existing local caches. A fresh online install on another machine has not been
+  verified. See [docs/SETUP_VERIFICATION.md](docs/SETUP_VERIFICATION.md).
+
+Local ML weights, LLM weights and the Open Library catalog are not in git. Getting them
+needs owner-approved downloads (see MODEL_NOTICE.md, DATA_NOTICE.md and
+[docs/SETUP_VERIFICATION.md](docs/SETUP_VERIFICATION.md)):
 
 ```bash
-.tools/venv/bin/uv sync --locked --group ml
 .tools/venv/bin/uv run python scripts/fetch_models.py --approved-by-owner
 ```
 
-Docker (API + UI; LLM off by default; weights never baked in):
+Docker (API + UI; LLM off by default; weights never baked in). `compose.yaml` binds to
+127.0.0.1:8000 and runs non-root with a read-only filesystem. It has **not been re-verified
+since 2026-11-03**: the pinned base images are not in the local cache.
 
 ```bash
-docker compose up --build    # binds 127.0.0.1:8000, non-root, read-only filesystem
+docker compose up --build
 ```
 
-Labeling (development queue only; held-out drafts are refused):
+## Demo (synthetic catalog only)
 
 ```bash
-BERA_CATALOG_DB=var/catalog_v3.sqlite BERA_LABEL_QUEUE=data/eval/drafts/dev_batch02.jsonl \
-  BERA_LABELS=data/eval/labels/dev_batch02_labels.jsonl \
-  .tools/venv/bin/uv run python -m bera.cli serve --host 127.0.0.1 --port 8000
-# then open http://127.0.0.1:8000 and use the "Label dev cases" tab.
-# Batch 02 is the independent batch; batch 01 (dev_batch01.jsonl + dev_labels.jsonl) is practice.
+.tools/venv/bin/uv run python -m bera.cli build-catalog
+.tools/venv/bin/uv run python -m bera.cli serve --port 8000     # terminal 1
+.tools/venv/bin/uv run python demo/run_demo.py                  # terminal 2
 ```
 
-## Evaluation
+The demo shows 6 scripted cases: two suggestions and four reasons for review (title-only
+ambiguity, duplicate ISBN, bad checksum, out of corpus). For the UI walkthrough, see
+[docs/DEMO.md](docs/DEMO.md). The demo never uses dev or held-out cases.
+
+## Evaluation and reproducibility
 
 ```bash
-.tools/venv/bin/uv run python -m bera.evalkit.run --cases <cases.jsonl> --split dev --out reports/x [--ml] [--llm-url http://127.0.0.1:8080/v1]
+.tools/venv/bin/uv run python -m bera.evalkit.run --cases <cases.jsonl> --split dev \
+  --queue <frozen queue> --out <dir> [--ml] [--llm-url http://127.0.0.1:8080/v1]
 ```
 
-- Systems 1–6 are compared on identical cases. Systems whose components are missing are
-  reported as blocked, never simulated.
-- Held-out runs refuse unless HEAD is a clean, tagged, frozen commit.
-- Protocol: [docs/EVAL_PROTOCOL.md](docs/EVAL_PROTOCOL.md). Corpus selection:
-  [docs/SELECTION_PROCEDURE.md](docs/SELECTION_PROCEDURE.md).
+- **Comparison:** systems 1–6 (plus the RRF default) run on identical cases. Missing
+  components are reported as blocked, never simulated.
+- **The held-out run** happened once, at the frozen tag. There was one documented deviation:
+  `--families` pointed to a supplement adding the 2 out-of-corpus probe families, which
+  affects grouping only. See
+  [data/eval/heldout/RUN_PROCEDURE_DEVIATION.md](data/eval/heldout/RUN_PROCEDURE_DEVIATION.md).
+  A first attempt failed at load with 0 cases scored, and that record is kept. The results
+  are committed, and the frozen-system guard now refuses any further held-out run.
+- **Re-checking from committed files:**
+  - `uv run python scripts/freeze_manifest.py verify` (pins and closed gates);
+  - `uv run python data/eval/heldout/build_family_supplement.py --check`;
+  - `uv run python data/eval/heldout/analyze_heldout_eval.py && git diff --exit-code`.
+- **Labeling server:** `BERA_CATALOG_DB=… BERA_LABEL_QUEUE=<queue> BERA_LABELS=<labels>
+  uv run python -m bera.cli serve`. Held-out queues are refused unless
+  `BERA_LABEL_ALLOW_HELDOUT=1`. Reveal modes: `per_case`, `after_batch`, `never`.
 
 ## Docs
 
+[evaluation report](docs/EVALUATION_REPORT.md) · [status](docs/STATUS.md) ·
+[demo](docs/DEMO.md) · [setup verification](docs/SETUP_VERIFICATION.md) ·
+[evaluation plan](docs/EVALUATION_PLAN.md) · [freeze](docs/FREEZE.md) ·
 [decision policy](docs/DECISION_POLICY.md) · [evidence spec](docs/EVIDENCE_SPEC.md) ·
 [threat model](docs/THREAT_MODEL.md) · [data card](docs/DATA_CARD.md) ·
 [labeling guide](docs/LABELING_GUIDE.md) · [AI assistance log](docs/AI_ASSISTANCE.md) ·
+[requirements tracker (frozen snapshot)](docs/REQUIREMENTS_TRACKER.md) ·
 [DATA_NOTICE](DATA_NOTICE.md) · [MODEL_NOTICE](MODEL_NOTICE.md)
 
 ## License

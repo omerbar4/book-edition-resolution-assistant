@@ -1,65 +1,63 @@
-# Remaining delivery work (after the held-out evaluation, 2026-11-08)
+# Delivery checklist (2026-11-08)
 
-All of this is local work. None of it changes the frozen policy, models, prompts, thresholds,
-gates or labels. Pushing, deployment and downloads each need a separate owner decision.
+Local only: nothing is pushed, deployed or published. The evaluated state is tag
+`bera-eval-freeze-2026-11-07-r2` plus the held-out data and result commits; it is unchanged.
 
-## README
-- [ ] Replace the status block, which still says "no real evaluation result". Give the
-      held-out headline with denominators and intervals: 0/40 wrong, 6/40 correct, coverage
-      6/15, correct abstention 25/25, all uncalibrated. Link
-      [EVALUATION_REPORT.md](EVALUATION_REPORT.md).
-- [ ] Policy row: `conservative-rules-v1` → `conservative-rules-v2` (initials compatibility).
-- [ ] Labeling section: describe the dev and held-out queues as they are now. The batch 02
-      example and the line "held-out drafts are refused" are out of date; held-out serving
-      needs `BERA_LABEL_ALLOW_HELDOUT=1`.
-- [ ] Evaluation section: add the frozen held-out command, including `--families`, and say
-      that the guard now refuses further held-out runs.
-- [ ] Add a short "What the results show / don't show" section: retrieval is not the
-      bottleneck, the LLM stays advisory, and there's no calibration.
-- [ ] Update the docs index: add EVALUATION_REPORT, EVALUATION_PLAN, FREEZE and this checklist.
+## Ready
 
-## Status documents
-- [ ] REQUIREMENTS_TRACKER / REQUIREMENTS_AUDIT:
-  - D4 → met (100 = 60 dev + 40 held-out);
-  - E3 → verified (frozen r2, single run);
-  - D6 → still partial (42 review cases, 15 out of corpus, against about 60);
-  - E1 → verified on held-out.
-- [ ] EVALUATION_PLAN: mark the milestone complete and link the report and the deviation note.
-- [ ] AI_ASSISTANCE.md: add the held-out phase (labels self-reported unassisted; analysis and
-      report drafted with AI assistance).
+- [x] **Evaluation:** 100 human-reviewed labels (99 strictly independent), the r2 freeze, one
+      scored held-out run, and the report with denominators and family-grouped intervals
+      ([EVALUATION_REPORT.md](EVALUATION_REPORT.md)).
+- [x] **Provenance:** held-out independence self-reported, the AI-assisted Darkwoods amendment,
+      batch 01 excluded, both run attempts recorded, the `--families` deviation documented.
+- [x] **README:** policy v2; held-out headline (0/40 observed wrong, 6/15 coverage, intervals,
+      not zero risk); 7 configurations identical; LLM advisory with gates closed; no
+      calibration claim; label provenance.
+- [x] **Status:** [STATUS.md](STATUS.md) records the changes since the frozen
+      tracker/audit snapshot, which stays unchanged.
+- [x] **AI assistance log** updated through 2026-11-08.
+- [x] **Demo:** `demo/run_demo.py` plus [DEMO.md](DEMO.md). It uses only the synthetic
+      catalog: 6/6 expected outcomes and the UI path checked in the browser.
+- [x] **Offline clean-clone setup** verified with the ml group: ruff, mypy, 232 tests
+      (3 skipped, need weights), frontend 11/11, build, serve
+      ([SETUP_VERIFICATION.md](SETUP_VERIFICATION.md)).
+- [x] **Intermittent frontend test** fixed in a separate post-evaluation commit (`a2d8f26`):
+      1 failure in 25 runs under load before, 0 in 40 after; frozen `frontend/src` untouched.
+- [x] **Reproducibility checks from committed files:** `freeze_manifest.py verify`,
+      `build_family_supplement.py --check`, and `analyze_heldout_eval.py` byte-identical.
 
-## Demo
-- [ ] A script or doc for a 3–5 minute local walkthrough:
-  - ISBN hit → suggestion;
-  - ambiguous title → review with evidence;
-  - out-of-corpus → review;
-  - LLM advisory panel (needs llama-server).
+## Not ready / needs a decision
 
-  Use only dev or synthetic queries, never held-out cases.
-- [ ] Screenshots or a short recording of the review UI and the labeling tab, using dev data.
-- [ ] A one-page "how to read the evidence panel" note for reviewers.
+- [ ] **Core-only install on `main`:** 9 tests and mypy fail without numpy. The fix is on the
+      unmerged local branch `post-eval/core-install-deps` (`936d36f`), verified in a
+      core-only clean clone. Merging it changes the pinned `pyproject.toml`/`uv.lock`, so
+      `freeze_manifest.py verify` would fail on `main` afterwards; the tag still preserves the
+      evaluated state. **Owner decision: merge or keep separate.**
+- [ ] **CI** (`.github/workflows/ci.yml`) has never run (no remote), and it would fail on
+      `main` until the branch above is merged.
+- [ ] **Fresh online install** from empty caches: not verified (needs PyPI/npm access).
+- [ ] **Docker:** not re-verified. Missing locally: `node:22-bookworm-slim@sha256:4b150b48…`
+      and `python:3.12-slim-bookworm@sha256:e697c818…`. The build also needs registry access
+      for npm, uv and PyPI. The last verified run was 2026-11-03.
+- [ ] **Model weights, llama.cpp and the Open Library catalog** can't be reproduced from git;
+      each needs a download.
+- [ ] **`/api/health` text:** calibration still reads "pending: needs human-labeled dev set"
+      (`src/bera/service.py:95`, frozen code). Optional post-evaluation fix.
+- [ ] **No README screenshots or recording** yet; capture from the synthetic demo if wanted.
 
-## Reproducible setup
-- [ ] Clean-clone dry run following README steps only, in a fresh directory. Confirm the
-      `uv sync --locked`, catalog build, frontend build and test commands.
-- [ ] Document rebuilding `var/catalog_v3.sqlite` from the recorded Open Library dump
-      (2026-10-31): exact script, expected sha256, disk and time needed. The dump download
-      itself needs owner approval.
-- [ ] Document building llama.cpp (the pinned binary hash is in the freeze manifest) and the
-      exact `llama-server` flags used here (`-c 8192 -ngl 99`, port 8080).
-- [ ] Model fetch: confirm `scripts/fetch_models.py --approved-by-owner` reproduces the pinned
-      hashes in `data/freeze/freeze_manifest.json`. That is a download, so it needs owner
-      approval.
-- [ ] Docker: `compose.yaml` and `Dockerfile` exist but weren't re-verified in this phase;
-      building pulls base images, which needs owner approval.
-- [ ] CI: `.github/workflows/ci.yml` exists but has never run (no remote, by instruction).
-      Either run the same steps locally as a recorded check, or mark it explicitly as unrun.
-- [ ] Fix or document the intermittent frontend test (`LabelView` "is blind-first", 1 failure
-      in 8 runs).
-- [ ] A one-command check that re-verifies the evaluation from committed files:
-      `freeze_manifest.py verify`, `build_family_supplement.py --check`, and
-      `analyze_heldout_eval.py` reproducing `analysis.json` byte for byte.
+## Approvals still needed (none were used)
+
+1. Merging `post-eval/core-install-deps` into `main`, and optionally the one-line health-text
+   fix in frozen code.
+2. Any download:
+   - Docker base images, plus registry access for a Docker build;
+   - model weights (`fetch_models.py --approved-by-owner`);
+   - llama.cpp source;
+   - the Open Library dump.
+3. Creating a remote, pushing, or running CI; publishing or deploying anything.
 
 ## Deferred (documented, not delivery blockers)
-- Calibrated scorer (C1), opening the LLM route, the damaged-ISBN fallback, unicode-guard
-  scope, the catalog-inconsistency detector, the D6 abstention target and the 120-label goal.
+
+The calibrated scorer (C1), opening the LLM route, the damaged-ISBN fallback, unicode-guard
+scope, the catalog-inconsistency detector, the about-60 abstention-case target (42 reached)
+and the 120-label goal.

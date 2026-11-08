@@ -82,9 +82,9 @@ method as the dev reports. The harness's own bootstrap uses a different resample
 | abstention rate (all queries) | 34 / 40 | 0.850 | | |
 | out-of-corpus probes routed to review | 3 / 3 (2 fam.) | | | |
 
-- **Errors:** no wrong suggestion was made. With n = 40, the upper Wilson bound on the
-  wrong-match rate is 8.8%. With only 6 suggestions, error among suggestions is barely
-  constrained (upper bound 39%).
+- **Errors:** no wrong suggestion was observed in 40 queries. That is not zero risk: with
+  n = 40, the upper Wilson bound on the wrong-match rate is 8.8%. With only 6 suggestions,
+  error among suggestions is barely constrained (upper bound 39%).
 - **Conservative abstentions:** 9 of the 15 answerable queries went to review. By stratum:
   identifier 2, author variation 2, missing metadata 2, edition ambiguity 2, format/year
   conflict 1. One of the 9 is the only ranking failure, a missing-metadata case whose top-1
@@ -211,7 +211,13 @@ The p95 for configuration 6 is set by the attempt deadline; 2 of 17 invocations 
 
 The evaluation milestone is **complete**:
 
-- 100 eligible human labels (60 dev + 40 held-out); no skipped or disputed cases;
+- 100 human-reviewed eligible labels (60 dev + 40 held-out), with no skipped or disputed
+  held-out cases. **99 are strictly independent final labels.** The exception is the dev
+  case `d02-6463d76f7e` ("Darkwoods"): its label was amended to review (underspecified)
+  after an AI-assisted review of the catalog records. The original line is preserved, and
+  the amendment is an append-only record. All 40 held-out labels are used exactly as saved,
+  with independence self-reported. Batch 01 (6 AI-assisted practice labels, 14 exposed
+  drafts) does not count;
 - the dev analysis is done;
 - the full system is frozen (r2);
 - the single held-out run is reported here.
