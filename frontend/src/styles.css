@@ -83,3 +83,6 @@ button:disabled { opacity: 0.6; cursor: wait; }
 .checks tr.agree td:nth-child(2) { color: var(--agree); }
 .checks tr.disagree td:nth-child(2) { color: var(--disagree); font-weight: 600; }
 .checks tr.unknown td:nth-child(2) { color: var(--muted); }
+
+.badge.demo { margin-left: 8px; font-size: 0.75rem; vertical-align: middle; }
+footer { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 8px; }

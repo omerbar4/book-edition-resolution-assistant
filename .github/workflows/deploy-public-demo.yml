@@ -1,0 +1,115 @@
+# Manual deployment of the BERA public demo to Cloud Run. It NEVER runs automatically: the only
+# trigger is workflow_dispatch, the operator must type the target name to confirm, and each
+# target uses a GitHub Environment (`public-demo-staging` / `public-demo-production`) that
+# should require a reviewer. Until the environment variables below are configured (staging
+# prerequisites: GCP project, billing, Artifact Registry, Workload Identity Federation, deploy
+# service account), the guard step fails and nothing is built or deployed.
+#
+# Flow: build -> image scan (HIGH/CRITICAL with a fix fail the run) -> push by digest ->
+# deploy a new revision with NO traffic (tag "candidate") -> smoke-test the candidate URL ->
+# move 100% traffic to it. Staging requires IAM authentication; production allows
+# unauthenticated access. Rollback: move traffic back to the previous revision, e.g.
+#   gcloud run services update-traffic SERVICE --region REGION --to-revisions PREVIOUS=100
+# Actions are pinned to full commit SHAs (resolved 2026-11-09 via git ls-remote).
+name: deploy-public-demo
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Where to deploy"
+        type: choice
+        options: [staging, production]
+        default: staging
+        required: true
+      confirm:
+        description: "Type the target name again to confirm"
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: deploy-public-demo-${{ inputs.target }}
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: public-demo-${{ inputs.target }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TARGET: ${{ inputs.target }}
+      CONFIRM: ${{ inputs.confirm }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+      GCP_DEPLOY_SA: ${{ vars.GCP_DEPLOY_SA }}
+      GCP_AR_REPO: ${{ vars.GCP_AR_REPO }}
+      CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
+      TRIVY_IMAGE: aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222
+    steps:
+      - name: Guard (confirmation, branch, configuration)
+        run: |
+          set -eu
+          [ "$CONFIRM" = "$TARGET" ] || { echo "::error::confirmation does not match target"; exit 1; }
+          if [ "$TARGET" = "production" ] && [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::production deploys only from main"; exit 1
+          fi
+          for v in GCP_PROJECT_ID GCP_REGION GCP_WIF_PROVIDER GCP_DEPLOY_SA GCP_AR_REPO CLOUD_RUN_SERVICE; do
+            if [ -z "$(printenv "$v")" ]; then
+              echo "::error::environment variable $v is not configured; staging prerequisites are not met"; exit 1
+            fi
+          done
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - name: Build image
+        run: |
+          set -eu
+          IMAGE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GCP_AR_REPO}/bera-public-demo"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          docker build --pull=false -t "$IMAGE:$GITHUB_SHA" .
+      - name: Scan image (fail on fixable HIGH/CRITICAL)
+        run: |
+          set -eu
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$IMAGE:$GITHUB_SHA"
+      - name: Push image
+        run: |
+          set -eu
+          gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+          docker push "$IMAGE:$GITHUB_SHA"
+          DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$GITHUB_SHA")"
+          echo "DIGEST=$DIGEST" >> "$GITHUB_ENV"
+      - name: Deploy candidate revision (no traffic)
+        run: |
+          set -eu
+          if [ "$TARGET" = "production" ]; then AUTH=--allow-unauthenticated; else AUTH=--no-allow-unauthenticated; fi
+          gcloud run deploy "$CLOUD_RUN_SERVICE" --project "$GCP_PROJECT_ID" --region "$GCP_REGION" \
+            --image "$DIGEST" --port 8000 --cpu 1 --memory 512Mi --concurrency 20 \
+            --min-instances 0 --max-instances 1 --timeout 10 \
+            --set-env-vars BERA_TRUSTED_PROXY_HOPS=1 \
+            --no-traffic --tag candidate "$AUTH" --quiet
+      - name: Smoke-test candidate
+        run: |
+          set -eu
+          URL="$(gcloud run services describe "$CLOUD_RUN_SERVICE" --project "$GCP_PROJECT_ID" --region "$GCP_REGION" \
+            --format='value(status.traffic.filter(tag=candidate).url)' | tr -d '[]' | cut -d, -f1)"
+          [ -n "$URL" ] || { echo "::error::candidate URL not found"; exit 1; }
+          H=()
+          if [ "$TARGET" = "staging" ]; then H=(-H "Authorization: Bearer $(gcloud auth print-identity-token)"); fi
+          curl -fsS "${H[@]}" "$URL/api/ready" | grep -q '"status":"ready"'
+          curl -fsS "${H[@]}" "$URL/api/health" | grep -q '"catalog_editions":5366'
+          curl -fsS "${H[@]}" "$URL/api/health" | grep -q '"llm":"disabled"'
+          [ "$(curl -s -o /dev/null -w '%{http_code}' "${H[@]}" "$URL/docs")" = "404" ]
+          [ "$(curl -s -o /dev/null -w '%{http_code}' "${H[@]}" -X POST "$URL/api/feedback")" = "404" ]
+          curl -fsS -D - -o /dev/null "${H[@]}" "$URL/" | grep -qi '^strict-transport-security:'
+      - name: Move traffic to candidate
+        run: |
+          set -eu
+          gcloud run services update-traffic "$CLOUD_RUN_SERVICE" --project "$GCP_PROJECT_ID" \
+            --region "$GCP_REGION" --to-tags candidate=100 --quiet

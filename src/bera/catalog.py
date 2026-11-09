@@ -60,13 +60,20 @@ def check_sqlite_features() -> None:
 
 
 class Catalog:
-    def __init__(self, path: Path | str) -> None:
+    def __init__(self, path: Path | str, read_only: bool = False) -> None:
         self.path = str(path)
+        self.read_only = read_only
         check_sqlite_features()
 
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:
-        con = sqlite3.connect(self.path)
+        if self.read_only:
+            # mode=ro: no writes; immutable=1: the file never changes, so no locks or journal
+            # are needed (works on a read-only filesystem).
+            uri = Path(self.path).resolve().as_uri() + "?mode=ro&immutable=1"
+            con = sqlite3.connect(uri, uri=True)
+        else:
+            con = sqlite3.connect(self.path)
         con.row_factory = sqlite3.Row
         try:
             yield con

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type QueryInput, type ResolveResponse, resolveQuery } from "./api";
+import { type AppInfo, type QueryInput, type ResolveResponse, getAppInfo, resolveQuery } from "./api";
 import { LabelView } from "./LabelView";
 import { Result } from "./Result";
 
@@ -36,13 +36,27 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"resolve" | "label">("resolve");
   const [labelEnabled, setLabelEnabled] = useState(false);
+  // Unknown until /api/health answers; feedback stays hidden unless the server says it is
+  // not a public demo (fail closed).
+  const [info, setInfo] = useState<AppInfo | null>(null);
 
   useEffect(() => {
+    getAppInfo()
+      .then(setInfo)
+      .catch(() => setInfo(null));
+  }, []);
+
+  useEffect(() => {
+    // The labeling route does not exist in the public demo; only ask a local server.
+    if (info === null || info.publicDemo) {
+      setLabelEnabled(false);
+      return;
+    }
     fetch("/api/label/enabled")
       .then((r) => (r.ok ? r.json() : { enabled: false }))
       .then((j: { enabled?: boolean }) => setLabelEnabled(Boolean(j.enabled)))
       .catch(() => setLabelEnabled(false));
-  }, []);
+  }, [info]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,10 +75,13 @@ export default function App() {
   return (
     <main className="page">
       <header>
-        <h1>Edition Resolution Review</h1>
-        <p className="muted">
+        <h1>
+          Edition Resolution Review
+          {info?.publicDemo && <span className="badge demo">Public demo</span>}
+        </h1>
+        <p className="muted" data-testid="disclaimer">
           Decision support only. Suggestions are not confirmed matches, and nothing is listed,
-          priced or changed.
+          priced or changed. A human reviewer makes the final decision.
         </p>
       </header>
       {labelEnabled && (
@@ -129,9 +146,35 @@ export default function App() {
           Request failed: {error}
         </p>
       )}
-      {result && <Result key={result.request_id} result={result} />}
+      {result && (
+        <Result
+          key={result.request_id}
+          result={result}
+          feedbackEnabled={info !== null && !info.publicDemo}
+        />
+      )}
       </>
       )}
+      <footer className="muted small" data-testid="attribution">
+        {info?.openLibrary ? (
+          <p>
+            Catalog: a derived subset of factual fields from the{" "}
+            <a href="https://openlibrary.org/" rel="noopener noreferrer">
+              Open Library
+            </a>{" "}
+            data dump dated 2026-10-31 (Internet Archive). Records may be incomplete or wrong;
+            see DATA_NOTICE.md in the project repository.
+          </p>
+        ) : (
+          <p>Catalog: local data (see the project README and DATA_NOTICE.md).</p>
+        )}
+        {info?.publicDemo && (
+          <p>
+            Public demo of a portfolio project. BERA does not store your queries; no account,
+            listing or purchase is involved.
+          </p>
+        )}
+      </footer>
     </main>
   );
 }
