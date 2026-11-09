@@ -13,5 +13,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
+    // Explicit (the Vitest default): well above the 1000 ms async-wait budget.
+    testTimeout: 5000,
   },
 });
