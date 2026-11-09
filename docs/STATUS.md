@@ -57,7 +57,8 @@ models, catalog and llama-server binary.
 
 | commit | change | touches frozen files |
 |---|---|---|
-| `a2d8f26` | frontend test stability: Testing Library async timeout 5 s (`frontend/vitest.setup.ts`); 1 failure in 25 runs under load before, 0 in 40 after | no |
+| `a2d8f26` | frontend test stability: Testing Library async timeout 5 s (`frontend/vitest.setup.ts`); 1 failure in 25 runs under load before, 0 in 40 after. **Misdiagnosed**: the flake recurred in CI on 2026-11-09; superseded by the row below | no |
+| (`fix/labelview-test-flake`) | LabelView test race: tests clicked Search before LabelView's effect enabled it, so the click was dropped and a later test's render rescued the wait. Tests now wait for Search to be enabled and scope queries to their own container; async-wait budget back to 1 s, under the explicit 5 s test timeout. Test files and config only; app code unchanged | no |
 | `8f9d26a` | `demo/run_demo.py` (synthetic catalog only) | no |
 | `b221ce2` | README, STATUS, DEMO, SETUP_VERIFICATION, evaluation report, AI log | no |
 | `936d36f` via merge `91adf72` | numpy as a core dependency (needed by `rapidfuzz.process.cdist` in ingestion); mypy ignores the optional ml imports (torch, sentence-transformers) | yes: `pyproject.toml`, `uv.lock` |

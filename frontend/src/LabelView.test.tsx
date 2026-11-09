@@ -2,8 +2,8 @@ import {
   cleanup,
   fireEvent,
   render,
-  screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LabelView } from "./LabelView";
@@ -12,6 +12,24 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
+
+// Queries are scoped to each test's own container (not the global `screen`): if a test
+// ever times out, its still-running code cannot find or click elements rendered by the
+// next test. That leak once made a timed-out test submit a label through the next test's
+// fetch stub.
+type Ui = ReturnType<typeof within>;
+
+// LabelView enables Search only after an effect copies the case title into the search
+// box. That effect can run after the case is already visible, and a click on the still
+// disabled button is silently ignored, so wait until it is enabled before clicking.
+async function clickSearch(ui: Ui) {
+  await waitFor(() =>
+    expect(
+      (ui.getByRole("button", { name: "Search" }) as HTMLButtonElement).disabled,
+    ).toBe(false),
+  );
+  fireEvent.click(ui.getByRole("button", { name: "Search" }));
+}
 
 const queue = {
   items: [
@@ -80,18 +98,19 @@ describe("LabelView", () => {
       }),
     );
     const { container } = render(<LabelView />);
-    await screen.findByText(/Query as a person typed it/);
+    const ui = within(container);
+    await ui.findByText(/Query as a person typed it/);
     expect(container.textContent).not.toContain("OL2M");
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    fireEvent.click(await screen.findByLabelText("pick OL1M"));
-    fireEvent.change(screen.getByLabelText("Your labeler id"), {
+    await clickSearch(ui);
+    fireEvent.click(await ui.findByLabelText("pick OL1M"));
+    fireEvent.change(ui.getByLabelText("Your labeler id"), {
       target: { value: "ob" },
     });
-    fireEvent.click(screen.getByLabelText(/One specific edition/));
+    fireEvent.click(ui.getByLabelText(/One specific edition/));
     expect(container.textContent).not.toContain("secret_template_name");
-    fireEvent.click(screen.getByRole("button", { name: "Save label" }));
+    fireEvent.click(ui.getByRole("button", { name: "Save label" }));
     await waitFor(() =>
-      expect(screen.getByText(/Drafted proposal/)).toBeTruthy(),
+      expect(ui.getByText(/Drafted proposal/)).toBeTruthy(),
     );
     expect(container.textContent).toContain("OL2M");
     expect(container.textContent).toContain(
@@ -121,21 +140,22 @@ describe("LabelView", () => {
       }),
     );
     const { container } = render(<LabelView />);
-    await screen.findByText(/What am I deciding/);
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    await screen.findByText(
+    const ui = within(container);
+    await ui.findByText(/What am I deciding/);
+    await clickSearch(ui);
+    await ui.findByText(
       /Showing 1–1 of 120 matching records \(more on the next page\)/,
     );
-    expect(screen.getByRole("button", { name: "Next page →" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Next page →" }));
+    expect(ui.getByRole("button", { name: "Next page →" })).toBeTruthy();
+    fireEvent.click(ui.getByRole("button", { name: "Next page →" }));
     await waitFor(() =>
       expect(calls.some((c) => c.includes("offset=50"))).toBe(true),
     );
-    fireEvent.change(screen.getByLabelText("Your labeler id"), {
+    fireEvent.change(ui.getByLabelText("Your labeler id"), {
       target: { value: "ob" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Skip for now" }));
-    await screen.findByText(
+    fireEvent.click(ui.getByRole("button", { name: "Skip for now" }));
+    await ui.findByText(
       /Nothing was labeled and the proposal stays hidden/,
     );
     expect(container.textContent).not.toContain("Drafted proposal");
@@ -152,9 +172,10 @@ describe("LabelView", () => {
       }),
     );
     const { container } = render(<LabelView />);
-    await screen.findByText(/Query as a person typed it/);
-    const one = screen.getByLabelText(/One specific edition/) as HTMLInputElement;
-    const review = screen.getByLabelText(
+    const ui = within(container);
+    await ui.findByText(/Query as a person typed it/);
+    const one = ui.getByLabelText(/One specific edition/) as HTMLInputElement;
+    const review = ui.getByLabelText(
       /Human review \(abstain\)/,
     ) as HTMLInputElement;
     // nothing is selected by default and nothing reads like a stated answer
@@ -164,26 +185,26 @@ describe("LabelView", () => {
     expect(container.textContent).not.toContain("Correct behavior is");
     expect(container.textContent).not.toContain("Generator template");
     const save = () =>
-      screen.getByRole("button", { name: "Save label" }) as HTMLButtonElement;
-    fireEvent.change(screen.getByLabelText("Your labeler id"), {
+      ui.getByRole("button", { name: "Save label" }) as HTMLButtonElement;
+    fireEvent.change(ui.getByLabelText("Your labeler id"), {
       target: { value: "ob" },
     });
     expect(save().disabled).toBe(true);
     // a picked record without choosing an answer is not enough
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    fireEvent.click(await screen.findByLabelText("pick OL1M"));
+    await clickSearch(ui);
+    fireEvent.click(await ui.findByLabelText("pick OL1M"));
     expect(save().disabled).toBe(true);
     fireEvent.click(one);
     expect(save().disabled).toBe(false);
     // abstain needs a reason
     fireEvent.click(review);
     expect(save().disabled).toBe(true);
-    fireEvent.change(screen.getByRole("combobox"), {
+    fireEvent.change(ui.getByRole("combobox"), {
       target: { value: "out_of_corpus" },
     });
     expect(save().disabled).toBe(false);
     // "one edition" with no record ticked is not enough
-    fireEvent.click(screen.getByLabelText("pick OL1M"));
+    fireEvent.click(ui.getByLabelText("pick OL1M"));
     fireEvent.click(one);
     expect(save().disabled).toBe(true);
   });
@@ -208,12 +229,12 @@ describe("LabelView", () => {
         throw new Error(url);
       }),
     );
-    render(<LabelView />);
-    await screen.findByText(/dev-002 \(2\/2\)/);
+    const ui = within(render(<LabelView />).container);
+    await ui.findByText(/dev-002 \(2\/2\)/);
     expect(
-      screen.getByText(/a label here will not count as independent/),
+      ui.getByText(/a label here will not count as independent/),
     ).toBeTruthy();
-    expect(screen.getByText(/1 exposed before labeling \(not counted\)/)).toBeTruthy();
+    expect(ui.getByText(/1 exposed before labeling \(not counted\)/)).toBeTruthy();
   });
 
   it("after_batch: a save shows nothing about the proposal until the batch is complete", async () => {
@@ -258,27 +279,28 @@ describe("LabelView", () => {
       }),
     );
     const { container } = render(<LabelView />);
-    await screen.findByText(/Query as a person typed it/);
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    fireEvent.click(await screen.findByLabelText("pick OL1M"));
-    fireEvent.change(screen.getByLabelText("Your labeler id"), {
+    const ui = within(container);
+    await ui.findByText(/Query as a person typed it/);
+    await clickSearch(ui);
+    fireEvent.click(await ui.findByLabelText("pick OL1M"));
+    fireEvent.change(ui.getByLabelText("Your labeler id"), {
       target: { value: "ob" },
     });
-    fireEvent.click(screen.getByLabelText(/One specific edition/));
-    fireEvent.click(screen.getByRole("button", { name: "Save label" }));
-    await screen.findByText(/stay hidden until every case/);
+    fireEvent.click(ui.getByLabelText(/One specific edition/));
+    fireEvent.click(ui.getByRole("button", { name: "Save label" }));
+    await ui.findByText(/stay hidden until every case/);
     expect(container.textContent).not.toContain("OL2M");
     expect(container.textContent).not.toContain("secret_template_name");
     expect(container.textContent).not.toContain("Drafted proposal (");
     expect(
-      (screen.getByRole("button", { name: "Save label" }) as HTMLButtonElement).disabled,
+      (ui.getByRole("button", { name: "Save label" }) as HTMLButtonElement).disabled,
     ).toBe(true);
     fireEvent.click(
-      await screen.findByRole("button", {
+      await ui.findByRole("button", {
         name: "Show drafted proposals for the whole batch",
       }),
     );
-    await screen.findByText(/0\/1 match your labels/);
+    await ui.findByText(/0\/1 match your labels/);
     expect(container.textContent).toContain("OL2M");
     expect(container.textContent).toContain("secret_template_name");
   });
@@ -306,19 +328,19 @@ describe("LabelView", () => {
         throw new Error(url);
       }),
     );
-    render(<LabelView />);
-    await screen.findByText(/Query as a person typed it/);
-    fireEvent.click(screen.getByRole("button", { name: "Search" }));
-    fireEvent.click(await screen.findByLabelText("pick OL1M"));
-    fireEvent.change(screen.getByLabelText("Your labeler id"), {
+    const ui = within(render(<LabelView />).container);
+    await ui.findByText(/Query as a person typed it/);
+    await clickSearch(ui);
+    fireEvent.click(await ui.findByLabelText("pick OL1M"));
+    fireEvent.change(ui.getByLabelText("Your labeler id"), {
       target: { value: "ob" },
     });
-    fireEvent.click(screen.getByLabelText(/One specific edition/));
-    fireEvent.click(screen.getByRole("button", { name: "Save label" }));
-    await screen.findByText(/never shown for this queue/);
-    expect(screen.queryByText(/Held-out queue/)).toBeNull(); // dev split in this fixture
+    fireEvent.click(ui.getByLabelText(/One specific edition/));
+    fireEvent.click(ui.getByRole("button", { name: "Save label" }));
+    await ui.findByText(/never shown for this queue/);
+    expect(ui.queryByText(/Held-out queue/)).toBeNull(); // dev split in this fixture
     expect(
-      screen.queryByRole("button", {
+      ui.queryByRole("button", {
         name: "Show drafted proposals for the whole batch",
       }),
     ).toBeNull();
