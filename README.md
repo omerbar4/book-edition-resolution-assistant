@@ -2,9 +2,33 @@
 
 [![ci](https://github.com/omerbar4/book-edition-resolution-assistant/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/omerbar4/book-edition-resolution-assistant/actions/workflows/ci.yml)
 
+**Hybrid retrieval with a schema-validated, evaluation-gated LLM adjudicator.**
+
 Given an ISBN or an incomplete book description, BERA suggests the most likely Open Library
-**edition** or routes the case to **human review**. It is decision support only: it never
-creates listings, changes prices, calls external services or makes irreversible decisions.
+**edition** or routes the case to **human review**. Retrieval (BM25, trigram and optional
+embeddings, fused with RRF) and deterministic field checks make every decision. When several
+editions still fit, a local LLM (Qwen3-4B via llama.cpp) must answer in a strict JSON schema
+and cite record fields, and code checks each citation against the stored record. The model
+stays **advisory** unless dev evidence clears a gate fixed in advance: at least 30 cases and a
+95% Wilson lower confidence bound of at least 0.95. It has not. On held-out data the system
+made 0/40 wrong suggestions while covering 6/15 answerable queries; all seven configurations
+made identical decisions, so the LLM showed no measured accuracy gain.
+
+It is decision support only: it never creates listings, changes prices, calls external
+services or makes irreversible decisions.
+
+## Walkthrough (synthetic catalog only)
+
+A [2 min 24 s recorded walkthrough](docs/presentation/bera-walkthrough.webm) (WebM; GitHub
+does not play it inline, so download it or use "View raw") shows deterministic resolution, a real local Qwen3-4B call with validated evidence
+and an advisory outcome, mock security tests, latency and token traces, and the recorded r2
+results. Each segment is labeled **LIVE**, **MOCK** or **RECORDED**; see
+[docs/presentation](docs/presentation/README.md).
+
+| | |
+|---|---|
+| ![Live local LLM adjudication: validated citations, final outcome review](docs/presentation/screenshots/02-live-llm-advisory.png) | ![Per-stage latency, token usage and the HMAC-only trace store](docs/presentation/screenshots/04-latency-tokens-traces.png) |
+| **LIVE:** Qwen3-4B picks c1; its citations pass validation, but its free-text reasoning is not validated (it wrongly says only c1 matches) and several editions remain compatible, so the outcome stays review | **LIVE:** per-stage latency and token usage from the API and the local trace store |
 
 > **Status (2026-11-08).** The evaluation milestone is complete: 100 human-reviewed labels
 > (60 dev, 40 held-out), a full-system freeze, and one scored held-out run. Confidence is
@@ -129,6 +153,11 @@ The demo shows 6 scripted cases: two suggestions and four reasons for review (ti
 ambiguity, duplicate ISBN, bad checksum, out of corpus). For the UI walkthrough, see
 [docs/DEMO.md](docs/DEMO.md). The demo never uses dev or held-out cases.
 
+The recorded walkthrough adds the local LLM. It needs the model weights and llama-server, and
+is reproduced with `demo/record_walkthrough.py`, run from an explicitly configured Playwright
+environment (`BERA_PLAYWRIGHT_PYTHON`; not a project dependency); see
+[docs/presentation](docs/presentation/README.md).
+
 ## Evaluation and reproducibility
 
 ```bash
@@ -156,6 +185,7 @@ ambiguity, duplicate ISBN, bad checksum, out of corpus). For the UI walkthrough,
 ## Docs
 
 [evaluation report](docs/EVALUATION_REPORT.md) · [status](docs/STATUS.md) ·
+[presentation](docs/presentation/README.md) ·
 [demo](docs/DEMO.md) · [setup verification](docs/SETUP_VERIFICATION.md) ·
 [evaluation plan](docs/EVALUATION_PLAN.md) · [freeze](docs/FREEZE.md) ·
 [decision policy](docs/DECISION_POLICY.md) · [evidence spec](docs/EVIDENCE_SPEC.md) ·
