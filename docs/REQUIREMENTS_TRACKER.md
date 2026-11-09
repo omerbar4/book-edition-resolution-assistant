@@ -71,4 +71,3 @@ Last audited 2026-11-07: [REQUIREMENTS_AUDIT.md](REQUIREMENTS_AUDIT.md).
 | S9 | Docker setup | verified | digest-pinned images; compose up: health, resolve, UI 200, uid 10001, read-only FS |
 | S10 | Pin GitHub Actions to commit SHAs | verified | checkout/setup-python/setup-node pinned |
 | O1 | MIT for code; separate data and model notices | verified | LICENSE, DATA_NOTICE.md, MODEL_NOTICE.md |
-| O2 | AI-assistance log | implemented | docs/AI_ASSISTANCE.md |

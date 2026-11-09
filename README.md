@@ -190,7 +190,7 @@ environment (`BERA_PLAYWRIGHT_PYTHON`; not a project dependency); see
 [evaluation plan](docs/EVALUATION_PLAN.md) · [freeze](docs/FREEZE.md) ·
 [decision policy](docs/DECISION_POLICY.md) · [evidence spec](docs/EVIDENCE_SPEC.md) ·
 [threat model](docs/THREAT_MODEL.md) · [data card](docs/DATA_CARD.md) ·
-[labeling guide](docs/LABELING_GUIDE.md) · [AI assistance log](docs/AI_ASSISTANCE.md) ·
+[labeling guide](docs/LABELING_GUIDE.md) ·
 [requirements tracker (frozen snapshot)](docs/REQUIREMENTS_TRACKER.md) ·
 [DATA_NOTICE](DATA_NOTICE.md) · [MODEL_NOTICE](MODEL_NOTICE.md)
 

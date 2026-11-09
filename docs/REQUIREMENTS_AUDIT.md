@@ -26,7 +26,7 @@ downloads or external services.
 | S1–S7, S10 | verified | security tests pass; S4 is verified with a mock clock |
 | S8 | implemented, **not executed** | CI workflow exists; never run (no remote, by instruction) |
 | S9 | verified earlier, **not re-run** | Docker build not repeated in this audit (it could download base images) |
-| O1, O2 | verified / implemented | |
+| O1 | verified | |
 
 ## Deferred or unmet requirements (explicit)
 
