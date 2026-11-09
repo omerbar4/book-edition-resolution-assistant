@@ -1,0 +1,110 @@
+{
+  "checks": {
+    "file_hashes": {
+      "data/eval/labels/dev_labels.jsonl": true,
+      "data/eval/labels/dev_batch02_labels.jsonl": true,
+      "data/eval/labels/dev_final_labels.jsonl": true,
+      "data/eval/heldout/heldout_labels.jsonl": true,
+      "data/eval/labels/dev_labels.provenance.jsonl": true,
+      "data/eval/labels/dev_labels.exposures.jsonl": true,
+      "data/eval/labels/dev_batch02_labels.provenance.jsonl": true,
+      "data/eval/labels/dev_batch02_labels.amendments.jsonl": true,
+      "data/eval/labels/dev_batch02_labels.review_flags.jsonl": true,
+      "data/eval/labels/dev_final_labels.provenance.jsonl": true,
+      "data/eval/heldout/heldout_labels.provenance.jsonl": true
+    },
+    "label_lines_only_origin_changed": {
+      "data/eval/labels/dev_labels.jsonl": true,
+      "data/eval/labels/dev_batch02_labels.jsonl": true,
+      "data/eval/labels/dev_final_labels.jsonl": true,
+      "data/eval/heldout/heldout_labels.jsonl": true
+    },
+    "evaluation_inputs_identical_except_origin": {
+      "data/eval/labels/dev_labels.jsonl amendments=False": {
+        "identical": true,
+        "cases": 0,
+        "excluded": 20
+      },
+      "data/eval/labels/dev_labels.jsonl amendments=True": {
+        "identical": true,
+        "cases": 0,
+        "excluded": 20
+      },
+      "data/eval/labels/dev_batch02_labels.jsonl amendments=False": {
+        "identical": true,
+        "cases": 20,
+        "excluded": 0
+      },
+      "data/eval/labels/dev_batch02_labels.jsonl amendments=True": {
+        "identical": true,
+        "cases": 20,
+        "excluded": 0
+      },
+      "data/eval/labels/dev_final_labels.jsonl amendments=False": {
+        "identical": true,
+        "cases": 40,
+        "excluded": 0
+      },
+      "data/eval/labels/dev_final_labels.jsonl amendments=True": {
+        "identical": true,
+        "cases": 40,
+        "excluded": 0
+      },
+      "data/eval/heldout/heldout_labels.jsonl amendments=False": {
+        "identical": true,
+        "cases": 40,
+        "excluded": 0
+      },
+      "data/eval/heldout/heldout_labels.jsonl amendments=True": {
+        "identical": true,
+        "cases": 40,
+        "excluded": 0
+      }
+    },
+    "frozen_metrics_recomputed_with_migrated_labels": {
+      "data/eval/results/heldout40_frozen_r2/report.json": {
+        "amendments_applied": false,
+        "cases": 40,
+        "per_case_rows_match_label_count": true,
+        "headline_metrics_equal": {
+          "1_exact_fuzzy": true,
+          "2_lexical": true,
+          "2b_lexical_rrf": true,
+          "3_embedding": true,
+          "4_hybrid": true,
+          "5_hybrid_rerank": true,
+          "6_routed_llm": true
+        }
+      },
+      "data/eval/results/dev60_human_policy_v2_initials/report.json": {
+        "amendments_applied": false,
+        "cases": 60,
+        "per_case_rows_match_label_count": true,
+        "headline_metrics_equal": {
+          "1_exact_fuzzy": true,
+          "2_lexical": true,
+          "2b_lexical_rrf": true,
+          "3_embedding": true,
+          "4_hybrid": true,
+          "5_hybrid_rerank": true,
+          "6_routed_llm": true
+        }
+      },
+      "data/eval/results/dev60_human_policy_v1/report.json": {
+        "amendments_applied": false,
+        "cases": 60,
+        "per_case_rows_match_label_count": true,
+        "headline_metrics_equal": {
+          "1_exact_fuzzy": true,
+          "2_lexical": true,
+          "2b_lexical_rrf": true,
+          "3_embedding": true,
+          "4_hybrid": true,
+          "5_hybrid_rerank": true,
+          "6_routed_llm": true
+        }
+      }
+    }
+  },
+  "passed": true
+}

@@ -28,15 +28,15 @@ changed since then. Where the two disagree, this page is current.
   - One dev case, `d02-6463d76f7e` ("Darkwoods"), was flagged because the human's label
     disagreed with the rules.
   - The owner then **amended** that label to human review (underspecified), after an
-    **AI-assisted** review: Claude showed the query and the uncontradicted catalog records,
-    without scores or recommendations.
+    catalog-record review in which an assistant tool, not the labeler, showed the query and
+    the uncontradicted catalog records, without scores or recommendations.
   - The original line is preserved, and the amendment is a separate append-only record
     (`dev_batch02_labels.amendments.jsonl`). That one final label is therefore not strictly
     independent.
 - **Held-out:** 40/40 labeled with reveal `never`. The owner self-reports no AI assistance
   (`heldout_labels.provenance.jsonl`, attestation `self_reported`).
-- **Not counted:** batch 01, with 6 AI-assisted practice labels and 14 drafts exposed before
-  labeling.
+- **Not counted:** batch 01, with 6 practice labels made with outside help (excluded from
+  evaluation) and 14 drafts whose answer was exposed before labeling.
 - **Dev is not independent of the system:** dev labels were used to develop policy v2, so dev
   metrics are development evidence. Only held-out is a test.
 

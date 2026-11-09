@@ -14,7 +14,8 @@ cut from `main`.
 - [x] **Evaluation:** 100 human-reviewed labels (99 strictly independent), the r2 freeze, one
       scored held-out run, and the report with denominators and family-grouped intervals
       ([EVALUATION_REPORT.md](EVALUATION_REPORT.md)).
-- [x] **Provenance:** held-out independence self-reported, the AI-assisted Darkwoods amendment,
+- [x] **Provenance:** held-out independence self-reported, the Darkwoods amendment after an assisted
+      catalog-record review,
       batch 01 excluded, both run attempts recorded, the `--families` deviation documented.
 - [x] **Publication audit** of every blob, commit message and tag in history:
   - no credentials and no private-project or infrastructure content;

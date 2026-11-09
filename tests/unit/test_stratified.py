@@ -128,7 +128,7 @@ def test_reveal_uses_the_per_draft_spec(tmp_path: Path) -> None:
             "gold_edition_ids": [],
             "ambiguity_reason": "out_of_corpus",
             "family": "f",
-            "origin": "ai_drafted_human_labeled",
+            "origin": "program_drafted_human_labeled",
             "split": "dev",
             "labeler": "ob",
         }

@@ -7,8 +7,10 @@
   (several editions fit everything provided; `gold_edition_ids` lists them, for retrieval
   diagnostics), or the book is out of corpus (`gold_edition_ids` is empty).
 
-`origin` keeps provenance honest. Only "human" and "ai_drafted_human_labeled" rows count
+`origin` keeps provenance honest. Only "human" and "program_drafted_human_labeled" rows count
 toward the human-labeled requirement, and only after a human set `labeler`.
+"program_drafted_human_labeled": the query was drafted by the deterministic template drafters
+(`bera.evalkit.drafts`, `bera.evalkit.stratified`) and the label was chosen by a human.
 """
 
 from __future__ import annotations
@@ -21,7 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from bera.models import Query
 
-Origin = Literal["human", "ai_drafted_human_labeled", "synthetic_perturbation"]
+Origin = Literal["human", "program_drafted_human_labeled", "synthetic_perturbation"]
 
 
 class Perturbation(BaseModel):
@@ -62,7 +64,7 @@ class EvalCase(BaseModel):
 
     @property
     def human_labeled(self) -> bool:
-        return self.origin in ("human", "ai_drafted_human_labeled") and bool(self.labeler)
+        return self.origin in ("human", "program_drafted_human_labeled") and bool(self.labeler)
 
 
 def load_cases(path: Path) -> list[EvalCase]:

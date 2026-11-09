@@ -1,21 +1,28 @@
-"""Label provenance sidecars. Label files are append-only and are never rewritten.
+"""Label provenance sidecars. Label files are append-only; label decisions are never edited.
+(The one schema migration, 2026-11-09, renamed stored values only and is recorded with old and
+new hashes in `data/eval/migrations/20261109_program_drafted_origin/`.)
 
 `<labels>.provenance.jsonl`: one JSON object per line, appended; it annotates existing label
 entries without editing them. Each record pins the exact label line it refers to by sha256.
 
-- `status: "practice_ai_assisted"`: the label was made as AI-assisted practice. It is kept,
-  but it is NOT an independent human label and is excluded from the independent count and
-  from evaluation. Because the drafted proposal was revealed when the label was submitted,
-  the case is no longer blind; a later label on the same case stays practice.
+- `status: "practice_excluded"`: a practice label (for example one made with outside help, or
+  one whose proposal was revealed at submission). It is kept, but it is NOT an independent
+  human label and is excluded from the independent count and from evaluation. Because the
+  drafted proposal was revealed when the label was submitted, the case is no longer blind; a
+  later label on the same case stays practice.
 
 `<labels>.exposures.jsonl`: one JSON object per line, appended. It records that information
-about a case's answer reached the labeler BEFORE they labeled it (for example an AI assistant
-supplied the answer, or the labeler saw material that correlates the case's generator
+about a case's answer reached the labeler BEFORE they labeled it (for example an outside
+source supplied the answer, or the labeler saw material that correlates the case's generator
 template with the drafted outcome). The case need not be labeled yet. Any label on an
 exposed case, present or future, is not an independent human label: it is excluded from the
 independent count and from evaluation exactly like practice labels. Records name the kind of
 exposure only, never the answer or the drafted outcome, so the record itself leaks nothing.
 No clearing mechanism exists; re-admitting a case needs an explicit owner decision.
+
+Every record separates who made the decision (`decided_by`, or `amended_by` for amendments)
+from how the line was written to the file (`recorded_via`). Recording tooling never decides a
+label, a status or an exclusion.
 
 `<labels>.review_flags.jsonl`: open questions about an existing label for the owner to rule
 on (for example a human-vs-rule disagreement). A flag never edits the label and never changes
@@ -35,7 +42,8 @@ from typing import Any
 
 from bera.evalkit.cases import EvalCase
 
-PRACTICE = "practice_ai_assisted"
+PRACTICE = "practice_excluded"
+DEFAULT_RECORDED_VIA = "bera.evalkit.provenance"
 
 
 def provenance_path(labels: Path) -> Path:
@@ -85,8 +93,14 @@ def append_skip(labels: Path, draft_id: str, labeler: str, reason: str | None) -
         fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
-def mark_practice(labels: Path, case_id: str, recorded_by: str, reason: str) -> dict[str, Any]:
-    """Annotate the latest existing label line for `case_id` as AI-assisted practice."""
+def mark_practice(
+    labels: Path,
+    case_id: str,
+    decided_by: str,
+    reason: str,
+    recorded_via: str = DEFAULT_RECORDED_VIA,
+) -> dict[str, Any]:
+    """Annotate the latest existing label line for `case_id` as practice (excluded)."""
     lines = [x for x in labels.read_text(encoding="utf-8").splitlines() if x.strip()]
     mine = [x for x in lines if json.loads(x).get("case_id") == case_id]
     if not mine:
@@ -100,7 +114,8 @@ def mark_practice(labels: Path, case_id: str, recorded_by: str, reason: str) -> 
         "label_labeler": entry.get("labeler"),
         "excluded_from_independent_count": True,
         "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
-        "recorded_by": recorded_by,
+        "decided_by": decided_by,
+        "recorded_via": recorded_via,
         "reason": reason,
     }
     path = provenance_path(labels)
@@ -114,7 +129,12 @@ def review_flags_path(labels: Path) -> Path:
 
 
 def flag_for_review(
-    labels: Path, case_id: str, issue: str, recorded_by: str, detail: str
+    labels: Path,
+    case_id: str,
+    issue: str,
+    decided_by: str,
+    detail: str,
+    recorded_via: str = DEFAULT_RECORDED_VIA,
 ) -> dict[str, Any]:
     """Append an owner-review flag pinned to the latest label line for `case_id`."""
     lines = [x for x in labels.read_text(encoding="utf-8").splitlines() if x.strip()]
@@ -129,7 +149,8 @@ def flag_for_review(
         "label_unchanged": True,
         "affects_counts": False,
         "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
-        "recorded_by": recorded_by,
+        "decided_by": decided_by,
+        "recorded_via": recorded_via,
         "detail": detail,
     }
     with review_flags_path(labels).open("a", encoding="utf-8") as fh:
@@ -148,6 +169,7 @@ def record_ruling(
     ruled_by: str,
     note: str,
     amended: dict[str, Any] | None = None,
+    recorded_via: str = DEFAULT_RECORDED_VIA,
 ) -> dict[str, Any]:
     """Resolve an open review flag. The original label line is never edited.
 
@@ -177,6 +199,7 @@ def record_ruling(
                         "applies_to_label_sha256": pin,
                         "amended_label": amended,
                         "amended_by": ruled_by,
+                        "recorded_via": recorded_via,
                         "amended_at": now,
                         "note": note,
                     },
@@ -191,7 +214,8 @@ def record_ruling(
         "label_unchanged": True,
         "affects_counts": False,
         "recorded_at": now,
-        "recorded_by": ruled_by,
+        "decided_by": ruled_by,
+        "recorded_via": recorded_via,
         "detail": note,
     }
     with review_flags_path(labels).open("a", encoding="utf-8") as fh:
@@ -231,7 +255,13 @@ def exposed_case_ids(labels: Path) -> set[str]:
 
 
 def record_exposure(
-    labels: Path, case_id: str, kind: str, assessment: str, recorded_by: str, detail: str
+    labels: Path,
+    case_id: str,
+    kind: str,
+    assessment: str,
+    decided_by: str,
+    detail: str,
+    recorded_via: str = DEFAULT_RECORDED_VIA,
 ) -> dict[str, Any]:
     """Append an exposure record for `case_id` (labeled or not). Never include the answer."""
     existing = []
@@ -248,7 +278,8 @@ def record_exposure(
         "excluded_from_independent_count": True,
         "label_existed_when_recorded": bool(existing),
         "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
-        "recorded_by": recorded_by,
+        "decided_by": decided_by,
+        "recorded_via": recorded_via,
         "detail": detail,
     }
     path = exposures_path(labels)

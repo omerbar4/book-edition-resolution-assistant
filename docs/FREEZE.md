@@ -55,8 +55,8 @@ evaluated once. Its contents are pinned in `data/freeze/freeze_manifest.json`
 
 ## Pre-tag checklist
 
-- Disputed dev label `d02-6463d76f7e`: owner ruling recorded. It was amended, after
-  AI-assisted review, to human review with reason underspecified. The original line is
+- Disputed dev label `d02-6463d76f7e`: owner ruling recorded. It was amended, after an
+  assisted catalog-record review, to human review with reason underspecified. The original line is
   preserved and the amendment is a separate append-only record. Dev metrics and route
   evidence were refreshed (`data/eval/results/dev60_human_policy_v2_amended/metrics.json`).
 - `scripts/freeze_manifest.py verify --pre-tag` passes: clean tree, all pins match, both LLM

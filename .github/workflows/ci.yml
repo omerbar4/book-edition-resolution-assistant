@@ -39,3 +39,27 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+  attribution:
+    # Commit messages and PR descriptions carry no generated-by / co-author attribution lines.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Check commit messages and PR description
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          pattern='^co-authored-by:.*(claude|anthropic)|generated with \[?claude code|noreply@anthropic\.com'
+          bad=0
+          if git log --format='%H%n%B' "$BASE_SHA..$HEAD_SHA" | grep -Ein "$pattern"; then
+            echo "::error::a commit message contains a generated attribution line"; bad=1
+          fi
+          if printf '%s' "$PR_BODY" | grep -Ein "$pattern"; then
+            echo "::error::the PR description contains a generated attribution line"; bad=1
+          fi
+          exit "$bad"

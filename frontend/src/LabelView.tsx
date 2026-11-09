@@ -319,7 +319,7 @@ export function LabelView() {
           {item.draft_id} ({idx + 1}/{queue.total}) ·{" "}
           {item.status ?? (item.labeled ? "labeled" : "unlabeled")}
           {item.status === "practice"
-            ? " (AI-assisted practice, not counted)"
+            ? " (practice, excluded from evaluation)"
             : ""}
           {item.status === "exposed"
             ? item.labeled

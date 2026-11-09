@@ -233,7 +233,8 @@ compatibility (`conservative-rules-v2`). Report: `data/eval/results/dev60_human_
 
 ## Owner amendment and refreshed dev numbers (2026-11-07)
 
-`d02-6463d76f7e` was amended, after AI-assisted review, to human review (underspecified).
+`d02-6463d76f7e` was amended, after an assisted catalog-record review, to human review
+(underspecified).
 The original label line is preserved; the amendment is a separate record, applied at load
 time. System decisions are unchanged: same policy and same run. Recomputed with
 `scripts/refresh_dev_amended.py` into `data/eval/results/dev60_human_policy_v2_amended/`:
