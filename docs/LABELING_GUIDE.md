@@ -3,9 +3,9 @@
 Target: at least **100 (preferably 120) human-labeled cases**, plus about 60
 abstention/out-of-corpus cases. Queries are program-drafted by a deterministic template
 drafter (`drafted_by` in each queue line) and count only after a human labels them. Labeled
-rows are stored with the legacy origin value `"ai_drafted_human_labeled"`, which means
-program-drafted, human-labeled; the value is kept unchanged because existing label lines and
-their provenance records are pinned by sha256.
+rows get `origin: "program_drafted_human_labeled"`. (Before the 2026-11-09 schema migration
+this value had a different name; the migration record in
+`data/eval/migrations/20261109_program_drafted_origin/` maps every old hash to its new one.)
 
 ## Sources you may use
 
@@ -73,8 +73,9 @@ Optionally, a second labeler on 30 cases to measure agreement.
 - **Skip for now** records that a case cannot be assessed yet. It is written to
   `dev_labels.skips.jsonl`, is not a label, never reveals the proposal, and does not count.
 - **Practice labels.** `dev_labels.provenance.jsonl` annotates existing label lines without
-  editing them; each annotation is pinned by the line's sha256. dev-b01-001 and dev-b01-002
-  are marked `practice_ai_assisted`. They are kept, but excluded from the independent
+  editing them; each annotation is pinned by the line's sha256. dev-b01-001 to dev-b01-006
+  are marked `practice_excluded` (001–002 made with outside help; 003–006 reviewed with an
+  external chat assistant before saving). They are kept, but excluded from the independent
   human-label count and from evaluation. Their proposals were revealed, so they stay practice
   even if relabeled.
 - **Template notes.** Some batch-01 drafts' generator templates did not apply to their
@@ -106,7 +107,7 @@ clearing mechanism exists: re-admitting a case needs an explicit owner decision.
 
 | Cases | Exposure | Assessment |
 |---|---|---|
-| 007 | ChatGPT supplied the answer before labeling | exposed |
+| 007 | answer supplied by an external chat assistant before labeling | exposed |
 | 010, 011, 012, 016, 017, p01, p02, p03 | template ↔ drafted-outcome table; the case's template had one drafted outcome across batch 01 | exposed: the outcome is inferable from the template name |
 | p01, p02, p03 | the draft id suffix `pNN`, shown before saving, marks the draft as a probe (a separate generation type) | exposed (in addition to the row above) |
 | 007, 008, 009, 013, 014, 015 | the same table; the case's template had more than one drafted outcome | unresolved partial exposure, excluded until the owner decides |
@@ -145,8 +146,8 @@ probes; batch 01's queue and draft ids are left unchanged.
   by template or proposed outcome is deliberately not summarized anywhere a labeler would
   read before finishing.
 - **Labeler conduct for independence:** label from the query and the catalog search only. Do
-  not open the queue or manifest files, and do not consult an AI assistant or other people
-  about a case before saving. If that happens, tell the maintainer so the exposure can be
+  not open the queue or manifest files, and do not consult outside help (an assistant tool or
+  other people) about a case before saving. If that happens, tell the maintainer so the exposure can be
   recorded. A recorded exposure excludes the case from independent counts.
 
 ## Batch 03 and batch-end reveal (drafted 2026-11-07)

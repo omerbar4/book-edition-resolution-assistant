@@ -20,7 +20,7 @@ Sources:
 
 | item | value |
 |---|---|
-| labels | `data/eval/heldout/heldout_labels.jsonl`, 40/40 cases, labeler `omer`, committed unchanged (`6e2aa31`, sha256 `48978db4…`) |
+| labels | `data/eval/heldout/heldout_labels.jsonl`, 40/40 cases, labeler `omer`, committed unchanged (`6e2aa31`, sha256 `48978db4…`); this is the file that was evaluated. The 2026-11-09 schema migration renamed only its `origin` value (new sha256 `6b17914a…`; decisions and metrics verified unchanged, see `data/eval/migrations/20261109_program_drafted_origin/`) |
 | independence | owner self-report: labeled without AI assistance (`heldout_labels.provenance.jsonl`, status `independent_human_attested`, attestation `self_reported`); not independently verifiable |
 | blindness | queue served with reveal `never`. No proposal, template, stratum or agreement was ever sent to the labeling UI |
 | skips / exposures / practice / flags / amendments | 0 / 0 / 0 / 0 / 0 |
@@ -214,10 +214,11 @@ The evaluation milestone is **complete**:
 - 100 human-reviewed eligible labels (60 dev + 40 held-out), with no skipped or disputed
   held-out cases. **99 are strictly independent final labels.** The exception is the dev
   case `d02-6463d76f7e` ("Darkwoods"): its label was amended to review (underspecified)
-  after an AI-assisted review of the catalog records. The original line is preserved, and
+  after a catalog-record review in which an assistant tool, not the labeler, presented the
+  records. The original line is preserved, and
   the amendment is an append-only record. All 40 held-out labels are used exactly as saved,
-  with independence self-reported. Batch 01 (6 AI-assisted practice labels, 14 exposed
-  drafts) does not count;
+  with independence self-reported. Batch 01 (6 practice labels made with outside help, 14 drafts
+  whose answer was exposed before labeling) does not count;
 - the dev analysis is done;
 - the full system is frozen (r2);
 - the single held-out run is reported here.

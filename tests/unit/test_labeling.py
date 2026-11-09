@@ -97,7 +97,7 @@ def test_blind_first_flow(tmp_path: Path, editions: list[Any], make_resolver: An
     ).json()
     assert ok["saved"] and "proposed" in ok
     cases = load_cases(labels)
-    assert cases[0].origin == "ai_drafted_human_labeled" and cases[0].human_labeled
+    assert cases[0].origin == "program_drafted_human_labeled" and cases[0].human_labeled
     assert cases[0].split == "dev"
     assert client.get("/api/label/queue").json()["labeled"] == 1
 
@@ -328,7 +328,7 @@ def test_exposed_case_never_counts_as_independent(
     client = TestClient(create_app(settings, make_resolver(None)))
     ids = [i["draft_id"] for i in client.get("/api/label/queue").json()["items"]]
     # recorded while the case is still unlabeled
-    rec = record_exposure(labels, ids[0], "answer_supplied_by_ai", "exposed", "test", "x")
+    rec = record_exposure(labels, ids[0], "answer_supplied_externally", "exposed", "test", "x")
     assert rec["label_existed_when_recorded"] is False and exposures_path(labels).exists()
     assert not labels.exists()  # recording an exposure writes no label
 
@@ -336,7 +336,9 @@ def test_exposed_case_never_counts_as_independent(
     status = {i["draft_id"]: i["status"] for i in body["items"]}
     assert status[ids[0]] == "exposed" and status[ids[1]] == "unlabeled"
     assert body["exposed"] == 1 and body["independent"] == 0
-    assert "answer_supplied_by_ai" not in json.dumps(body)  # the record's details stay server-side
+    assert "answer_supplied_externally" not in json.dumps(
+        body
+    )  # the record's details stay server-side
 
     for i in ids[:2]:
         client.post(

@@ -3,7 +3,7 @@
 Drafts are produced by a deterministic template generator from catalog editions in
 development families, plus out-of-corpus probe books. A draft becomes an evaluation case
 only after a human labels it in the labeling UI; it is then stored with
-origin="ai_drafted_human_labeled" and the human's labeler id. Held-out drafts are written
+origin="program_drafted_human_labeled" and the human's labeler id. Held-out drafts are written
 to a separate file and are not served by the dev labeling queue.
 """
 

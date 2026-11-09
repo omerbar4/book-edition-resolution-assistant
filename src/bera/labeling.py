@@ -207,7 +207,7 @@ class LabelStore:
             gold_edition_ids=sorted(s.gold_edition_ids),
             ambiguity_reason=s.ambiguity_reason,
             family=family,
-            origin="ai_drafted_human_labeled",
+            origin="program_drafted_human_labeled",
             split=d.split,
             labeler=s.labeler,
             labeled_at=datetime.now(UTC).isoformat(timespec="seconds"),

@@ -78,13 +78,15 @@ The run used frozen tag `bera-eval-freeze-2026-11-07-r2` with policy `conservati
 | group | labels | independence |
 |---|---|---|
 | held-out | 40 | labeled blind (proposals never shown); owner self-reports no AI assistance |
-| dev, batch 02 + final | 60 | 59 used exactly as labeled. 1 (`d02-6463d76f7e`, "Darkwoods") was **amended** to human review after an **AI-assisted** review of the catalog records; the original line is preserved |
-| batch 01 | 20 drafts | **not counted**: 6 AI-assisted practice labels, 14 drafts exposed before labeling |
+| dev, batch 02 + final | 60 | 59 used exactly as labeled. 1 (`d02-6463d76f7e`, "Darkwoods") was **amended** to human review after a catalog-record review in which the records were presented to the labeler by an assistant tool; the original line is preserved |
+| batch 01 | 20 drafts | **not counted**: 6 practice labels made with outside help (excluded from evaluation), 14 drafts whose answer was exposed before labeling |
 
 All 100 counted cases were human reviewed. Strictly independent final labels number **99**
-(59 dev + 40 held-out), because the Darkwoods ruling was AI-assisted. Independence is
+(59 dev + 40 held-out), because the Darkwoods ruling followed an assisted catalog-record review. Independence is
 self-reported by the single labeler and cannot be checked externally. Sidecar files record
-provenance, exposures, skips, review flags and amendments; label lines are never edited.
+provenance, exposures, skips, review flags and amendments; label decisions are never edited
+(the 2026-11-09 schema migration renamed one stored value; see
+[data/eval/migrations/20261109_program_drafted_origin](data/eval/migrations/20261109_program_drafted_origin/)).
 
 ## Components
 

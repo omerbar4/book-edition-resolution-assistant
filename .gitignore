@@ -27,5 +27,6 @@ models/
 .vscode/
 reports/
 
-# Local editor/agent tooling
-.claude/
+# Local editor/agent tooling (only the shared project settings are tracked)
+.claude/*
+!.claude/settings.json

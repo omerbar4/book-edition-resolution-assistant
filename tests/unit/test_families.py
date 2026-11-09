@@ -61,7 +61,7 @@ def label(cid: str, expected: str, gold: list[str], family: str) -> EvalCase:
             "gold_edition_ids": gold,
             "ambiguity_reason": None if expected == "suggest" else "underspecified",
             "family": family,  # as the UI stored it (a work id for edition choices)
-            "origin": "ai_drafted_human_labeled",
+            "origin": "program_drafted_human_labeled",
             "split": "dev",
             "labeler": "ob",
         }
