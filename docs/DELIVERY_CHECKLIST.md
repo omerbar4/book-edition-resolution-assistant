@@ -35,6 +35,11 @@ cut from `main`.
 - [x] **Rebuild without dumps:** `var/catalog_v3.sqlite` rebuilds byte-identically from the
       committed corpus.
 
+- [x] **Presentation (2026-11-09, branch `presentation/package`):** a 2 min 24 s
+      labeled walkthrough (LIVE / MOCK / RECORDED) with a real local Qwen3-4B call on the
+      synthetic catalog, four screenshots, and README introduction; see
+      [presentation/README.md](presentation/README.md).
+
 ## Remaining limitations
 
 - [ ] **ML and LLM paths from a fresh checkout** need the model weights (2.5 GB,
@@ -42,7 +47,6 @@ cut from `main`.
 - [ ] **Setup coverage:** verified on macOS arm64 (local) and ubuntu-24.04 (CI) only.
       `INSTALL_ML=1` Docker images were not built.
 - [ ] **Regenerating the corpus itself** (rather than the catalog) needs the Open Library dumps.
-- [ ] **No README screenshots or recording** (optional).
 
 ## Deferred (documented)
 
