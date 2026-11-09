@@ -1,8 +1,11 @@
 # Labeling guide
 
 Target: at least **100 (preferably 120) human-labeled cases**, plus about 60
-abstention/out-of-corpus cases. AI-drafted queries count only after a human labels them, and
-they get `origin: "ai_drafted_human_labeled"`.
+abstention/out-of-corpus cases. Queries are program-drafted by a deterministic template
+drafter (`drafted_by` in each queue line) and count only after a human labels them. Labeled
+rows are stored with the legacy origin value `"ai_drafted_human_labeled"`, which means
+program-drafted, human-labeled; the value is kept unchanged because existing label lines and
+their provenance records are pinned by sha256.
 
 ## Sources you may use
 
