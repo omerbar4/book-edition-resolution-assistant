@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
-# Base images pinned by digest (re-resolved 2026-11-09 for Debian security updates).
+# Base images pinned by digest (resolved 2026-11-09). The runtime stage uses Alpine: on
+# Debian bookworm/trixie the system SQLite (used by Python's sqlite3, including FTS5 MATCH on
+# user input) and several base packages carry unfixed HIGH/CRITICAL CVEs; python:3.12-alpine
+# ships SQLite 3.53 and scanned with no HIGH/CRITICAL findings. The Node stage only builds
+# the static UI and is not shipped.
 #
 # Public-demo image: deterministic resolver + review UI over the committed Open Library corpus
 # (5,366 editions). The LLM is disabled; the catalog is built at image build time from the
@@ -12,7 +16,7 @@ RUN npm ci --no-audit --no-fund
 COPY frontend/ ./
 RUN npm run build
 
-FROM python:3.12-slim-bookworm@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df AS app
+FROM python:3.12-alpine@sha256:e064671ca452259bab50e8e2c7bd896e39e9a343bb06ca25234adf6fe18d0fc7 AS app
 ARG CORPUS_SHA256=cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464
 ARG CORPUS_EDITIONS=5366
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 UV_PYTHON_DOWNLOADS=never UV_NO_CACHE=1 \
@@ -41,7 +45,7 @@ RUN echo "${CORPUS_SHA256}  data/corpus/v3_proposed/corpus.jsonl" | sha256sum -c
 # Build tools are not needed at runtime: remove uv and pip from the final image.
 RUN python -m pip uninstall --yes --no-input uv pip && rm -rf /tmp/* /root/.cache
 COPY --from=ui /ui/dist ./frontend/dist
-RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin bera
+RUN adduser -D -H -u 10001 -s /sbin/nologin bera
 USER bera
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/ready',timeout=4)"
