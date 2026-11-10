@@ -4,7 +4,13 @@ import { visibleEscape as v } from "./visible";
 
 type FeedbackState = { kind: "confirm" | "reject"; editionId: string | null } | null;
 
-export function Result({ result }: { result: ResolveResponse }) {
+export function Result({
+  result,
+  feedbackEnabled = true,
+}: {
+  result: ResolveResponse;
+  feedbackEnabled?: boolean;
+}) {
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [fbError, setFbError] = useState<string | null>(null);
 
@@ -68,15 +74,17 @@ export function Result({ result }: { result: ResolveResponse }) {
           c={c}
           suggested={c.edition.edition_id === suggested}
           feedback={feedback}
-          onFeedback={record}
+          onFeedback={feedbackEnabled ? record : null}
         />
       ))}
 
-      <div className="actions">
-        <button type="button" className="secondary" onClick={() => record("reject", null)}>
-          None of these match
-        </button>
-      </div>
+      {feedbackEnabled && (
+        <div className="actions">
+          <button type="button" className="secondary" onClick={() => record("reject", null)}>
+            None of these match
+          </button>
+        </div>
+      )}
       {feedback && (
         <p role="status" className="ok">
           Recorded locally: {feedback.kind}
@@ -144,7 +152,7 @@ function Candidate(props: {
   c: CandidateView;
   suggested: boolean;
   feedback: FeedbackState;
-  onFeedback: (kind: "confirm" | "reject", editionId: string | null) => void;
+  onFeedback: ((kind: "confirm" | "reject", editionId: string | null) => void) | null;
 }) {
   const { c, suggested, feedback, onFeedback } = props;
   const e = c.edition;
@@ -195,6 +203,7 @@ function Candidate(props: {
           ))}
         </tbody>
       </table>
+      {onFeedback && (
       <div className="actions">
         <button
           type="button"
@@ -212,6 +221,7 @@ function Candidate(props: {
           Reject
         </button>
       </div>
+      )}
     </article>
   );
 }

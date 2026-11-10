@@ -112,6 +112,25 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 export const resolveQuery = (q: QueryInput) => post<ResolveResponse>("/api/resolve", q);
 
+export interface AppInfo {
+  publicDemo: boolean;
+  openLibrary: boolean;
+}
+
+export async function getAppInfo(): Promise<AppInfo> {
+  const res = await fetch("/api/health");
+  if (!res.ok) throw new Error(`${res.status}`);
+  const j = (await res.json()) as {
+    public_demo?: unknown;
+    catalog_meta?: { sources?: unknown };
+  };
+  const sources = typeof j.catalog_meta?.sources === "string" ? j.catalog_meta.sources : "";
+  return {
+    publicDemo: j.public_demo === true,
+    openLibrary: sources.split(",").some((s) => s.startsWith("openlibrary")),
+  };
+}
+
 export const sendFeedback = (
   request_id: string,
   edition_id: string | null,

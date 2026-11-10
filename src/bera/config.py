@@ -1,4 +1,10 @@
-"""Runtime settings from environment variables. Defaults are safe: no LLM, local files only."""
+"""Runtime settings from environment variables. Defaults are safe: no LLM, local files only.
+
+`BERA_PUBLIC_DEMO=1` switches on the public-demo profile: LLM must stay disabled, the API docs,
+feedback, trace-summary and labeling routes are not mounted, nothing is written to disk, the
+catalog is opened read-only and must match `BERA_EXPECTED_CATALOG_SHA256` and
+`BERA_EXPECTED_EDITIONS`, and HSTS / Permissions-Policy headers are added.
+"""
 
 from __future__ import annotations
 
@@ -21,6 +27,14 @@ class Settings:
     labels_path: Path | None = None
     label_allow_heldout: bool = False
     llm_route_evidence: Path | None = None  # frozen dev route evidence; None = gate closed
+    public_demo: bool = False
+    expected_catalog_sha256: str | None = None  # sha256 of the corpus the catalog was built from
+    expected_editions: int | None = None
+    rate_limit_per_minute: int = 30
+    rate_limit_burst: int = 10
+    trusted_proxy_hops: int = (
+        0  # 0 = use the TCP peer; N = N-th X-Forwarded-For entry from the right
+    )
 
     @property
     def trace_db(self) -> Path:
@@ -38,6 +52,8 @@ class Settings:
             raise ValueError(
                 f"unsupported BERA_LLM_PROVIDER={provider!r} (allowed: none, mock, openai_compat)"
             )
+        public_demo = os.environ.get("BERA_PUBLIC_DEMO", "0").strip() == "1"
+        expected_editions = os.environ.get("BERA_EXPECTED_EDITIONS")
         return cls(
             var_dir=var_dir,
             catalog_db=Path(os.environ.get("BERA_CATALOG_DB", var_dir / "catalog.sqlite")),
@@ -55,4 +71,27 @@ class Settings:
             llm_route_evidence=Path(r)
             if (r := os.environ.get("BERA_LLM_ROUTE_EVIDENCE"))
             else None,
+            public_demo=public_demo,
+            expected_catalog_sha256=os.environ.get("BERA_EXPECTED_CATALOG_SHA256") or None,
+            expected_editions=int(expected_editions) if expected_editions else None,
+            rate_limit_per_minute=int(os.environ.get("BERA_RATE_LIMIT_PER_MINUTE", "30")),
+            rate_limit_burst=int(os.environ.get("BERA_RATE_LIMIT_BURST", "10")),
+            trusted_proxy_hops=int(os.environ.get("BERA_TRUSTED_PROXY_HOPS", "0")),
         )
+
+    def public_demo_problems(self) -> list[str]:
+        """Configuration errors that make the public-demo profile unsafe (empty = ok)."""
+        if not self.public_demo:
+            return []
+        problems = []
+        if self.llm_provider != "none":
+            problems.append("the LLM must stay disabled (BERA_LLM_PROVIDER=none)")
+        if self.label_queue is not None:
+            problems.append("labeling must not be enabled (unset BERA_LABEL_QUEUE)")
+        if not self.expected_catalog_sha256:
+            problems.append("BERA_EXPECTED_CATALOG_SHA256 is required")
+        if not self.expected_editions:
+            problems.append("BERA_EXPECTED_EDITIONS is required")
+        if self.trusted_proxy_hops < 0:
+            problems.append("BERA_TRUSTED_PROXY_HOPS must be >= 0")
+        return problems

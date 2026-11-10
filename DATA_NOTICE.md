@@ -7,9 +7,22 @@ Every title, author, publisher and record is invented for engineering tests. ISB
 computed to be checksum-valid and **may coincide with real assigned ISBNs**; these records do
 not describe those books. Licensed MIT with the code.
 
-## Open Library data (planned, not yet downloaded)
+## Open Library data (corpus v3_proposed, built 2026-11-04)
 
-What the primary sources say, quoted or paraphrased as of 2026-11-03:
+**What is used.** The catalog is built from the dated Open Library dump `ol_dump_2026-10-31`
+(editions, authors and redirects files; the works dump was not used). The derived corpus is
+committed as `data/corpus/v3_proposed/corpus.jsonl` (5,366 editions; sha256
+`cdabcf84712f29c104c11cc3e4bb640b00486ab55529ab94917666ef2e609464`). The raw dumps were
+deleted after two byte-identical builds; see [docs/DATA_CARD.md](docs/DATA_CARD.md). The
+public-demo container builds its read-only catalog from exactly this file and refuses to
+start if the sha256 or edition count differs.
+
+**Fields kept.** Only a small derived subset of factual fields: ids, title, subtitle,
+authors, publishers, dates, format, pages, ISBNs, languages, edition name, series and
+translation_of. Descriptions, excerpts, notes, tables of contents and cover images are
+excluded (they are more likely to contain copyrightable prose or images).
+
+**What the primary sources say** (quoted or paraphrased as of 2026-11-03):
 
 - Licensing page (<https://openlibrary.org/developers/licensing>): the Internet Archive "does
   not assert any new copyright or other proprietary rights" over the database, and "there may
@@ -24,19 +37,18 @@ What the primary sources say, quoted or paraphrased as of 2026-11-03:
 
 **Our reading:** the catalog is *intended* to be public domain / CC0, but the dump files carry
 no license statement and Open Library warns that some records may carry rights issues. We do
-**not** claim "the dump is CC0". Planned practice:
+**not** claim "the dump is CC0".
 
-- redistribute only a small derived subset of factual fields (ids, title, subtitle, authors,
-  publishers, dates, format, pages, ISBNs, languages, edition name, series, translation_of);
-- exclude descriptions, excerpts, notes, tables of contents and cover images (more likely to
-  contain copyrightable prose or images);
-- attribute Open Library, link the dated source dump with checksums, disclaim warranty, and
-  remove records on request.
+**Attribution and requests.** Catalog data: Open Library (Internet Archive),
+<https://openlibrary.org/>, dump `ol_dump_2026-10-31`. The public demo shows this attribution
+in its footer. The data is provided as is, without warranty; records may be incomplete or
+wrong. To request removal or correction of a record, open an issue in the project repository.
 
 API usage rules (<https://openlibrary.org/developers/api>) prohibit bulk harvesting through the
-API; the corpus will be built from the monthly dumps only.
+API; the corpus was built from the monthly dumps only.
 
 ## Human labels and feedback
 
-Benchmark labels written by the project author will be MIT-licensed. Local confirm/reject
-feedback (`var/traces.sqlite`) is never committed and never mixed into benchmark labels.
+Benchmark labels written by the project author are MIT-licensed. Local confirm/reject
+feedback (`var/traces.sqlite`) is never committed and never mixed into benchmark labels. The
+public-demo profile stores no traces, feedback or query text at all.

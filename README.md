@@ -134,10 +134,16 @@ needs owner-approved downloads (see MODEL_NOTICE.md, DATA_NOTICE.md and
 .tools/venv/bin/uv run python scripts/fetch_models.py --approved-by-owner
 ```
 
-Docker (API + UI; LLM off by default; weights never baked in). `compose.yaml` binds to
-127.0.0.1:8000 and runs as uid 10001 with a read-only root filesystem and
-`no-new-privileges`. Verified 2026-11-08 from a clean clone with no layer cache: healthy,
-UI 200 with CSP, and 6/6 demo cases.
+Docker runs the **public-demo profile** (`BERA_PUBLIC_DEMO=1`): API + UI over the committed
+Open Library corpus (5,366 editions), built into the image at build time, sha256-checked and
+opened read-only; the LLM is disabled and weights are never baked in. API docs, feedback,
+trace-summary and labeling routes are not mounted (404); `/api/*` is rate-limited per client;
+requests over 16 KB are refused even without a Content-Length header; HSTS and
+Permissions-Policy are added; nothing is written to disk except `/tmp`. `/api/health` is
+liveness and `/api/ready` checks the catalog against the expected corpus. `compose.yaml` binds
+to 127.0.0.1:8000 and runs as uid 10001 with a read-only root filesystem, a `/tmp` tmpfs,
+`no-new-privileges` and all capabilities dropped. (The 2026-11-08 verification in
+SETUP_VERIFICATION.md predates this profile and used the synthetic catalog.)
 
 ```bash
 docker compose up --build

@@ -62,6 +62,10 @@ function response(over: Partial<ResolveResponse> = {}): ResolveResponse {
   };
 }
 
+function health(publicDemo: boolean, sources: string): Response {
+  return new Response(JSON.stringify({ public_demo: publicDemo, catalog_meta: { sources } }));
+}
+
 describe("buildQuery", () => {
   it("drops empty fields and parses year", () => {
     expect(buildQuery({ title: "  Salt Roads ", author: "", publish_year: "2009" })).toEqual({
@@ -81,6 +85,7 @@ describe("App", () => {
   it("renders untrusted catalog text as inert text and supports local feedback", async () => {
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url === "/api/label/enabled") return new Response(JSON.stringify({ enabled: false }));
+      if (url === "/api/health") return health(false, "synthetic-fixture-v1");
       if (url === "/api/resolve") return new Response(JSON.stringify(response()), { status: 200 });
       if (url === "/api/feedback") {
         const body = JSON.parse(String(init?.body));
@@ -102,9 +107,52 @@ describe("App", () => {
     expect(screen.getByText(/synthetic fixture/)).toBeTruthy();
     expect(screen.getByText(/Record has suspicious characters/)).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Confirm this edition" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Confirm this edition" }));
     await waitFor(() => expect(screen.getByText(/Recorded locally: confirm SYN-E0013/)).toBeTruthy());
-    expect(fetchMock.mock.calls.filter(([u]) => u !== "/api/label/enabled")).toHaveLength(2);
+    expect(
+      fetchMock.mock.calls.filter(([u]) => u !== "/api/label/enabled" && u !== "/api/health"),
+    ).toHaveLength(2);
+  });
+
+  it("public demo: shows the demo label, disclaimer and attribution, and hides feedback", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === "/api/label/enabled") return new Response("{}", { status: 404 });
+      if (url === "/api/health") return health(true, "openlibrary-dump-2026-10-31");
+      if (url === "/api/resolve") return new Response(JSON.stringify(response()), { status: 200 });
+      throw new Error(`unexpected fetch ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+    expect(await screen.findByText("Public demo")).toBeTruthy();
+    expect(screen.getByTestId("disclaimer").textContent).toContain(
+      "A human reviewer makes the final decision.",
+    );
+    expect(screen.getByTestId("disclaimer").textContent).toContain("Decision support only.");
+    await waitFor(() =>
+      expect(screen.getByTestId("attribution").textContent).toContain("Open Library"),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Resolve" }));
+    await screen.findByText("Needs human review");
+    expect(screen.queryByRole("button", { name: "Confirm this edition" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Reject" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "None of these match" })).toBeNull();
+    expect(fetchMock.mock.calls.some(([u]) => u === "/api/feedback")).toBe(false);
+    expect(fetchMock.mock.calls.some(([u]) => u === "/api/label/enabled")).toBe(false);
+  });
+
+  it("hides feedback when the server mode is unknown (health unavailable)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url === "/api/resolve") return new Response(JSON.stringify(response()), { status: 200 });
+        return new Response("{}", { status: 503 });
+      }),
+    );
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Resolve" }));
+    await screen.findByText("Needs human review");
+    expect(screen.queryByRole("button", { name: "Confirm this edition" })).toBeNull();
+    expect(screen.queryByText("Public demo")).toBeNull();
   });
 
   it("shows API errors without crashing", async () => {

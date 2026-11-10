@@ -1,19 +1,14 @@
 # Local only. Binds to 127.0.0.1. No secrets, no external services.
-# Default: LLM disabled -> ambiguous cases go to human review with reason llm_disabled.
-# To use a host llama-server (Metal, run natively): set BERA_LLM_PROVIDER=openai_compat,
-# BERA_LLM_BASE_URL=http://host.docker.internal:8080/v1 and BERA_LLM_MODEL.
+# The image runs the public-demo profile (BERA_PUBLIC_DEMO=1): Open Library catalog built into
+# the image and opened read-only, LLM disabled, no docs/feedback/labeling routes, rate limit,
+# nothing written to disk (only /tmp, a tmpfs here).
+# For local LLM experiments run the app outside this image (see README); the public-demo
+# profile refuses to start with an LLM provider configured.
 services:
   bera:
     build: .
     ports: ["127.0.0.1:8000:8000"]
-    environment:
-      BERA_LLM_PROVIDER: ${BERA_LLM_PROVIDER:-none}
-      BERA_LLM_BASE_URL: ${BERA_LLM_BASE_URL:-http://host.docker.internal:8080/v1}
-      BERA_LLM_MODEL: ${BERA_LLM_MODEL:-}
-    volumes:
-      - bera-var:/var/bera
     read_only: true
     tmpfs: ["/tmp"]
     security_opt: ["no-new-privileges:true"]
-volumes:
-  bera-var:
+    cap_drop: ["ALL"]
